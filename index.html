@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minh Shyang to Pantone Color Matcher</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --light-text: #888888;
+            --border-color: #dddddd;
+            --hover-color: #f0f0f0;
+            --alternative-bg: #f9f9f9;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #61dafb;
+            --background-color: #1a1a1a;
+            --card-background: #2d2d2d;
+            --text-color: #f0f0f0;
+            --secondary-text: #cccccc;
+            --light-text: #aaaaaa;
+            --border-color: #444444;
+            --hover-color: #3d3d3d;
+            --alternative-bg: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2em;
+            flex: 1;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .theme-icon {
+            margin: 0 8px;
+            font-size: 18px;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-box h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .color-card {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .color-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .color-swatch {
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-info {
+            text-align: center;
+        }
+
+        .color-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary-color);
+        }
+
+        .color-match {
+            color: var(--secondary-text);
+            font-size: 0.95em;
+            margin-top: 8px;
+        }
+
+        .match-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            grid-column: 1 / -1;
+            background: var(--card-background);
+            border-radius: 8px;
+            color: var(--secondary-text);
+            font-size: 1.1em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            grid-column: 1 / -1;
+            color: var(--secondary-text);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .pagination button:hover {
+            background: var(--hover-color);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .color-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+            background-color: var(--alternative-bg);
+        }
+
+        .rgb-value {
+            font-size: 0.8em;
+            color: var(--light-text);
+            margin-top: 4px;
+        }
+
+        .alternatives-section {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .alternatives-title {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .color-match.alternative {
+            margin-top: 6px;
+            padding: 4px 6px;
+            background-color: var(--alternative-bg);
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+                text-align: center;
+                flex: 100%;
+            }
+            
+            .header {
+                justify-content: center;
+            }
+            
+            .theme-switch-wrapper {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Minh Shyang to Pantone Color Matcher</h1>
+            <div class="theme-switch-wrapper">
+                <span class="theme-icon">☀️</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">🌙</span>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <h2>Search by Thread Code or Pantone Color</h2>
+                <input type="text" id="colorSearch" placeholder="Enter thread code (e.g., D538) or Pantone color (e.g., 186 C)">
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="loading">Loading color data...</div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button id="prevPage" disabled>Previous</button>
+            <button id="nextPage">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let threadData = [];
+        let pantoneData = [];
+        let pantoneToThreadData = [];
+        let allColors = [];
+        let currentPage = 1;
+        let itemsPerPage = 24;
+        let filteredColors = [];
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Check for saved theme preference or use preferred color scheme
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        } else if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.checked = false;
+        } else if (prefersDarkScheme.matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+        
+        // Listen for toggle changes
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        async function loadColorData() {
+            try {
+                // Load thread data
+                const threadResponse = await fetch('Reformatted_Embroidery_Thread_Data.csv');
+                const threadCsvText = await threadResponse.text();
+                const threadLines = threadCsvText.split('\n');
+                
+                threadData = threadLines.slice(1).filter(line => line.trim()).map(line => {
+                    const values = line.split(',');
+                    return {
+                        type: 'thread',
+                        code: values[0],
+                        rgb: {
+                            r: parseInt(values[1]),
+                            g: parseInt(values[2]),
+                            b: parseInt(values[3])
+                        }
+                    };
+                });
+                console.log(`Loaded ${threadData.length} thread colors`);
+                
+                // Load Pantone colors
+                const pantoneResponse = await fetch('all_pantone_colors_with_rgb.json');
+                const pantoneJson = await pantoneResponse.json();
+                
+                pantoneData = pantoneJson.pantone_colors.map(color => {
+                    return {
+                        type: 'pantone',
+                        code: color.name.trim(),
+                        rgb: {
+                            r: color.rgb.r,
+                            g: color.rgb.g,
+                            b: color.rgb.b
+                        }
+                    };
+                });
+                console.log(`Loaded ${pantoneData.length} Pantone colors`);
+                
+                // Load Pantone to thread matches
+                const matchesResponse = await fetch('matched_Pantone_to_embroidery_threads.csv');
+                const matchesCsvText = await matchesResponse.text();
+                const matchesLines = matchesCsvText.split('\n');
+                
+                pantoneToThreadData = matchesLines.slice(1).filter(line => line.trim()).map(line => {
+                    // Handle CSV parsing more carefully
+                    // First split by commas that are not inside quotes
+                    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                    const values = line.split(regex);
+                    
+                    if (values.length < 5) {
+                        console.warn('Invalid line format:', line);
+                        return null;
+                    }
+                    
+                    // Parse RGB values from strings like "(r, g, b)"
+                    const pantoneRgbStr = values[1].replace(/[()"\s]/g, '').split(',');
+                    const threadRgbStr = values[3].replace(/[()"\s]/g, '').split(',');
+                    
+                    return {
+                        pantoneCode: values[0].replace(/"/g, '').trim(),
+                        pantoneRgb: {
+                            r: parseInt(pantoneRgbStr[0]),
+                            g: parseInt(pantoneRgbStr[1]),
+                            b: parseInt(pantoneRgbStr[2])
+                        },
+                        threadCode: values[2].replace(/"/g, '').trim(),
+                        threadRgb: {
+                            r: parseInt(threadRgbStr[0]),
+                            g: parseInt(threadRgbStr[1]),
+                            b: parseInt(threadRgbStr[2])
+                        },
+                        distance: parseFloat(values[4])
+                    };
+                }).filter(item => item !== null);
+                console.log(`Loaded ${pantoneToThreadData.length} Pantone to thread matches`);
+                
+                // Combine thread and pantone data
+                allColors = [...threadData, ...pantoneData];
+                console.log(`Combined ${allColors.length} total colors`);
+                
+                // Enhance thread data with pantone matches and alternatives
+                threadData.forEach(thread => {
+                    // Find all pantone matches for this thread
+                    const matches = pantoneToThreadData
+                        .filter(m => m.threadCode === thread.code)
+                        .sort((a, b) => a.distance - b.distance);
+                    
+                    if (matches.length > 0) {
+                        // Primary match
+                        const primaryMatch = matches[0];
+                        thread.matchCode = primaryMatch.pantoneCode;
+                        thread.matchRgb = primaryMatch.pantoneRgb;
+                        thread.distance = primaryMatch.distance;
+                        
+                        // Alternative matches (if any)
+                        if (matches.length > 1) {
+                            thread.alternativeMatches = matches.slice(1, 3).map(m => ({
+                                code: m.pantoneCode,
+                                rgb: m.pantoneRgb,
+                                distance: m.distance
+                            }));
+                        }
+                    } else {
+                        // If no exact match, find closest pantone colors by RGB distance
+                        thread.alternativeMatches = findClosestColors(thread, pantoneData, 2);
+                    }
+                });
+                
+                // Enhance pantone data with thread matches and alternatives
+                pantoneData.forEach(pantone => {
+                    // Find the thread match for this pantone
+                    const match = pantoneToThreadData.find(m => m.pantoneCode === pantone.code);
+                    
+                    if (match) {
+                        pantone.matchCode = match.threadCode;
+                        pantone.matchRgb = match.threadRgb;
+                        pantone.distance = match.distance;
+                        
+                        // Find alternative thread matches
+                        pantone.alternativeMatches = findClosestColors(pantone, threadData, 2, [match.threadCode]);
+                    } else {
+                        // If no exact match, find closest thread colors by RGB distance
+                        pantone.alternativeMatches = findClosestColors(pantone, threadData, 2);
+                    }
+                });
+                
+                // Display all colors initially
+                filteredColors = allColors;
+                displayColors(filteredColors, currentPage);
+            } catch (error) {
+                console.error('Error loading color data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading color data: ${error.message}</div>`;
+            }
+        }
+
+        // Calculate RGB distance between two colors
+        function rgbDistance(color1, color2) {
+            const dr = color1.rgb.r - color2.rgb.r;
+            const dg = color1.rgb.g - color2.rgb.g;
+            const db = color1.rgb.b - color2.rgb.b;
+            return Math.sqrt(dr*dr + dg*dg + db*db);
+        }
+        
+        // Find closest colors by RGB distance
+        function findClosestColors(sourceColor, targetColors, count = 2, excludeCodes = []) {
+            return targetColors
+                .filter(color => !excludeCodes.includes(color.code))
+                .map(color => ({
+                    code: color.code,
+                    rgb: color.rgb,
+                    distance: rgbDistance(sourceColor, color)
+                }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, count);
+        }
+
+        function displayColors(colors, page = 1) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            if (colors.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-results">No colors found</div>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            // Calculate pagination
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, colors.length);
+            const pageColors = colors.slice(startIndex, endIndex);
+            
+            // Update pagination controls
+            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('prevPage').disabled = page === 1;
+            document.getElementById('nextPage').disabled = endIndex >= colors.length;
+
+            pageColors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'color-card';
+                
+                const colorRGB = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`;
+                
+                // Primary match HTML
+                let matchHTML = '';
+                if (color.matchCode) {
+                    const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
+                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
+                    matchHTML = `
+                        <div class="color-match">
+                            <span class="match-swatch" style="background-color: ${matchRGB}"></span>
+                            ${matchType}: ${color.matchCode}
+                            <div class="rgb-value">Distance: ${color.distance ? color.distance.toFixed(2) : 'N/A'}</div>
+                        </div>
+                    `;
+                }
+                
+                // Alternative matches HTML
+                let alternativesHTML = '';
+                if (color.alternativeMatches && color.alternativeMatches.length > 0) {
+                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
+                    alternativesHTML = `
+                        <div class="alternatives-section">
+                            <div class="alternatives-title">Alternative ${matchType} Matches:</div>
+                            ${color.alternativeMatches.map(alt => `
+                                <div class="color-match alternative">
+                                    <span class="match-swatch" style="background-color: rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})"></span>
+                                    ${alt.code}
+                                    <div class="rgb-value">Distance: ${alt.distance.toFixed(2)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                colorDiv.innerHTML = `
+                    <div class="color-swatch" style="background-color: ${colorRGB}"></div>
+                    <div class="color-info">
+                        <div class="color-name">
+                            ${color.code}
+                            <span class="color-type">${color.type === 'thread' ? 'Thread' : 'Pantone'}</span>
+                        </div>
+                        <div class="rgb-value">RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}</div>
+                        ${matchHTML}
+                        ${alternativesHTML}
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(colorDiv);
+            });
+        }
+
+        document.getElementById('colorSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                filteredColors = allColors;
+            } else {
+                filteredColors = allColors.filter(color => 
+                    color.code.toLowerCase().includes(searchTerm) || 
+                    (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            currentPage = 1;
+            displayColors(filteredColors, currentPage);
+        });
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayColors(filteredColors, currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage * itemsPerPage < filteredColors.length) {
+                currentPage++;
+                displayColors(filteredColors, currentPage);
+            }
+        });
+
+        window.addEventListener('load', loadColorData);
+    </script>
+</body>
+</html> 
