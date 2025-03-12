@@ -288,6 +288,20 @@
             font-weight: 600;
         }
 
+        .match-method {
+            font-size: 0.85em;
+            color: var(--secondary-text);
+            margin-top: 5px;
+            padding: 2px 6px;
+            background-color: var(--alternative-bg);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .high-match {
+            color: #2ecc71;
+        }
+
         .hex-value {
             font-family: monospace;
             font-size: 0.9em;
@@ -465,6 +479,7 @@
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.3s, transform 0.3s;
+            border: 1px solid var(--border-color);
         }
 
         .status-indicator.visible {
@@ -509,6 +524,93 @@
             .theme-switch-wrapper {
                 margin-top: 10px;
             }
+        }
+
+        .color-match-method {
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--alternative-bg);
+            border-radius: 6px;
+            width: 100%;
+        }
+        
+        .color-match-method > span {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            margin-bottom: 8px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .radio-label:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .radio-label input[type="radio"] {
+            margin: 0;
+        }
+        
+        .radio-label span {
+            font-size: 0.9em;
+        }
+        
+        .method-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--alternative-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .method-icon {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .method-text {
+            font-size: 1em;
+            color: var(--text-color);
+        }
+        
+        .method-text strong {
+            color: var(--primary-color);
+        }
+        
+        .banner-container {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        #results-container {
+            width: 100%;
         }
     </style>
 </head>
@@ -562,10 +664,25 @@
                     </svg>
                     Find Matches
                 </button>
+                <div class="color-match-method">
+                    <span>Matching Method:</span>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="colorMatchMethod" value="rgb" checked>
+                            <span>RGB (Basic)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="colorMatchMethod" value="lab">
+                            <span>CIELAB (Perceptual)</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div id="results" class="results"></div>
+        <div id="results-container">
+            <div id="results" class="results"></div>
+        </div>
         
         <div id="pagination">
             <button id="prevPage">
@@ -617,51 +734,33 @@
         const itemsPerPage = 10;
         let filteredColors = [];
 
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        
-        // Function to check if it's nighttime (between 6 PM and 6 AM)
-        function isNighttime() {
-            const hour = new Date().getHours();
-            return hour >= 18 || hour < 6;
-        }
-        
-        // Function to update theme based on time
-        function updateThemeBasedOnTime() {
-            const shouldBeDark = isNighttime();
-            const currentTheme = localStorage.getItem('theme');
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
             
-            // Only update if user hasn't manually set a preference
-            if (!currentTheme) {
-                document.documentElement.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light');
-                themeToggle.checked = shouldBeDark;
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Set initial theme
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.checked = true;
             }
-        }
-        
-        // Check for saved theme preference or use time-based theme
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        const currentTheme = localStorage.getItem('theme');
-        
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.checked = true;
-        } else if (currentTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            themeToggle.checked = false;
-        } else {
-            // No saved preference, use time-based theme
-            updateThemeBasedOnTime();
-        }
-        
-        // Listen for toggle changes
-        themeToggle.addEventListener('change', function(e) {
-            const newTheme = e.target.checked ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            
+            // Handle theme toggle
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // Load color data
+            loadColorData();
         });
-        
-        // Update theme every minute
-        setInterval(updateThemeBasedOnTime, 60000);
         
         async function loadColorData() {
             showStatus('Loading thread data...', true);
@@ -861,7 +960,14 @@
 
         function displayColors(colors, page = 1) {
             const resultsDiv = document.getElementById('results');
+            const resultsContainer = document.getElementById('results-container');
             resultsDiv.innerHTML = '';
+            
+            // Remove any existing banner
+            const existingBanner = document.querySelector('.banner-container');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
             
             if (colors.length === 0) {
                 resultsDiv.innerHTML = '<div class="no-results">No colors found</div>';
@@ -881,6 +987,30 @@
             
             // Show status with count
             showStatus(`Showing ${startIndex + 1}-${endIndex} of ${colors.length} colors`, false);
+            
+            // If we're displaying a custom color, show the matching method at the top
+            if (pageColors.length === 1 && pageColors[0].type === 'custom' && pageColors[0].matchMethod) {
+                const methodBanner = document.createElement('div');
+                methodBanner.className = 'method-banner';
+                methodBanner.innerHTML = `
+                    <div class="method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="method-text">
+                        Using <strong>${pageColors[0].matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</strong> color matching method
+                    </div>
+                `;
+                
+                // Create a container for the banner that's outside the grid
+                const bannerContainer = document.createElement('div');
+                bannerContainer.className = 'banner-container';
+                bannerContainer.appendChild(methodBanner);
+                resultsContainer.insertBefore(bannerContainer, resultsDiv);
+            }
 
             pageColors.forEach(color => {
                 const colorDiv = document.createElement('div');
@@ -892,11 +1022,15 @@
                 // Primary match HTML
                 let matchHTML = '';
                 if (color.matchCode) {
+                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
                     const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
                     const matchHex = rgbToHex(color.matchRgb.r, color.matchRgb.g, color.matchRgb.b);
-                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
-                    const similarity = color.distance ? (100 - Math.min(color.distance, 100)).toFixed(1) : 'N/A';
+                    const similarity = (100 - Math.min(color.distance, 100)).toFixed(1);
                     const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
+                    
+                    // Display the matching method if it's a custom color
+                    const matchMethodHTML = color.matchMethod ? 
+                        `<div class="match-method">Method: ${color.matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</div>` : '';
                     
                     matchHTML = `
                         <div class="color-match">
@@ -909,6 +1043,7 @@
                                     <span class="similarity-label">Similarity:</span>
                                     <span class="similarity-value">${similarity}%</span>
                                 </div>
+                                ${matchMethodHTML}
                             </div>
                         </div>
                     `;
@@ -1019,11 +1154,14 @@
                 const normalizedHex = normalizeHexColor(hexCode);
                 const rgb = hexToRgb(normalizedHex);
                 
-                // Find closest Pantone colors
-                const closestPantoneColors = findClosestColorsToHex(normalizedHex, pantoneData, 3);
+                // Get the selected color matching method
+                const colorMatchMethod = document.querySelector('input[name="colorMatchMethod"]:checked').value;
                 
-                // Find closest thread colors
-                const closestThreadColors = findClosestColorsToHex(normalizedHex, threadData, 3);
+                // Find closest Pantone colors using the selected method
+                const closestPantoneColors = findClosestColorsToHex(normalizedHex, pantoneData, 3, colorMatchMethod);
+                
+                // Find closest thread colors using the selected method
+                const closestThreadColors = findClosestColorsToHex(normalizedHex, threadData, 3, colorMatchMethod);
                 
                 // Create a custom color object with matches
                 const customColor = {
@@ -1033,6 +1171,7 @@
                     matchCode: closestPantoneColors[0].code,
                     matchRgb: closestPantoneColors[0].rgb,
                     distance: closestPantoneColors[0].distance,
+                    matchMethod: colorMatchMethod, // Store the method used for matching
                     alternativeMatches: [
                         ...closestPantoneColors.slice(1).map(c => ({...c, type: 'pantone'})),
                         ...closestThreadColors.map(c => ({...c, type: 'thread'}))
@@ -1043,6 +1182,9 @@
                 filteredColors = [customColor];
                 currentPage = 1;
                 displayColors(filteredColors, currentPage);
+                
+                // Show a status message about the matching method used
+                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 6000);
             }
         });
 
@@ -1074,28 +1216,92 @@
             }).join('').toUpperCase();
         }
         
-        function calculateColorDistance(rgb1, rgb2) {
+        // RGB to CIELAB conversion functions
+        function rgbToXyz(rgb) {
+            // Convert RGB to normalized values
+            let r = rgb.r / 255;
+            let g = rgb.g / 255;
+            let b = rgb.b / 255;
+            
+            // Apply gamma correction
+            r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+            g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+            b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+            
+            // Convert to XYZ color space
+            const x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+            const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+            const z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+            
+            return { x: x * 100, y: y * 100, z: z * 100 };
+        }
+        
+        function xyzToLab(xyz) {
+            // Reference values for D65 standard illuminant
+            const xRef = 95.047;
+            const yRef = 100.0;
+            const zRef = 108.883;
+            
+            // Normalize XYZ values
+            let x = xyz.x / xRef;
+            let y = xyz.y / yRef;
+            let z = xyz.z / zRef;
+            
+            // Apply transformation
+            x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+            y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+            z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+            
+            const L = (116 * y) - 16;
+            const a = 500 * (x - y);
+            const b = 200 * (y - z);
+            
+            return { L, a, b };
+        }
+        
+        function rgbToLab(rgb) {
+            const xyz = rgbToXyz(rgb);
+            return xyzToLab(xyz);
+        }
+        
+        function calculateLabDistance(lab1, lab2) {
+            // Calculate Euclidean distance in CIELAB color space
             return Math.sqrt(
-                Math.pow(rgb1.r - rgb2.r, 2) +
-                Math.pow(rgb1.g - rgb2.g, 2) +
-                Math.pow(rgb1.b - rgb2.b, 2)
+                Math.pow(lab1.L - lab2.L, 2) +
+                Math.pow(lab1.a - lab2.a, 2) +
+                Math.pow(lab1.b - lab2.b, 2)
             );
         }
         
-        function findClosestColorsToHex(hexCode, colorData, limit = 3) {
+        function calculateColorDistance(rgb1, rgb2, method = 'rgb') {
+            if (method === 'lab') {
+                const lab1 = rgbToLab(rgb1);
+                const lab2 = rgbToLab(rgb2);
+                return calculateLabDistance(lab1, lab2);
+            } else {
+                // Default RGB Euclidean distance
+                return Math.sqrt(
+                    Math.pow(rgb1.r - rgb2.r, 2) +
+                    Math.pow(rgb1.g - rgb2.g, 2) +
+                    Math.pow(rgb1.b - rgb2.b, 2)
+                );
+            }
+        }
+        
+        function findClosestColorsToHex(hexCode, colorData, limit = 3, method = 'rgb') {
             const targetRgb = hexToRgb(hexCode);
             
             return colorData
                 .map(color => ({
                     ...color,
-                    distance: calculateColorDistance(targetRgb, color.rgb)
+                    distance: calculateColorDistance(targetRgb, color.rgb, method)
                 }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, limit);
         }
 
         // Function to show status indicator
-        function showStatus(message, isLoading = false) {
+        function showStatus(message, isLoading = false, duration = 3000) {
             const statusIndicator = document.querySelector('.status-indicator');
             const statusDot = statusIndicator.querySelector('.status-dot');
             const statusText = statusIndicator.querySelector('.status-text');
@@ -1110,11 +1316,11 @@
             
             statusIndicator.classList.add('visible');
             
-            // Hide status after 3 seconds if not loading
+            // Hide status after specified duration if not loading
             if (!isLoading) {
                 setTimeout(() => {
                     statusIndicator.classList.remove('visible');
-                }, 3000);
+                }, duration);
             }
         }
 
@@ -1145,6 +1351,20 @@
             
             // Load color data
             loadColorData();
+            
+            // Set up the color matching method radio buttons
+            const colorMatchMethodRadios = document.querySelectorAll('input[name="colorMatchMethod"]');
+            colorMatchMethodRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (filteredColors.length === 1 && filteredColors[0].type === 'custom') {
+                        // Show a status message about the matching method change
+                        showStatus(`Switching to ${this.value === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 3000);
+                        
+                        // Trigger the hex submit button click to refresh the results
+                        document.getElementById('hexSubmit').click();
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -10,18 +10,24 @@ A web-based tool for matching Minh Shyang 100% Polyester Embroidery Thread color
 - **Comprehensive Color Database**: 
   - 1,800+ Minh Shyang 100% Polyester Embroidery Thread colors
   - 2,100+ Pantone Solid Coated colors with RGB values
+- **Hex Color Input**: Find matches for any color by entering a hex code
+- **Multiple Matching Methods**:
+  - RGB (Basic): Simple Euclidean distance in RGB color space
+  - CIELAB (Perceptual): Advanced matching using perceptually uniform color space
 - **Alternative Matches**: Shows up to 2 alternative matches when an exact match isn't available
 - **Color Visualization**: Visual swatches for all colors and matches
-- **Distance Metrics**: Shows RGB distance between matched colors
+- **Distance Metrics**: Shows color distance between matched colors
 - **Light and Dark Mode**: Toggle between light and dark themes with system preference detection
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Usage
 
 1. **Search for Colors**: Enter a thread code (e.g., "D538") or Pantone color (e.g., "186 C") in the search box
-2. **View Matches**: See the primary match and alternative options for each color
-3. **Toggle Theme**: Switch between light and dark mode using the toggle in the header
-4. **Navigate Results**: Use pagination to browse through all colors
+2. **Find by Hex Code**: Enter any hex color code to find the closest Pantone and thread matches
+3. **Choose Matching Method**: Select between RGB (Basic) or CIELAB (Perceptual) color matching
+4. **View Matches**: See the primary match and alternative options for each color
+5. **Toggle Theme**: Switch between light and dark mode using the toggle in the header
+6. **Navigate Results**: Use pagination to browse through all colors
 
 ## Data Sources
 
@@ -34,7 +40,9 @@ This tool uses the following data sources:
 ## Technical Details
 
 - **Pure Frontend Application**: HTML, CSS, and JavaScript with PapaParse for CSV parsing
-- **Color Matching Algorithm**: Uses RGB Euclidean distance to find the closest color matches
+- **Color Matching Algorithms**: 
+  - RGB Euclidean distance for basic color matching
+  - CIELAB color space conversion for perceptually accurate matching
 - **Data Format**: CSV and JSON files for color data and matches
 - **Accessibility**: Supports light and dark modes for better readability
 - **GitHub Pages Compatible**: Designed to work directly from GitHub Pages hosting

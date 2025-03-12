@@ -193,13 +193,26 @@
         <p>This approach ensures that users can find not just the closest match, but also understand how accurate that match is and explore alternatives when needed.</p>
 
         <h2>Color Similarity Measurement</h2>
-        <p>The color similarity percentage is calculated based on the Euclidean distance between RGB color values. A higher percentage (closer to 100%) indicates a better match between colors. This measurement helps you:</p>
+        <p>The application offers two different color matching methods to provide the most accurate results:</p>
+        
+        <h3>RGB (Basic) Matching</h3>
+        <p>The RGB matching method calculates the Euclidean distance between RGB color values. This is a straightforward approach that works well for many applications:</p>
         <ul>
-            <li>Quickly assess how close a match is at a glance</li>
-            <li>Compare different alternatives to find the best option</li>
-            <li>Make informed decisions about color substitutions</li>
+            <li>Compares the numerical values of Red, Green, and Blue channels</li>
+            <li>Provides consistent, mathematically simple matching</li>
+            <li>Works well for colors that are already close in the RGB color space</li>
         </ul>
-        <p>Colors with a similarity above 90% are typically excellent matches that would be difficult to distinguish visually in most applications.</p>
+        
+        <h3>CIELAB (Perceptual) Matching</h3>
+        <p>The CIELAB matching method converts colors to the CIELAB color space before calculating distances. This approach is designed to better match human color perception:</p>
+        <ul>
+            <li>Accounts for how the human eye perceives color differences</li>
+            <li>More accurately represents perceptual color similarity</li>
+            <li>Often provides better matches for colors that appear similar to the human eye</li>
+            <li>Particularly useful for finding visually similar colors that may have different RGB values</li>
+        </ul>
+        
+        <p>You can choose your preferred matching method when using the hex color input feature. The color similarity percentage is calculated based on the selected method, with a higher percentage (closer to 100%) indicating a better match between colors.</p>
 
         <h2>Who It's For</h2>
         <p>This tool is invaluable for:</p>
@@ -235,55 +248,44 @@
         <h2>Disclaimer</h2>
         <p>This tool was created with the assistance of artificial intelligence. While every effort has been made to ensure accuracy and functionality, please verify critical color matches with physical samples when absolute precision is required.</p>
 
+        <h2>Data Sources</h2>
+        <p>The color database includes:</p>
+        <ul>
+            <li>Over 1,800 Minh Shyang 100% Polyester Embroidery Thread colors with precise RGB values</li>
+            <li>More than 2,100 Pantone Solid Coated colors from the standard color libraries</li>
+            <li>Pre-calculated matches based on mathematical color distance formulas</li>
+        </ul>
+        <p>This comprehensive approach ensures that users can find accurate matches for virtually any color in either system.</p>
+
         <a href="index.html" class="back-link">← Back to Color Matcher</a>
     </div>
 
     <script>
         // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        
-        // Function to check if it's nighttime (between 6 PM and 6 AM)
-        function isNighttime() {
-            const hour = new Date().getHours();
-            return hour >= 18 || hour < 6;
-        }
-        
-        // Function to update theme based on time
-        function updateThemeBasedOnTime() {
-            const shouldBeDark = isNighttime();
-            const currentTheme = localStorage.getItem('theme');
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
             
-            // Only update if user hasn't manually set a preference
-            if (!currentTheme) {
-                document.documentElement.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light');
-                themeToggle.checked = shouldBeDark;
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Set initial theme
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.checked = true;
             }
-        }
-        
-        // Check for saved theme preference or use time-based theme
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        const currentTheme = localStorage.getItem('theme');
-        
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.checked = true;
-        } else if (currentTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            themeToggle.checked = false;
-        } else {
-            // No saved preference, use time-based theme
-            updateThemeBasedOnTime();
-        }
-        
-        // Listen for toggle changes
-        themeToggle.addEventListener('change', function(e) {
-            const newTheme = e.target.checked ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            
+            // Handle theme toggle
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
         });
-        
-        // Update theme every minute
-        setInterval(updateThemeBasedOnTime, 60000);
     </script>
 </body>
 </html> 
