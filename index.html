@@ -116,41 +116,64 @@
 
         .search-container {
             display: flex;
-            margin-bottom: 30px;
-            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-box {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            background: var(--card-background);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .search-box h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
             background-color: var(--card-background);
             color: var(--text-color);
         }
 
-        input[type="text"]:focus {
-            border-color: var(--primary-color);
-            outline: none;
+        .hex-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hex-input {
+            width: 120px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        .hex-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hex-submit {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+
+        .hex-submit:hover {
+            opacity: 0.9;
+        }
+
+        .hex-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .results {
@@ -225,30 +248,46 @@
             color: var(--secondary-text);
         }
 
-        .pagination {
-            display: flex;
+        #pagination {
+            display: none;
             justify-content: center;
-            margin-top: 30px;
             gap: 10px;
+            margin-top: 20px;
         }
 
-        .pagination button {
-            padding: 8px 15px;
-            background: var(--card-background);
-            border: 1px solid var(--border-color);
+        #pagination button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-color);
+            font-size: 16px;
+            transition: opacity 0.2s;
         }
 
-        .pagination button:hover {
-            background: var(--hover-color);
+        #pagination button:hover {
+            opacity: 0.9;
         }
 
-        .pagination button:disabled {
+        #pagination button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
         }
 
         .color-type {
@@ -347,24 +386,23 @@
         </div>
         
         <div class="search-container">
-            <div class="search-box">
-                <h2>Search by Thread Code or Pantone Color</h2>
-                <input type="text" id="colorSearch" placeholder="Enter thread code (e.g., D538) or Pantone color (e.g., 186 C)">
+            <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
+            <div class="hex-input-container">
+                <div class="hex-preview"></div>
+                <input type="text" id="hexInput" class="hex-input" placeholder="#RRGGBB">
+                <button id="hexSubmit" class="hex-submit" disabled>Find Matches</button>
             </div>
         </div>
-
-        <div class="results" id="results">
-            <div class="loading">Loading color data...</div>
-        </div>
-
-        <div class="pagination" id="pagination" style="display: none;">
-            <button id="prevPage" disabled>Previous</button>
+        
+        <div id="results"></div>
+        
+        <div id="pagination">
+            <button id="prevPage">Previous</button>
             <button id="nextPage">Next</button>
         </div>
         
-        <div class="about-link">
-            <a href="about.html">About this tool</a>
-            <p class="disclaimer">Created with the assistance of AI. Please verify critical color matches with physical samples.</p>
+        <div class="footer">
+            <a href="about.html">About</a>
         </div>
     </div>
 
@@ -374,7 +412,7 @@
         let pantoneToThreadData = [];
         let allColors = [];
         let currentPage = 1;
-        let itemsPerPage = 24;
+        const itemsPerPage = 10;
         let filteredColors = [];
 
         // Theme toggle functionality
@@ -702,6 +740,106 @@
                 displayColors(filteredColors, currentPage);
             }
         });
+
+        document.getElementById('hexInput').addEventListener('input', (e) => {
+            const hexInput = e.target;
+            const hexSubmit = document.getElementById('hexSubmit');
+            const hexPreview = document.querySelector('.hex-preview');
+            let hexCode = hexInput.value.trim();
+            
+            if (isValidHexColor(hexCode)) {
+                hexCode = normalizeHexColor(hexCode);
+                hexInput.value = hexCode;
+                hexPreview.style.backgroundColor = hexCode;
+                hexSubmit.disabled = false;
+            } else {
+                hexPreview.style.backgroundColor = 'transparent';
+                hexSubmit.disabled = true;
+            }
+        });
+        
+        document.getElementById('hexSubmit').addEventListener('click', () => {
+            const hexInput = document.getElementById('hexInput');
+            const hexCode = hexInput.value.trim();
+            
+            if (isValidHexColor(hexCode)) {
+                const normalizedHex = normalizeHexColor(hexCode);
+                const rgb = hexToRgb(normalizedHex);
+                
+                // Find closest Pantone colors
+                const closestPantoneColors = findClosestColorsToHex(normalizedHex, pantoneData, 3);
+                
+                // Find closest thread colors
+                const closestThreadColors = findClosestColorsToHex(normalizedHex, threadData, 3);
+                
+                // Create a custom color object with matches
+                const customColor = {
+                    type: 'custom',
+                    code: normalizedHex,
+                    rgb: rgb,
+                    matchCode: closestPantoneColors[0].code,
+                    matchRgb: closestPantoneColors[0].rgb,
+                    distance: closestPantoneColors[0].distance,
+                    alternativeMatches: [
+                        ...closestPantoneColors.slice(1).map(c => ({...c, type: 'pantone'})),
+                        ...closestThreadColors.map(c => ({...c, type: 'thread'}))
+                    ]
+                };
+                
+                // Display the custom color and its matches
+                filteredColors = [customColor];
+                currentPage = 1;
+                displayColors(filteredColors, currentPage);
+            }
+        });
+
+        function isValidHexColor(hex) {
+            return /^#?[0-9A-Fa-f]{6}$/.test(hex);
+        }
+        
+        function normalizeHexColor(hex) {
+            hex = hex.trim();
+            if (!hex.startsWith('#')) {
+                hex = '#' + hex;
+            }
+            return hex.toUpperCase();
+        }
+        
+        function hexToRgb(hex) {
+            hex = hex.replace(/^#/, '');
+            return {
+                r: parseInt(hex.slice(0, 2), 16),
+                g: parseInt(hex.slice(2, 4), 16),
+                b: parseInt(hex.slice(4, 6), 16)
+            };
+        }
+        
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = Math.max(0, Math.min(255, x)).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+        }
+        
+        function calculateColorDistance(rgb1, rgb2) {
+            return Math.sqrt(
+                Math.pow(rgb1.r - rgb2.r, 2) +
+                Math.pow(rgb1.g - rgb2.g, 2) +
+                Math.pow(rgb1.b - rgb2.b, 2)
+            );
+        }
+        
+        function findClosestColorsToHex(hexCode, colorData, limit = 3) {
+            const targetRgb = hexToRgb(hexCode);
+            
+            return colorData
+                .map(color => ({
+                    ...color,
+                    distance: calculateColorDistance(targetRgb, color.rgb)
+                }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, limit);
+        }
 
         window.addEventListener('load', loadColorData);
     </script>
