@@ -303,6 +303,13 @@
             text-decoration: underline;
         }
 
+        .disclaimer {
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: var(--light-text);
+            font-style: italic;
+        }
+
         @media (max-width: 600px) {
             .search-box {
                 max-width: 100%;
@@ -357,6 +364,7 @@
         
         <div class="about-link">
             <a href="about.html">About this tool</a>
+            <p class="disclaimer">Created with the assistance of AI. Please verify critical color matches with physical samples.</p>
         </div>
     </div>
 
@@ -625,7 +633,7 @@
                         <div class="color-match">
                             <span class="match-swatch" style="background-color: ${matchRGB}"></span>
                             ${matchType}: ${color.matchCode}
-                            <div class="rgb-value">Distance: ${color.distance ? color.distance.toFixed(2) : 'N/A'}</div>
+                            <div class="rgb-value">Color Similarity: ${color.distance ? (100 - Math.min(color.distance, 100)).toFixed(1) + '% match' : 'N/A'}</div>
                         </div>
                     `;
                 }
@@ -641,7 +649,7 @@
                                 <div class="color-match alternative">
                                     <span class="match-swatch" style="background-color: rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})"></span>
                                     ${alt.code}
-                                    <div class="rgb-value">Distance: ${alt.distance.toFixed(2)}</div>
+                                    <div class="rgb-value">Color Similarity: ${(100 - Math.min(alt.distance, 100)).toFixed(1)}% match</div>
                                 </div>
                             `).join('')}
                         </div>

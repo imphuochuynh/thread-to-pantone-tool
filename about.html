@@ -188,9 +188,18 @@
         <ol>
             <li>A primary match with the closest color equivalent</li>
             <li>Up to two alternative matches for greater flexibility</li>
-            <li>Distance metrics that indicate how close the match is</li>
+            <li>Color similarity percentage that indicates how closely the colors match</li>
         </ol>
         <p>This approach ensures that users can find not just the closest match, but also understand how accurate that match is and explore alternatives when needed.</p>
+
+        <h2>Color Similarity Measurement</h2>
+        <p>The color similarity percentage is calculated based on the Euclidean distance between RGB color values. A higher percentage (closer to 100%) indicates a better match between colors. This measurement helps you:</p>
+        <ul>
+            <li>Quickly assess how close a match is at a glance</li>
+            <li>Compare different alternatives to find the best option</li>
+            <li>Make informed decisions about color substitutions</li>
+        </ul>
+        <p>Colors with a similarity above 90% are typically excellent matches that would be difficult to distinguish visually in most applications.</p>
 
         <h2>Who It's For</h2>
         <p>This tool is invaluable for:</p>
@@ -222,6 +231,9 @@
 
         <h2>Ongoing Development</h2>
         <p>This tool is continuously improved to enhance accuracy, add new features, and expand the color database. User feedback is essential to this process, helping to refine the matching algorithms and improve the user experience.</p>
+
+        <h2>Disclaimer</h2>
+        <p>This tool was created with the assistance of artificial intelligence. While every effort has been made to ensure accuracy and functionality, please verify critical color matches with physical samples when absolute precision is required.</p>
 
         <a href="index.html" class="back-link">← Back to Color Matcher</a>
     </div>
