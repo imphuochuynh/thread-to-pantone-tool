@@ -1,6 +1,6 @@
 # Minh Shyang to Pantone Color Matcher
 
-A web-based tool for matching Minh Shyang embroidery thread colors to Pantone colors and vice versa. This application helps designers and embroiderers find the closest color matches between different color systems.
+A web-based tool for matching Minh Shyang 100% Polyester Embroidery Thread colors to Pantone Solid Coated colors and vice versa. This application helps designers and embroiderers find the closest color matches between different color systems.
 
 ![Screenshot of the application](https://via.placeholder.com/800x450.png?text=Minh+Shyang+to+Pantone+Color+Matcher)
 
@@ -8,8 +8,8 @@ A web-based tool for matching Minh Shyang embroidery thread colors to Pantone co
 
 - **Unified Search**: Search by either thread code or Pantone color name
 - **Comprehensive Color Database**: 
-  - 1,800+ Minh Shyang embroidery thread colors
-  - 2,100+ Pantone colors with RGB values
+  - 1,800+ Minh Shyang 100% Polyester Embroidery Thread colors
+  - 2,100+ Pantone Solid Coated colors with RGB values
 - **Alternative Matches**: Shows up to 2 alternative matches when an exact match isn't available
 - **Color Visualization**: Visual swatches for all colors and matches
 - **Distance Metrics**: Shows RGB distance between matched colors
@@ -27,9 +27,9 @@ A web-based tool for matching Minh Shyang embroidery thread colors to Pantone co
 
 This tool uses the following data sources:
 
-- **Minh Shyang Thread Colors**: Reformatted embroidery thread data with RGB values
-- **Pantone Colors**: Comprehensive collection of Pantone colors with RGB values
-- **Match Data**: Pre-calculated matches between Pantone colors and embroidery threads
+- **Minh Shyang Thread Colors**: Reformatted 100% Polyester Embroidery Thread data with RGB values
+- **Pantone Colors**: Comprehensive collection of Pantone Solid Coated colors with RGB values
+- **Match Data**: Pre-calculated matches between Pantone Solid Coated colors and embroidery threads
 
 ## Technical Details
 
