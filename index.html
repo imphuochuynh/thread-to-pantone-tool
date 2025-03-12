@@ -638,6 +638,19 @@
             </h2>
             <div class="search-container">
                 <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
+                <div class="color-match-method">
+                    <span>Matching Method:</span>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="searchColorMatchMethod" value="rgb" checked>
+                            <span>RGB (Basic)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="searchColorMatchMethod" value="lab">
+                            <span>CIELAB (Perceptual)</span>
+                        </label>
+                    </div>
+                </div>
             </div>
             
             <h2 class="search-section-title">
@@ -886,6 +899,9 @@
             allColors = [...threadData, ...pantoneData];
             console.log(`Combined ${allColors.length} total colors`);
             
+            // Get the selected color matching method
+            const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
+            
             // Enhance thread data with pantone matches and alternatives
             threadData.forEach(thread => {
                 // Find all pantone matches for this thread
@@ -899,18 +915,21 @@
                     thread.matchCode = primaryMatch.pantoneCode;
                     thread.matchRgb = primaryMatch.pantoneRgb;
                     thread.distance = primaryMatch.distance;
+                    thread.matchMethod = colorMatchMethod; // Store the method used
                     
                     // Alternative matches (if any)
                     if (matches.length > 1) {
                         thread.alternativeMatches = matches.slice(1, 3).map(m => ({
                             code: m.pantoneCode,
                             rgb: m.pantoneRgb,
-                            distance: m.distance
+                            distance: m.distance,
+                            type: 'pantone'
                         }));
                     }
                 } else {
-                    // If no exact match, find closest pantone colors by RGB distance
-                    thread.alternativeMatches = findClosestColors(thread, pantoneData, 2);
+                    // If no exact match, find closest pantone colors by selected method
+                    thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 2, colorMatchMethod, []);
+                    thread.matchMethod = colorMatchMethod; // Store the method used
                 }
             });
             
@@ -923,12 +942,14 @@
                     pantone.matchCode = match.threadCode;
                     pantone.matchRgb = match.threadRgb;
                     pantone.distance = match.distance;
+                    pantone.matchMethod = colorMatchMethod; // Store the method used
                     
                     // Find alternative thread matches
-                    pantone.alternativeMatches = findClosestColors(pantone, threadData, 2, [match.threadCode]);
+                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 2, colorMatchMethod, [match.threadCode]);
                 } else {
-                    // If no exact match, find closest thread colors by RGB distance
-                    pantone.alternativeMatches = findClosestColors(pantone, threadData, 2);
+                    // If no exact match, find closest thread colors by selected method
+                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 2, colorMatchMethod, []);
+                    pantone.matchMethod = colorMatchMethod; // Store the method used
                 }
             });
             
@@ -953,6 +974,20 @@
                     code: color.code,
                     rgb: color.rgb,
                     distance: rgbDistance(sourceColor, color)
+                }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, count);
+        }
+        
+        // Find closest colors using the specified method (RGB or CIELAB)
+        function findClosestColorsWithMethod(sourceColor, targetColors, count = 2, method = 'rgb', excludeCodes = []) {
+            return targetColors
+                .filter(color => !excludeCodes.includes(color.code))
+                .map(color => ({
+                    code: color.code,
+                    rgb: color.rgb,
+                    type: color.type,
+                    distance: calculateColorDistance(sourceColor.rgb, color.rgb, method)
                 }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, count);
@@ -1011,6 +1046,29 @@
                 bannerContainer.appendChild(methodBanner);
                 resultsContainer.insertBefore(bannerContainer, resultsDiv);
             }
+            // Show the matching method banner for regular searches too
+            else if (pageColors.length > 0 && pageColors[0].matchMethod) {
+                const methodBanner = document.createElement('div');
+                methodBanner.className = 'method-banner';
+                methodBanner.innerHTML = `
+                    <div class="method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="method-text">
+                        Using <strong>${pageColors[0].matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</strong> color matching method for all results
+                    </div>
+                `;
+                
+                // Create a container for the banner that's outside the grid
+                const bannerContainer = document.createElement('div');
+                bannerContainer.className = 'banner-container';
+                bannerContainer.appendChild(methodBanner);
+                resultsContainer.insertBefore(bannerContainer, resultsDiv);
+            }
 
             pageColors.forEach(color => {
                 const colorDiv = document.createElement('div');
@@ -1022,7 +1080,10 @@
                 // Primary match HTML
                 let matchHTML = '';
                 if (color.matchCode) {
-                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
+                    // Use matchType property if available, otherwise determine based on color type
+                    const matchType = color.matchType ? 
+                        (color.matchType === 'pantone' ? 'Pantone' : 'Thread') : 
+                        (color.type === 'pantone' ? 'Thread' : 'Pantone');
                     const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
                     const matchHex = rgbToHex(color.matchRgb.r, color.matchRgb.g, color.matchRgb.b);
                     const similarity = (100 - Math.min(color.distance, 100)).toFixed(1);
@@ -1052,7 +1113,10 @@
                 // Alternative matches HTML
                 let alternativesHTML = '';
                 if (color.alternativeMatches && color.alternativeMatches.length > 0) {
-                    const matchType = color.type === 'thread' ? 'Pantone' : 'Thread';
+                    // Use matchType property if available, otherwise determine based on color type
+                    const matchType = color.matchType ? 
+                        (color.matchType === 'pantone' ? 'Thread' : 'Pantone') : 
+                        (color.type === 'pantone' ? 'Thread' : 'Pantone');
                     alternativesHTML = `
                         <div class="alternatives-section">
                             <div class="alternatives-title">Alternative ${matchType} Matches:</div>
@@ -1062,11 +1126,14 @@
                                 const similarity = (100 - Math.min(alt.distance, 100)).toFixed(1);
                                 const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
                                 
+                                // Add the type label (Pantone or Thread) to each alternative match
+                                const altType = alt.type === 'pantone' ? 'Pantone' : 'Thread';
+                                
                                 return `
                                     <div class="color-match alternative">
                                         <span class="match-swatch" style="background-color: ${altRGB}"></span>
                                         <div class="match-details">
-                                            <div class="match-name">${alt.code}</div>
+                                            <div class="match-name">${altType}: ${alt.code}</div>
                                             <div class="hex-value">Hex: ${altHex}</div>
                                             <div class="similarity ${similarityClass}">
                                                 <span class="similarity-value">${similarity}%</span>
@@ -1172,6 +1239,7 @@
                     matchRgb: closestPantoneColors[0].rgb,
                     distance: closestPantoneColors[0].distance,
                     matchMethod: colorMatchMethod, // Store the method used for matching
+                    matchType: 'pantone', // Explicitly indicate the primary match is a Pantone color
                     alternativeMatches: [
                         ...closestPantoneColors.slice(1).map(c => ({...c, type: 'pantone'})),
                         ...closestThreadColors.map(c => ({...c, type: 'thread'}))
@@ -1364,6 +1432,17 @@
                         document.getElementById('hexSubmit').click();
                     }
                 });
+            });
+        });
+
+        // Add event listener for search color match method change
+        document.querySelectorAll('input[name="searchColorMatchMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Show a status message about the matching method change
+                showStatus(`Switching to ${this.value === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 3000);
+                
+                // Reprocess and redisplay the data with the new method
+                processAndDisplayData();
             });
         });
     </script>
