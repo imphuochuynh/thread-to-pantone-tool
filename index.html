@@ -418,7 +418,25 @@
         // Theme toggle functionality
         const themeToggle = document.getElementById('themeToggle');
         
-        // Check for saved theme preference or use preferred color scheme
+        // Function to check if it's nighttime (between 6 PM and 6 AM)
+        function isNighttime() {
+            const hour = new Date().getHours();
+            return hour >= 18 || hour < 6;
+        }
+        
+        // Function to update theme based on time
+        function updateThemeBasedOnTime() {
+            const shouldBeDark = isNighttime();
+            const currentTheme = localStorage.getItem('theme');
+            
+            // Only update if user hasn't manually set a preference
+            if (!currentTheme) {
+                document.documentElement.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light');
+                themeToggle.checked = shouldBeDark;
+            }
+        }
+        
+        // Check for saved theme preference or use time-based theme
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
         const currentTheme = localStorage.getItem('theme');
         
@@ -428,22 +446,21 @@
         } else if (currentTheme === 'light') {
             document.documentElement.setAttribute('data-theme', 'light');
             themeToggle.checked = false;
-        } else if (prefersDarkScheme.matches) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.checked = true;
+        } else {
+            // No saved preference, use time-based theme
+            updateThemeBasedOnTime();
         }
         
         // Listen for toggle changes
         themeToggle.addEventListener('change', function(e) {
-            if (e.target.checked) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-            }
+            const newTheme = e.target.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         });
-
+        
+        // Update theme every minute
+        setInterval(updateThemeBasedOnTime, 60000);
+        
         async function loadColorData() {
             try {
                 // Load thread data using PapaParse
