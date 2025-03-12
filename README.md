@@ -2,6 +2,8 @@
 
 A web-based tool for matching Minh Shyang embroidery thread colors to Pantone colors and vice versa. This application helps designers and embroiderers find the closest color matches between different color systems.
 
+![Screenshot of the application](https://via.placeholder.com/800x450.png?text=Minh+Shyang+to+Pantone+Color+Matcher)
+
 ## Features
 
 - **Unified Search**: Search by either thread code or Pantone color name
@@ -31,10 +33,11 @@ This tool uses the following data sources:
 
 ## Technical Details
 
-- **Pure Frontend Application**: HTML, CSS, and JavaScript with no external dependencies
+- **Pure Frontend Application**: HTML, CSS, and JavaScript with PapaParse for CSV parsing
 - **Color Matching Algorithm**: Uses RGB Euclidean distance to find the closest color matches
 - **Data Format**: CSV and JSON files for color data and matches
 - **Accessibility**: Supports light and dark modes for better readability
+- **GitHub Pages Compatible**: Designed to work directly from GitHub Pages hosting
 
 ## Local Development
 
@@ -60,6 +63,24 @@ To run this application locally:
    http://localhost:8000
    ```
 
+## Deployment
+
+This application is designed to be deployed directly to GitHub Pages:
+
+1. Push your changes to GitHub:
+   ```
+   git add .
+   git commit -m "Your commit message"
+   git push origin main
+   ```
+
+2. Enable GitHub Pages in your repository settings, selecting the main branch as the source.
+
+3. Your application will be available at:
+   ```
+   https://yourusername.github.io/minh-shyang-to-pantone-matcher/
+   ```
+
 ## License
 
 [MIT License](LICENSE)
@@ -69,3 +90,8 @@ To run this application locally:
 - Pantone® is a registered trademark of Pantone LLC
 - Minh Shyang thread color data is used for educational and reference purposes
 - This tool is not affiliated with or endorsed by Pantone LLC or Minh Shyang
+- [PapaParse](https://www.papaparse.com/) for CSV parsing
+
+## Contact
+
+For questions, suggestions, or issues, please [open an issue](https://github.com/yourusername/minh-shyang-to-pantone-matcher/issues) on GitHub.

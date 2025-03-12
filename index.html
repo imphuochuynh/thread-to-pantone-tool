@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minh Shyang to Pantone Color Matcher</title>
+    <!-- Add PapaParse library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -285,6 +287,22 @@
             font-size: 0.9em;
         }
 
+        .about-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+        }
+
+        .about-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .about-link a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
             .search-box {
                 max-width: 100%;
@@ -336,6 +354,10 @@
             <button id="prevPage" disabled>Previous</button>
             <button id="nextPage">Next</button>
         </div>
+        
+        <div class="about-link">
+            <a href="about.html">About this tool</a>
+        </div>
     </div>
 
     <script>
@@ -378,25 +400,43 @@
 
         async function loadColorData() {
             try {
-                // Load thread data
+                // Load thread data using PapaParse
                 const threadResponse = await fetch('Reformatted_Embroidery_Thread_Data.csv');
                 const threadCsvText = await threadResponse.text();
-                const threadLines = threadCsvText.split('\n');
                 
-                threadData = threadLines.slice(1).filter(line => line.trim()).map(line => {
-                    const values = line.split(',');
-                    return {
-                        type: 'thread',
-                        code: values[0],
-                        rgb: {
-                            r: parseInt(values[1]),
-                            g: parseInt(values[2]),
-                            b: parseInt(values[3])
-                        }
-                    };
+                Papa.parse(threadCsvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        threadData = results.data.map(row => ({
+                            type: 'thread',
+                            code: row['Thread Code'],
+                            rgb: {
+                                r: parseInt(row['R']),
+                                g: parseInt(row['G']),
+                                b: parseInt(row['B'])
+                            }
+                        }));
+                        console.log(`Loaded ${threadData.length} thread colors`);
+                        
+                        // Continue with loading other data
+                        loadPantoneData();
+                    },
+                    error: function(error) {
+                        console.error('Error parsing thread data:', error);
+                        document.getElementById('results').innerHTML = 
+                            `<div class="no-results">Error loading thread data: ${error.message}</div>`;
+                    }
                 });
-                console.log(`Loaded ${threadData.length} thread colors`);
-                
+            } catch (error) {
+                console.error('Error loading color data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading color data: ${error.message}</div>`;
+            }
+        }
+        
+        async function loadPantoneData() {
+            try {
                 // Load Pantone colors
                 const pantoneResponse = await fetch('all_pantone_colors_with_rgb.json');
                 const pantoneJson = await pantoneResponse.json();
@@ -414,102 +454,119 @@
                 });
                 console.log(`Loaded ${pantoneData.length} Pantone colors`);
                 
-                // Load Pantone to thread matches
+                // Continue with loading match data
+                loadMatchData();
+            } catch (error) {
+                console.error('Error loading Pantone data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading Pantone data: ${error.message}</div>`;
+            }
+        }
+        
+        async function loadMatchData() {
+            try {
+                // Load Pantone to thread matches using PapaParse
                 const matchesResponse = await fetch('matched_Pantone_to_embroidery_threads.csv');
                 const matchesCsvText = await matchesResponse.text();
-                const matchesLines = matchesCsvText.split('\n');
                 
-                pantoneToThreadData = matchesLines.slice(1).filter(line => line.trim()).map(line => {
-                    // Handle CSV parsing more carefully
-                    // First split by commas that are not inside quotes
-                    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                    const values = line.split(regex);
-                    
-                    if (values.length < 5) {
-                        console.warn('Invalid line format:', line);
-                        return null;
-                    }
-                    
-                    // Parse RGB values from strings like "(r, g, b)"
-                    const pantoneRgbStr = values[1].replace(/[()"\s]/g, '').split(',');
-                    const threadRgbStr = values[3].replace(/[()"\s]/g, '').split(',');
-                    
-                    return {
-                        pantoneCode: values[0].replace(/"/g, '').trim(),
-                        pantoneRgb: {
-                            r: parseInt(pantoneRgbStr[0]),
-                            g: parseInt(pantoneRgbStr[1]),
-                            b: parseInt(pantoneRgbStr[2])
-                        },
-                        threadCode: values[2].replace(/"/g, '').trim(),
-                        threadRgb: {
-                            r: parseInt(threadRgbStr[0]),
-                            g: parseInt(threadRgbStr[1]),
-                            b: parseInt(threadRgbStr[2])
-                        },
-                        distance: parseFloat(values[4])
-                    };
-                }).filter(item => item !== null);
-                console.log(`Loaded ${pantoneToThreadData.length} Pantone to thread matches`);
-                
-                // Combine thread and pantone data
-                allColors = [...threadData, ...pantoneData];
-                console.log(`Combined ${allColors.length} total colors`);
-                
-                // Enhance thread data with pantone matches and alternatives
-                threadData.forEach(thread => {
-                    // Find all pantone matches for this thread
-                    const matches = pantoneToThreadData
-                        .filter(m => m.threadCode === thread.code)
-                        .sort((a, b) => a.distance - b.distance);
-                    
-                    if (matches.length > 0) {
-                        // Primary match
-                        const primaryMatch = matches[0];
-                        thread.matchCode = primaryMatch.pantoneCode;
-                        thread.matchRgb = primaryMatch.pantoneRgb;
-                        thread.distance = primaryMatch.distance;
+                Papa.parse(matchesCsvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        pantoneToThreadData = results.data.map(row => {
+                            // Parse RGB values from strings like "(r, g, b)"
+                            const pantoneRgbStr = row['Pantone RGB'].replace(/[()"\s]/g, '').split(',');
+                            const threadRgbStr = row['Matched RGB'].replace(/[()"\s]/g, '').split(',');
+                            
+                            return {
+                                pantoneCode: row['Pantone Color'].trim(),
+                                pantoneRgb: {
+                                    r: parseInt(pantoneRgbStr[0]),
+                                    g: parseInt(pantoneRgbStr[1]),
+                                    b: parseInt(pantoneRgbStr[2])
+                                },
+                                threadCode: row['Matched Thread Code'].trim(),
+                                threadRgb: {
+                                    r: parseInt(threadRgbStr[0]),
+                                    g: parseInt(threadRgbStr[1]),
+                                    b: parseInt(threadRgbStr[2])
+                                },
+                                distance: parseFloat(row['Distance'])
+                            };
+                        }).filter(item => item !== null);
                         
-                        // Alternative matches (if any)
-                        if (matches.length > 1) {
-                            thread.alternativeMatches = matches.slice(1, 3).map(m => ({
-                                code: m.pantoneCode,
-                                rgb: m.pantoneRgb,
-                                distance: m.distance
-                            }));
-                        }
-                    } else {
-                        // If no exact match, find closest pantone colors by RGB distance
-                        thread.alternativeMatches = findClosestColors(thread, pantoneData, 2);
+                        console.log(`Loaded ${pantoneToThreadData.length} Pantone to thread matches`);
+                        
+                        // Process and display the data
+                        processAndDisplayData();
+                    },
+                    error: function(error) {
+                        console.error('Error parsing match data:', error);
+                        document.getElementById('results').innerHTML = 
+                            `<div class="no-results">Error loading match data: ${error.message}</div>`;
                     }
                 });
-                
-                // Enhance pantone data with thread matches and alternatives
-                pantoneData.forEach(pantone => {
-                    // Find the thread match for this pantone
-                    const match = pantoneToThreadData.find(m => m.pantoneCode === pantone.code);
-                    
-                    if (match) {
-                        pantone.matchCode = match.threadCode;
-                        pantone.matchRgb = match.threadRgb;
-                        pantone.distance = match.distance;
-                        
-                        // Find alternative thread matches
-                        pantone.alternativeMatches = findClosestColors(pantone, threadData, 2, [match.threadCode]);
-                    } else {
-                        // If no exact match, find closest thread colors by RGB distance
-                        pantone.alternativeMatches = findClosestColors(pantone, threadData, 2);
-                    }
-                });
-                
-                // Display all colors initially
-                filteredColors = allColors;
-                displayColors(filteredColors, currentPage);
             } catch (error) {
-                console.error('Error loading color data:', error);
+                console.error('Error loading match data:', error);
                 document.getElementById('results').innerHTML = 
-                    `<div class="no-results">Error loading color data: ${error.message}</div>`;
+                    `<div class="no-results">Error loading match data: ${error.message}</div>`;
             }
+        }
+        
+        function processAndDisplayData() {
+            // Combine thread and pantone data
+            allColors = [...threadData, ...pantoneData];
+            console.log(`Combined ${allColors.length} total colors`);
+            
+            // Enhance thread data with pantone matches and alternatives
+            threadData.forEach(thread => {
+                // Find all pantone matches for this thread
+                const matches = pantoneToThreadData
+                    .filter(m => m.threadCode === thread.code)
+                    .sort((a, b) => a.distance - b.distance);
+                
+                if (matches.length > 0) {
+                    // Primary match
+                    const primaryMatch = matches[0];
+                    thread.matchCode = primaryMatch.pantoneCode;
+                    thread.matchRgb = primaryMatch.pantoneRgb;
+                    thread.distance = primaryMatch.distance;
+                    
+                    // Alternative matches (if any)
+                    if (matches.length > 1) {
+                        thread.alternativeMatches = matches.slice(1, 3).map(m => ({
+                            code: m.pantoneCode,
+                            rgb: m.pantoneRgb,
+                            distance: m.distance
+                        }));
+                    }
+                } else {
+                    // If no exact match, find closest pantone colors by RGB distance
+                    thread.alternativeMatches = findClosestColors(thread, pantoneData, 2);
+                }
+            });
+            
+            // Enhance pantone data with thread matches and alternatives
+            pantoneData.forEach(pantone => {
+                // Find the thread match for this pantone
+                const match = pantoneToThreadData.find(m => m.pantoneCode === pantone.code);
+                
+                if (match) {
+                    pantone.matchCode = match.threadCode;
+                    pantone.matchRgb = match.threadRgb;
+                    pantone.distance = match.distance;
+                    
+                    // Find alternative thread matches
+                    pantone.alternativeMatches = findClosestColors(pantone, threadData, 2, [match.threadCode]);
+                } else {
+                    // If no exact match, find closest thread colors by RGB distance
+                    pantone.alternativeMatches = findClosestColors(pantone, threadData, 2);
+                }
+            });
+            
+            // Display all colors initially
+            filteredColors = allColors;
+            displayColors(filteredColors, currentPage);
         }
 
         // Calculate RGB distance between two colors

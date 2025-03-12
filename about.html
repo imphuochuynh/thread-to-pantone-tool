@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Minh Shyang to Pantone Color Matcher</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --light-text: #888888;
+            --border-color: #dddddd;
+            --hover-color: #f0f0f0;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #61dafb;
+            --background-color: #1a1a1a;
+            --card-background: #2d2d2d;
+            --text-color: #f0f0f0;
+            --secondary-text: #cccccc;
+            --light-text: #aaaaaa;
+            --border-color: #444444;
+            --hover-color: #3d3d3d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 2em;
+            flex: 1;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .theme-icon {
+            margin: 0 8px;
+            font-size: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+                text-align: center;
+                flex: 100%;
+            }
+            
+            .header {
+                justify-content: center;
+            }
+            
+            .theme-switch-wrapper {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>About Minh Shyang to Pantone Color Matcher</h1>
+            <div class="theme-switch-wrapper">
+                <span class="theme-icon">☀️</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">🌙</span>
+            </div>
+        </div>
+
+        <p>The Minh Shyang to Pantone Color Matcher is a specialized tool designed to bridge the gap between embroidery thread colors and professional design color systems. This application was created to solve a common challenge faced by embroiderers, textile designers, and creative professionals who work across different color standards.</p>
+
+        <h2>Purpose</h2>
+        <p>Finding the right color match between embroidery threads and standardized color systems can be time-consuming and imprecise. This tool eliminates the guesswork by providing accurate, data-driven color matches between Minh Shyang embroidery threads and Pantone colors.</p>
+
+        <h2>How It Works</h2>
+        <p>The application uses a sophisticated color matching algorithm that analyzes RGB values to find the closest possible matches between color systems. For each color, it provides:</p>
+        <ol>
+            <li>A primary match with the closest color equivalent</li>
+            <li>Up to two alternative matches for greater flexibility</li>
+            <li>Distance metrics that indicate how close the match is</li>
+        </ol>
+        <p>This approach ensures that users can find not just the closest match, but also understand how accurate that match is and explore alternatives when needed.</p>
+
+        <h2>Who It's For</h2>
+        <p>This tool is invaluable for:</p>
+        <ul>
+            <li><strong>Embroidery Professionals</strong>: Find the right thread colors to match design specifications</li>
+            <li><strong>Graphic Designers</strong>: Translate Pantone color schemes to embroidery-friendly options</li>
+            <li><strong>Fashion Designers</strong>: Ensure color consistency across different materials and production methods</li>
+            <li><strong>Production Teams</strong>: Quickly reference color equivalents during manufacturing</li>
+            <li><strong>Hobbyists</strong>: Match commercial patterns to available thread colors</li>
+        </ul>
+
+        <h2>Technology</h2>
+        <p>Built with modern web technologies, the application offers:</p>
+        <ul>
+            <li>A clean, intuitive interface that works on any device</li>
+            <li>Fast, client-side processing with no server dependencies</li>
+            <li>Light and dark modes for comfortable viewing in any environment</li>
+            <li>Comprehensive search capabilities across both color systems</li>
+        </ul>
+
+        <h2>Data Integrity</h2>
+        <p>The color database includes:</p>
+        <ul>
+            <li>Over 1,800 Minh Shyang embroidery thread colors with precise RGB values</li>
+            <li>More than 2,100 Pantone colors from the standard color libraries</li>
+            <li>Pre-calculated matches based on mathematical color distance formulas</li>
+        </ul>
+        <p>This comprehensive approach ensures that users can find accurate matches for virtually any color in either system.</p>
+
+        <h2>Ongoing Development</h2>
+        <p>This tool is continuously improved to enhance accuracy, add new features, and expand the color database. User feedback is essential to this process, helping to refine the matching algorithms and improve the user experience.</p>
+
+        <a href="index.html" class="back-link">← Back to Color Matcher</a>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Check for saved theme preference or use preferred color scheme
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        } else if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.checked = false;
+        } else if (prefersDarkScheme.matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+        
+        // Listen for toggle changes
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html> 
