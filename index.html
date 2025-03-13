@@ -1755,28 +1755,20 @@
                                 const altHex = rgbToHex(alt.rgb.r, alt.rgb.g, alt.rgb.b);
                                 // Calculate similarity against the searched color
                                 const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
-                                let similarity;
-                                if (color.matchMethod === 'deltaE2000') {
-                                    similarity = Math.max(0, 100 - (distance * 2));
-                                } else if (color.matchMethod === 'lab') {
-                                    similarity = Math.max(0, 100 - (distance * 0.5));
-                                } else {
-                                    similarity = Math.max(0, 100 - (distance * 0.2));
-                                }
-                                const similarityValue = similarity.toFixed(1);
+                                const similarity = (100 - Math.min(distance, 100)).toFixed(1);
                                 const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
                                 
                                 // Add the type label (Pantone or Thread) to each alternative match
                                 const altType = alt.type === 'pantone' ? 'Pantone' : 'Thread';
                                 
                                 return `
-                                    <div class="color-match alternative" data-alt-code="${alt.code}" data-alt-type="${alt.type}" data-alt-r="${alt.rgb.r}" data-alt-g="${alt.rgb.g}" data-alt-b="${alt.rgb.b}" data-original-color-r="${color.rgb.r}" data-original-color-g="${color.rgb.g}" data-original-color-b="${color.rgb.b}" data-match-method="${color.matchMethod || 'rgb'}">
+                                    <div class="color-match alternative" data-alt-code="${alt.code}" data-alt-type="${alt.type}" data-alt-r="${alt.rgb.r}" data-alt-g="${alt.rgb.g}" data-alt-b="${alt.rgb.b}" data-alt-distance="${distance}">
                                         <span class="match-swatch" style="background-color: ${altRGB}"></span>
                                         <div class="match-details">
                                             <div class="match-name">${altType}: ${alt.code}</div>
                                             <div class="hex-value">Hex: ${altHex}</div>
                                             <div class="similarity ${similarityClass}">
-                                                <span class="similarity-value">${similarityValue}%</span>
+                                                <span class="similarity-value">${similarity}%</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1829,31 +1821,25 @@
                     const altR = parseInt(this.dataset.altR);
                     const altG = parseInt(this.dataset.altG);
                     const altB = parseInt(this.dataset.altB);
-                    
-                    // Get the original color data
-                    const originalR = parseInt(this.dataset.originalColorR);
-                    const originalG = parseInt(this.dataset.originalColorG);
-                    const originalB = parseInt(this.dataset.originalColorB);
-                    const matchMethod = this.dataset.matchMethod;
+                    const altDistance = parseFloat(this.dataset.altDistance);
                     
                     // Get the color swatch container
                     const swatchesContainer = colorCard.querySelector('.color-swatches-container');
                     
-                    // Calculate distance between original color and alternative
-                    const distance = calculateColorDistance(
-                        { r: originalR, g: originalG, b: originalB },
-                        { r: altR, g: altG, b: altB },
-                        matchMethod
-                    );
+                    // Get the current matching method
+                    const currentMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
                     
                     // Calculate similarity based on the matching method
                     let similarity;
-                    if (matchMethod === 'deltaE2000') {
-                        similarity = Math.max(0, 100 - (distance * 2));
-                    } else if (matchMethod === 'lab') {
-                        similarity = Math.max(0, 100 - (distance * 0.5));
+                    if (currentMethod === 'deltaE2000') {
+                        // Delta E 2000: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (altDistance * 2));
+                    } else if (currentMethod === 'lab') {
+                        // CIELAB: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (altDistance * 0.5));
                     } else {
-                        similarity = Math.max(0, 100 - (distance * 0.2));
+                        // RGB: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (altDistance * 0.2));
                     }
                     
                     const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
