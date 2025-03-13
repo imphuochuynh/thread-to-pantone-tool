@@ -1,0 +1,21 @@
+<div class="result-container">
+    <h2>Results</h2>
+    <div class="color-comparison">
+        <div class="color-box">
+            <h3>Input Color</h3>
+            <div class="color-square" style="background-color: rgb{{input_color}};"></div>
+            <p>RGB: {{input_color}}</p>
+        </div>
+        
+        <div class="color-box">
+            <h3>Closest Thread Color</h3>
+            <div class="color-square" style="background-color: rgb{{thread_color.rgb}};"></div>
+            <p>Code: {{thread_color.code}}</p>
+            <p>Name: {{thread_color.name}}</p>
+            <p>RGB: {{thread_color.rgb}}</p>
+            {% if consider_shimmer %}
+            <p class="shimmer-note">*Adjusted for polyester shimmer</p>
+            {% endif %}
+        </div>
+    </div>
+</div> 
