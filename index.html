@@ -43,178 +43,594 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 20px;
+            position: relative;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             flex-wrap: wrap;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin: 0;
+            color: var(--primary-color);
+            line-height: 1.3;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch-wrapper:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .theme-icon {
+            font-size: 1.2em;
+            opacity: 0.8;
         }
 
         .search-section {
             background-color: var(--card-background);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-section:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
 
         .search-section-title {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             color: var(--primary-color);
-            font-size: 1.2em;
+            font-size: 1.5em;
             display: flex;
             align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
         }
 
         .search-section-title svg {
-            margin-right: 8px;
+            color: var(--primary-color);
+            opacity: 0.8;
         }
 
         .search-container {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
         }
 
         .search-box {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
+            width: 100%;
+            padding: 18px 18px 18px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 1.1em;
             background-color: var(--card-background);
             color: var(--text-color);
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+            pointer-events: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
         }
 
         .search-box:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .suggestions-container {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .suggestions-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .suggestion-item {
+            padding: 14px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background-color: var(--hover-color);
+            transform: translateX(4px);
+        }
+
+        .suggestion-color {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-item:hover .suggestion-color {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .suggestion-text {
+            flex: 1;
+            font-size: 1.05em;
+        }
+
+        .suggestion-type {
+            font-size: 0.85em;
+            color: var(--secondary-text);
+            margin-top: 3px;
+        }
+
+        .search-options {
+            background-color: var(--alternative-bg);
+            border-radius: 14px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-options:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .search-options-title {
+            font-size: 1.2em;
+            color: var(--secondary-text);
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-options-title svg {
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .method-toggle-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .method-toggle {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background-color: var(--card-background);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            flex: 1;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .method-toggle:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .method-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .method-toggle .toggle-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .method-toggle input[type="radio"]:checked + .toggle-icon {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .method-toggle input[type="radio"]:checked + .toggle-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+
+        .method-toggle input[type="radio"]:checked ~ .toggle-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .method-toggle .toggle-label {
+            font-size: 1em;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        .method-toggle .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .method-toggle .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .method-toggle .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        @media (max-width: 600px) {
+            .method-toggle-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .method-toggle {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
 
         .hex-input-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 20px;
             flex-wrap: wrap;
+            background-color: var(--alternative-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
         }
 
         .hex-input-label {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9em;
+            gap: 12px;
+            font-size: 1em;
             color: var(--secondary-text);
         }
 
-        .hex-input {
-            width: 120px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+        .hex-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hex-preview:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+        }
+
+        .hex-preview::after {
+            content: '🎨';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 4px;
             border-radius: 4px;
-            font-size: 16px;
+        }
+
+        .hex-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 18px;
             background-color: var(--card-background);
             color: var(--text-color);
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
 
         .hex-input:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
-        }
-
-        .hex-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s;
-        }
-
-        .hex-preview:hover {
-            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
         }
 
         .hex-submit {
-            padding: 12px 20px;
+            padding: 16px 24px;
             background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .hex-submit:hover {
             opacity: 0.9;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .hex-submit:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        #colorPicker {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .hex-input-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .hex-input-wrapper {
+                flex-direction: column;
+            }
+            
+            .hex-submit {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         .results {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
 
         .color-card {
             background: var(--card-background);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            gap: 20px;
+            transition: all 0.3s ease;
             border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .color-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .color-card:hover::before {
+            opacity: 1;
+        }
+
+        .color-swatches-container {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
         }
 
         .color-swatch {
-            height: 100px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s;
+            flex: 1;
+            height: 140px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-swatch::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            pointer-events: none;
         }
 
         .color-swatch:hover {
             transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .color-swatch-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.95em;
+            text-align: center;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            backdrop-filter: blur(4px);
+        }
+
+        .color-divider {
+            width: 2px;
+            height: 140px;
+            background: var(--border-color);
+            position: relative;
+        }
+
+        .color-divider::before {
+            content: '↔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-background);
+            padding: 6px;
+            border-radius: 50%;
+            color: var(--secondary-text);
+            font-size: 1.4em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .color-info {
             text-align: left;
+            margin-top: 15px;
         }
 
         .color-name {
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: var(--primary-color);
             display: flex;
             justify-content: space-between;
@@ -224,19 +640,28 @@
         .color-details {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
         }
 
         .color-match {
             color: var(--secondary-text);
-            font-size: 0.95em;
-            margin-top: 12px;
+            font-size: 1em;
+            margin-top: 15px;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
+            padding: 12px;
+            background: var(--alternative-bg);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .color-match:hover {
+            transform: translateX(4px);
+            background: var(--hover-color);
         }
 
         .match-details {
@@ -245,42 +670,50 @@
 
         .match-name {
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            color: var(--text-color);
         }
 
         .match-swatch {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: inline-block;
             vertical-align: middle;
-            margin-right: 5px;
-            border: 1px solid var(--border-color);
+            margin-right: 6px;
+            border: 2px solid var(--border-color);
             flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .color-match:hover .match-swatch {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
         }
 
         .similarity {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 6px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
         }
 
         .similarity.high-match {
-            background-color: rgba(76, 175, 80, 0.1);
+            background-color: rgba(76, 175, 80, 0.15);
             color: #4CAF50;
         }
 
         .similarity.medium-match {
-            background-color: rgba(255, 193, 7, 0.1);
+            background-color: rgba(255, 193, 7, 0.15);
             color: #FFC107;
         }
 
         .similarity.low-match {
-            background-color: rgba(244, 67, 54, 0.1);
+            background-color: rgba(244, 67, 54, 0.15);
             color: #F44336;
         }
 
@@ -289,13 +722,18 @@
         }
 
         .match-method {
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: var(--secondary-text);
-            margin-top: 5px;
-            padding: 2px 6px;
+            margin-top: 6px;
+            padding: 4px 8px;
             background-color: var(--alternative-bg);
-            border-radius: 4px;
+            border-radius: 6px;
             display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .color-match:hover .match-method {
+            background-color: var(--card-background);
         }
 
         .high-match {
@@ -310,36 +748,122 @@
 
         .no-results {
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
             background: var(--card-background);
-            border-radius: 8px;
+            border-radius: 12px;
             color: var(--secondary-text);
             font-size: 1.1em;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .no-results-text {
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .no-results-suggestions {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--alternative-bg);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .no-results-suggestions-title {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .no-results-suggestions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .no-results-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--card-background);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .no-results-suggestion:hover {
+            background: var(--hover-color);
+            transform: translateX(4px);
+        }
+
+        .no-results-suggestion-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .no-results-suggestion-text {
+            font-size: 0.95em;
+            color: var(--text-color);
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
             color: var(--secondary-text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .loading-text {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         #pagination {
@@ -526,50 +1050,6 @@
             }
         }
 
-        .color-match-method {
-            display: flex;
-            flex-direction: column;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: var(--alternative-bg);
-            border-radius: 6px;
-            width: 100%;
-        }
-        
-        .color-match-method > span {
-            font-size: 0.9em;
-            color: var(--secondary-text);
-            margin-bottom: 8px;
-        }
-        
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .radio-label:hover {
-            background-color: var(--hover-color);
-        }
-        
-        .radio-label input[type="radio"] {
-            margin: 0;
-        }
-        
-        .radio-label span {
-            font-size: 0.9em;
-        }
-        
         .method-banner {
             display: flex;
             align-items: center;
@@ -668,17 +1148,45 @@
                 Search Colors
             </h2>
             <div class="search-container">
-                <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
-                <div class="color-match-method">
-                    <span>Matching Method:</span>
-                    <div class="radio-group">
-                        <label class="radio-label">
+                <div class="search-box-wrapper">
+                    <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
+                    <span class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="search-options">
+                    <div class="search-options-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Color Matching Method
+                    </div>
+                    <div class="method-toggle-group">
+                        <label class="method-toggle">
                             <input type="radio" name="searchColorMatchMethod" value="rgb" checked>
-                            <span>RGB (Basic)</span>
+                            <span class="toggle-icon"></span>
+                            <span class="toggle-label">RGB (Basic)</span>
+                            <span class="tooltip-icon">ℹ️</span>
+                            <span class="tooltip">Fast but not perceptually accurate</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="method-toggle">
                             <input type="radio" name="searchColorMatchMethod" value="lab">
-                            <span>CIELAB (Perceptual)</span>
+                            <span class="toggle-icon"></span>
+                            <span class="toggle-label">CIELAB (Perceptual)</span>
+                            <span class="tooltip-icon">ℹ️</span>
+                            <span class="tooltip">More accurate for human vision</span>
+                        </label>
+                        <label class="method-toggle">
+                            <input type="radio" name="searchColorMatchMethod" value="deltaE2000">
+                            <span class="toggle-icon"></span>
+                            <span class="toggle-label">Delta E 2000 (Advanced)</span>
+                            <span class="tooltip-icon">ℹ️</span>
+                            <span class="tooltip">Most precise match</span>
                         </label>
                     </div>
                 </div>
@@ -698,28 +1206,18 @@
             <div class="hex-input-container">
                 <div class="hex-input-label">
                     <span>Preview:</span>
-                    <div class="hex-preview"></div>
+                    <div class="hex-preview" id="colorPreview"></div>
                 </div>
-                <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE">
-                <button id="hexSubmit" class="hex-submit" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    Find Matches
-                </button>
-                <div class="color-match-method">
-                    <span>Matching Method:</span>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="colorMatchMethod" value="rgb" checked>
-                            <span>RGB (Basic)</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="colorMatchMethod" value="lab">
-                            <span>CIELAB (Perceptual)</span>
-                        </label>
-                    </div>
+                <div class="hex-input-wrapper">
+                    <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE">
+                    <input type="color" id="colorPicker">
+                    <button id="hexSubmit" class="hex-submit" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Find Matches
+                    </button>
                 </div>
             </div>
         </div>
@@ -961,7 +1459,8 @@
                     thread.matchCode = primaryMatch.pantoneCode;
                     thread.matchRgb = primaryMatch.pantoneRgb;
                     thread.distance = primaryMatch.distance;
-                    thread.matchMethod = colorMatchMethod; // Store the method used
+                    thread.matchMethod = colorMatchMethod;
+                    thread.matchType = 'pantone';
                     
                     // Alternative matches (if any)
                     if (matches.length > 1) {
@@ -975,27 +1474,59 @@
                 } else {
                     // If no exact match, find closest pantone colors by selected method
                     thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 2, colorMatchMethod, []);
-                    thread.matchMethod = colorMatchMethod; // Store the method used
+                    thread.matchMethod = colorMatchMethod;
                 }
             });
             
             // Enhance pantone data with thread matches and alternatives
             pantoneData.forEach(pantone => {
-                // Find the thread match for this pantone
-                const match = pantoneToThreadData.find(m => m.pantoneCode === pantone.code);
+                // Find all thread matches for this pantone
+                const matches = pantoneToThreadData
+                    .filter(m => m.pantoneCode === pantone.code)
+                    .sort((a, b) => a.distance - b.distance);
                 
-                if (match) {
-                    pantone.matchCode = match.threadCode;
-                    pantone.matchRgb = match.threadRgb;
-                    pantone.distance = match.distance;
-                    pantone.matchMethod = colorMatchMethod; // Store the method used
-                    
-                    // Find alternative thread matches
-                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 2, colorMatchMethod, [match.threadCode]);
+                if (matches.length > 0) {
+                    // Find the thread color in threadData
+                    const threadColor = threadData.find(t => t.code === matches[0].threadCode);
+                    if (threadColor) {
+                        pantone.matchCode = threadColor.code;
+                        pantone.matchRgb = threadColor.rgb;
+                        pantone.distance = matches[0].distance;
+                        pantone.matchMethod = colorMatchMethod;
+                        pantone.matchType = 'thread';
+                        
+                        // Get alternative thread matches
+                        const alternativeMatches = matches.slice(1).map(match => {
+                            const altThread = threadData.find(t => t.code === match.threadCode);
+                            if (altThread) {
+                                return {
+                                    code: altThread.code,
+                                    rgb: altThread.rgb,
+                                    distance: match.distance,
+                                    type: 'thread'
+                                };
+                            }
+                            return null;
+                        }).filter(match => match !== null);
+                        
+                        // Add additional closest thread colors if needed
+                        if (alternativeMatches.length < 2) {
+                            const additionalMatches = findClosestColorsWithMethod(
+                                pantone,
+                                threadData.filter(t => !matches.some(m => m.threadCode === t.code)),
+                                2 - alternativeMatches.length,
+                                colorMatchMethod,
+                                matches.map(m => m.threadCode)
+                            );
+                            pantone.alternativeMatches = [...alternativeMatches, ...additionalMatches];
+                        } else {
+                            pantone.alternativeMatches = alternativeMatches;
+                        }
+                    }
                 } else {
                     // If no exact match, find closest thread colors by selected method
                     pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 2, colorMatchMethod, []);
-                    pantone.matchMethod = colorMatchMethod; // Store the method used
+                    pantone.matchMethod = colorMatchMethod;
                 }
             });
             
@@ -1004,28 +1535,6 @@
             displayColors(filteredColors, currentPage);
         }
 
-        // Calculate RGB distance between two colors
-        function rgbDistance(color1, color2) {
-            const dr = color1.rgb.r - color2.rgb.r;
-            const dg = color1.rgb.g - color2.rgb.g;
-            const db = color1.rgb.b - color2.rgb.b;
-            return Math.sqrt(dr*dr + dg*dg + db*db);
-        }
-        
-        // Find closest colors by RGB distance
-        function findClosestColors(sourceColor, targetColors, count = 2, excludeCodes = []) {
-            return targetColors
-                .filter(color => !excludeCodes.includes(color.code))
-                .map(color => ({
-                    code: color.code,
-                    rgb: color.rgb,
-                    distance: rgbDistance(sourceColor, color)
-                }))
-                .sort((a, b) => a.distance - b.distance)
-                .slice(0, count);
-        }
-        
-        // Find closest colors using the specified method (RGB or CIELAB)
         function findClosestColorsWithMethod(sourceColor, targetColors, count = 2, method = 'rgb', excludeCodes = []) {
             return targetColors
                 .filter(color => !excludeCodes.includes(color.code))
@@ -1069,6 +1578,9 @@
             // Show status with count
             showStatus(`Showing ${startIndex + 1}-${endIndex} of ${colors.length} colors`, false);
             
+            // Get the current matching method
+            const currentMethod = pageColors[0].matchMethod || 'rgb';
+            
             // If we're displaying a custom color, show the matching method at the top
             if (pageColors.length === 1 && pageColors[0].type === 'custom' && pageColors[0].matchMethod) {
                 const methodBanner = document.createElement('div');
@@ -1082,7 +1594,7 @@
                         </svg>
                     </div>
                     <div class="method-text">
-                        Using <strong>${pageColors[0].matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</strong> color matching method
+                        Using <strong>${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</strong> color matching method
                     </div>
                 `;
                 
@@ -1105,7 +1617,7 @@
                         </svg>
                     </div>
                     <div class="method-text">
-                        Using <strong>${pageColors[0].matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</strong> color matching method for all results
+                        Using <strong>${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</strong> color matching method for all results
                     </div>
                 `;
                 
@@ -1132,12 +1644,25 @@
                         (color.type === 'pantone' ? 'Thread' : 'Pantone');
                     const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
                     const matchHex = rgbToHex(color.matchRgb.r, color.matchRgb.g, color.matchRgb.b);
-                    const similarity = (100 - Math.min(color.distance, 100)).toFixed(1);
+                    
+                    // Calculate similarity based on the matching method
+                    let similarity;
+                    if (currentMethod === 'deltaE2000') {
+                        // Delta E 2000: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (color.distance * 2));
+                    } else if (currentMethod === 'lab') {
+                        // CIELAB: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (color.distance * 0.5));
+                    } else {
+                        // RGB: lower is better, convert to percentage (max 100)
+                        similarity = Math.max(0, 100 - (color.distance * 0.2));
+                    }
+                    
                     const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
                     
                     // Display the matching method if it's a custom color
                     const matchMethodHTML = color.matchMethod ? 
-                        `<div class="match-method">Method: ${color.matchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'}</div>` : '';
+                        `<div class="match-method">Method: ${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</div>` : '';
                     
                     matchHTML = `
                         <div class="color-match">
@@ -1148,7 +1673,7 @@
                                 <div class="hex-value">Hex: ${matchHex}</div>
                                 <div class="similarity ${similarityClass}">
                                     <span class="similarity-label">Similarity:</span>
-                                    <span class="similarity-value">${similarity}%</span>
+                                    <span class="similarity-value">${similarity.toFixed(1)}%</span>
                                 </div>
                                 ${matchMethodHTML}
                             </div>
@@ -1193,7 +1718,17 @@
                 }
                 
                 colorDiv.innerHTML = `
-                    <div class="color-swatch" style="background-color: ${colorRGB}"></div>
+                    <div class="color-swatches-container">
+                        <div class="color-swatch" style="background-color: ${colorRGB}">
+                            <div class="color-swatch-label">${color.type === 'thread' ? 'Thread' : color.type === 'custom' ? 'Custom' : 'Pantone'}</div>
+                        </div>
+                        ${color.matchCode ? `
+                            <div class="color-divider"></div>
+                            <div class="color-swatch" style="background-color: rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})">
+                                <div class="color-swatch-label">${color.matchType === 'pantone' ? 'Pantone' : 'Thread'}</div>
+                            </div>
+                        ` : ''}
+                    </div>
                     <div class="color-info">
                         <div class="color-name">
                             ${color.code}
@@ -1211,6 +1746,66 @@
                 resultsDiv.appendChild(colorDiv);
             });
         }
+
+        // Add auto-suggestions functionality
+        let suggestionsTimeout;
+        const searchBox = document.getElementById('colorSearch');
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.className = 'suggestions-container';
+        searchBox.parentNode.appendChild(suggestionsContainer);
+
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            clearTimeout(suggestionsTimeout);
+            
+            if (searchTerm.length < 2) {
+                suggestionsContainer.classList.remove('visible');
+                return;
+            }
+            
+            suggestionsTimeout = setTimeout(() => {
+                const suggestions = allColors
+                    .filter(color => 
+                        color.code.toLowerCase().includes(searchTerm) ||
+                        (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
+                    )
+                    .slice(0, 10);
+                
+                if (suggestions.length > 0) {
+                    suggestionsContainer.innerHTML = suggestions.map(color => `
+                        <div class="suggestion-item" data-code="${color.code}">
+                            <div class="suggestion-color" style="background-color: rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})"></div>
+                            <div class="suggestion-text">
+                                <div>${color.code}</div>
+                                <div class="suggestion-type">${color.type === 'thread' ? 'Thread' : 'Pantone'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                    suggestionsContainer.classList.add('visible');
+                } else {
+                    suggestionsContainer.classList.remove('visible');
+                }
+            }, 200);
+        });
+
+        suggestionsContainer.addEventListener('click', (e) => {
+            const suggestionItem = e.target.closest('.suggestion-item');
+            if (suggestionItem) {
+                const code = suggestionItem.dataset.code;
+                searchBox.value = code;
+                suggestionsContainer.classList.remove('visible');
+                // Trigger search
+                const event = new Event('input');
+                searchBox.dispatchEvent(event);
+            }
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchBox.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.classList.remove('visible');
+            }
+        });
 
         document.getElementById('colorSearch').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
@@ -1242,19 +1837,42 @@
             }
         });
 
-        document.getElementById('hexInput').addEventListener('input', (e) => {
+        // Add color picker functionality
+        const colorPreview = document.getElementById('colorPreview');
+        const colorPicker = document.getElementById('colorPicker');
+        const hexInput = document.getElementById('hexInput');
+
+        colorPreview.addEventListener('click', () => {
+            colorPicker.click();
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            hexInput.value = color.toUpperCase();
+            colorPreview.style.backgroundColor = color;
+            document.getElementById('hexSubmit').disabled = false;
+        });
+
+        colorPicker.addEventListener('change', (e) => {
+            const color = e.target.value;
+            hexInput.value = color.toUpperCase();
+            colorPreview.style.backgroundColor = color;
+            document.getElementById('hexSubmit').disabled = false;
+        });
+
+        // Update hex input handler
+        hexInput.addEventListener('input', (e) => {
             const hexInput = e.target;
             const hexSubmit = document.getElementById('hexSubmit');
-            const hexPreview = document.querySelector('.hex-preview');
             let hexCode = hexInput.value.trim();
             
             if (isValidHexColor(hexCode)) {
                 hexCode = normalizeHexColor(hexCode);
                 hexInput.value = hexCode;
-                hexPreview.style.backgroundColor = hexCode;
+                colorPreview.style.backgroundColor = hexCode;
                 hexSubmit.disabled = false;
             } else {
-                hexPreview.style.backgroundColor = 'transparent';
+                colorPreview.style.backgroundColor = 'transparent';
                 hexSubmit.disabled = true;
             }
         });
@@ -1387,8 +2005,84 @@
             );
         }
         
+        // Delta E 2000 calculation functions
+        function rad2deg(rad) {
+            return 360 * rad / (2 * Math.PI);
+        }
+
+        function deg2rad(deg) {
+            return (2 * Math.PI * deg) / 360;
+        }
+
+        function calculateDeltaE2000(lab1, lab2) {
+            // Calculating c1, c2, h1, h2
+            const c1 = Math.sqrt(lab1.a * lab1.a + lab1.b * lab1.b);
+            const c2 = Math.sqrt(lab2.a * lab2.a + lab2.b * lab2.b);
+            const c_bar = (c1 + c2) / 2;
+            
+            const G = 0.5 * (1 - Math.sqrt(Math.pow(c_bar, 7) / (Math.pow(c_bar, 7) + Math.pow(25, 7))));
+            
+            const a1_prime = (1 + G) * lab1.a;
+            const a2_prime = (1 + G) * lab2.a;
+            
+            const C1_prime = Math.sqrt(a1_prime * a1_prime + lab1.b * lab1.b);
+            const C2_prime = Math.sqrt(a2_prime * a2_prime + lab2.b * lab2.b);
+            
+            let h1_prime = rad2deg(Math.atan2(lab1.b, a1_prime));
+            if (h1_prime < 0) h1_prime += 360;
+            
+            let h2_prime = rad2deg(Math.atan2(lab2.b, a2_prime));
+            if (h2_prime < 0) h2_prime += 360;
+            
+            const H_bar_prime = Math.abs(h1_prime - h2_prime) > 180 ? (h1_prime + h2_prime + 360) / 2 : (h1_prime + h2_prime) / 2;
+            
+            const T = 1 - 0.17 * Math.cos(deg2rad(H_bar_prime - 30)) + 
+                      0.24 * Math.cos(deg2rad(2 * H_bar_prime)) + 
+                      0.32 * Math.cos(deg2rad(3 * H_bar_prime + 6)) - 
+                      0.20 * Math.cos(deg2rad(4 * H_bar_prime - 63));
+            
+            let delta_h_prime;
+            if (Math.abs(h2_prime - h1_prime) <= 180) {
+                delta_h_prime = h2_prime - h1_prime;
+            } else {
+                delta_h_prime = h2_prime <= h1_prime ? h2_prime - h1_prime + 360 : h2_prime - h1_prime - 360;
+            }
+            
+            const delta_L_prime = lab2.L - lab1.L;
+            const delta_C_prime = C2_prime - C1_prime;
+            const delta_H_prime = 2 * Math.sqrt(C1_prime * C2_prime) * Math.sin(deg2rad(delta_h_prime) / 2);
+            
+            const L_bar_prime = (lab1.L + lab2.L) / 2;
+            const C_bar_prime = (C1_prime + C2_prime) / 2;
+            
+            const S_L = 1 + ((0.015 * Math.pow(L_bar_prime - 50, 2)) / Math.sqrt(20 + Math.pow(L_bar_prime - 50, 2)));
+            const S_C = 1 + 0.045 * C_bar_prime;
+            const S_H = 1 + 0.015 * C_bar_prime * T;
+            
+            const delta_theta = 30 * Math.exp(-Math.pow((H_bar_prime - 275) / 25, 2));
+            const R_C = 2 * Math.sqrt(Math.pow(C_bar_prime, 7) / (Math.pow(C_bar_prime, 7) + Math.pow(25, 7)));
+            const R_T = -R_C * Math.sin(2 * deg2rad(delta_theta));
+            
+            const k_L = 1;
+            const k_C = 1;
+            const k_H = 1;
+            
+            const delta_E = Math.sqrt(
+                Math.pow(delta_L_prime / (k_L * S_L), 2) +
+                Math.pow(delta_C_prime / (k_C * S_C), 2) +
+                Math.pow(delta_H_prime / (k_H * S_H), 2) +
+                R_T * (delta_C_prime / (k_C * S_C)) * (delta_H_prime / (k_H * S_H))
+            );
+            
+            return delta_E;
+        }
+
         function calculateColorDistance(rgb1, rgb2, method = 'rgb') {
-            if (method === 'lab') {
+            if (method === 'deltaE2000') {
+                const lab1 = rgbToLab(rgb1);
+                const lab2 = rgbToLab(rgb2);
+                return calculateDeltaE2000(lab1, lab2);
+            } else if (method === 'lab') {
                 const lab1 = rgbToLab(rgb1);
                 const lab2 = rgbToLab(rgb2);
                 return calculateLabDistance(lab1, lab2);
@@ -1459,37 +2153,135 @@
             resultsDiv.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <div>Loading color data...</div>
+                    <div class="loading-text">Loading color data...</div>
+                    <div class="loading-progress">
+                        <div class="loading-progress-bar"></div>
+                    </div>
                 </div>
             `;
             
             // Load color data
             loadColorData();
-            
-            // Set up the color matching method radio buttons
-            const colorMatchMethodRadios = document.querySelectorAll('input[name="colorMatchMethod"]');
-            colorMatchMethodRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (filteredColors.length === 1 && filteredColors[0].type === 'custom') {
-                        // Show a status message about the matching method change
-                        showStatus(`Switching to ${this.value === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 3000);
-                        
-                        // Trigger the hex submit button click to refresh the results
-                        document.getElementById('hexSubmit').click();
-                    }
-                });
-            });
         });
 
-        // Add event listener for search color match method change
-        document.querySelectorAll('input[name="searchColorMatchMethod"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                // Show a status message about the matching method change
-                showStatus(`Switching to ${this.value === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 3000);
-                
-                // Reprocess and redisplay the data with the new method
-                processAndDisplayData();
+        function showLoading(progress = 0) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Searching for matches...</div>
+                    <div class="loading-progress">
+                        <div class="loading-progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showNoResults(searchTerm) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Find similar colors for suggestions
+            const similarColors = allColors
+                .map(color => ({
+                    ...color,
+                    similarity: calculateStringSimilarity(searchTerm, color.code)
+                }))
+                .filter(color => color.similarity > 0.3)
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 5);
+            
+            let suggestionsHTML = '';
+            if (similarColors.length > 0) {
+                suggestionsHTML = `
+                    <div class="no-results-suggestions">
+                        <div class="no-results-suggestions-title">Similar colors you might be interested in:</div>
+                        <div class="no-results-suggestions-list">
+                            ${similarColors.map(color => `
+                                <div class="no-results-suggestion" data-code="${color.code}">
+                                    <div class="no-results-suggestion-color" style="background-color: rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})"></div>
+                                    <div class="no-results-suggestion-text">${color.code}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsDiv.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">🎨</div>
+                    <div class="no-results-text">
+                        No matches found for "${searchTerm}". Try adjusting your search or using a different color matching method.
+                    </div>
+                    ${suggestionsHTML}
+                </div>
+            `;
+            
+            // Add click handlers for suggestions
+            resultsDiv.querySelectorAll('.no-results-suggestion').forEach(suggestion => {
+                suggestion.addEventListener('click', () => {
+                    const code = suggestion.dataset.code;
+                    document.getElementById('colorSearch').value = code;
+                    const event = new Event('input');
+                    document.getElementById('colorSearch').dispatchEvent(event);
+                });
             });
+        }
+
+        function calculateStringSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+            
+            if (str1 === str2) return 1;
+            if (str1.includes(str2) || str2.includes(str1)) return 0.8;
+            
+            const words1 = str1.split(/\s+/);
+            const words2 = str2.split(/\s+/);
+            
+            const commonWords = words1.filter(word => words2.includes(word));
+            return commonWords.length / Math.max(words1.length, words2.length);
+        }
+
+        // Update the search handler to use the new loading and no-results states
+        document.getElementById('colorSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                filteredColors = allColors;
+                displayColors(filteredColors, currentPage);
+                return;
+            }
+            
+            // Show loading state
+            showLoading(0);
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress <= 90) {
+                    document.querySelector('.loading-progress-bar').style.width = `${progress}%`;
+                }
+            }, 100);
+            
+            // Filter colors
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                filteredColors = allColors.filter(color => 
+                    color.code.toLowerCase().includes(searchTerm) || 
+                    (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
+                );
+                
+                if (filteredColors.length === 0) {
+                    showNoResults(searchTerm);
+                } else {
+                    document.querySelector('.loading-progress-bar').style.width = '100%';
+                    setTimeout(() => {
+                        currentPage = 1;
+                        displayColors(filteredColors, currentPage);
+                    }, 200);
+                }
+            }, 500);
         });
     </script>
 </body>
