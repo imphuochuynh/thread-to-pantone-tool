@@ -1486,27 +1486,36 @@
                     .filter(m => m.threadCode === thread.code)
                     .sort((a, b) => a.distance - b.distance);
                 
-                if (matches.length > 0) {
-                    // Primary match
-                    const primaryMatch = matches[0];
-                    thread.matchCode = primaryMatch.pantoneCode;
-                    thread.matchRgb = primaryMatch.pantoneRgb;
-                    thread.distance = primaryMatch.distance;
+                // Find additional potential matches
+                const additionalMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, matches.map(m => m.pantoneCode));
+                
+                // Combine all matches and sort by distance
+                const allMatches = [
+                    ...matches.map(m => ({
+                        code: m.pantoneCode,
+                        rgb: m.pantoneRgb,
+                        distance: m.distance,
+                        type: 'pantone'
+                    })),
+                    ...additionalMatches
+                ].sort((a, b) => a.distance - b.distance);
+                
+                if (allMatches.length > 0) {
+                    // Set the best match as the primary match
+                    const bestMatch = allMatches[0];
+                    thread.matchCode = bestMatch.code;
+                    thread.matchRgb = bestMatch.rgb;
+                    thread.distance = bestMatch.distance;
                     thread.matchMethod = colorMatchMethod;
                     thread.matchType = 'pantone';
                     
-                    // Alternative matches (if any)
-                    if (matches.length > 1) {
-                        thread.alternativeMatches = matches.slice(1, 3).map(m => ({
-                            code: m.pantoneCode,
-                            rgb: m.pantoneRgb,
-                            distance: m.distance,
-                            type: 'pantone'
-                        }));
+                    // Set remaining matches as alternatives
+                    if (allMatches.length > 1) {
+                        thread.alternativeMatches = allMatches.slice(1, 4);
                     }
                 } else {
-                    // If no exact match, find closest pantone colors by selected method
-                    thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 2, colorMatchMethod, []);
+                    // If no matches found, use the closest colors
+                    thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, []);
                     thread.matchMethod = colorMatchMethod;
                 }
             });
@@ -1518,47 +1527,36 @@
                     .filter(m => m.pantoneCode === pantone.code)
                     .sort((a, b) => a.distance - b.distance);
                 
-                if (matches.length > 0) {
-                    // Find the thread color in threadData
-                    const threadColor = threadData.find(t => t.code === matches[0].threadCode);
-                    if (threadColor) {
-                        pantone.matchCode = threadColor.code;
-                        pantone.matchRgb = threadColor.rgb;
-                        pantone.distance = matches[0].distance;
-                        pantone.matchMethod = colorMatchMethod;
-                        pantone.matchType = 'thread';
-                        
-                        // Get alternative thread matches
-                        const alternativeMatches = matches.slice(1).map(match => {
-                            const altThread = threadData.find(t => t.code === match.threadCode);
-                            if (altThread) {
-                                return {
-                                    code: altThread.code,
-                                    rgb: altThread.rgb,
-                                    distance: match.distance,
-                                    type: 'thread'
-                                };
-                            }
-                            return null;
-                        }).filter(match => match !== null);
-                        
-                        // Add additional closest thread colors if needed
-                        if (alternativeMatches.length < 2) {
-                            const additionalMatches = findClosestColorsWithMethod(
-                                pantone,
-                                threadData.filter(t => !matches.some(m => m.threadCode === t.code)),
-                                2 - alternativeMatches.length,
-                                colorMatchMethod,
-                                matches.map(m => m.threadCode)
-                            );
-                            pantone.alternativeMatches = [...alternativeMatches, ...additionalMatches];
-                        } else {
-                            pantone.alternativeMatches = alternativeMatches;
-                        }
+                // Find additional potential matches
+                const additionalMatches = findClosestColorsWithMethod(pantone, threadData, 3, colorMatchMethod, matches.map(m => m.threadCode));
+                
+                // Combine all matches and sort by distance
+                const allMatches = [
+                    ...matches.map(m => ({
+                        code: m.threadCode,
+                        rgb: m.threadRgb,
+                        distance: m.distance,
+                        type: 'thread'
+                    })),
+                    ...additionalMatches
+                ].sort((a, b) => a.distance - b.distance);
+                
+                if (allMatches.length > 0) {
+                    // Set the best match as the primary match
+                    const bestMatch = allMatches[0];
+                    pantone.matchCode = bestMatch.code;
+                    pantone.matchRgb = bestMatch.rgb;
+                    pantone.distance = bestMatch.distance;
+                    pantone.matchMethod = colorMatchMethod;
+                    pantone.matchType = 'thread';
+                    
+                    // Set remaining matches as alternatives
+                    if (allMatches.length > 1) {
+                        pantone.alternativeMatches = allMatches.slice(1, 4);
                     }
                 } else {
-                    // If no exact match, find closest thread colors by selected method
-                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 2, colorMatchMethod, []);
+                    // If no matches found, use the closest colors
+                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 3, colorMatchMethod, []);
                     pantone.matchMethod = colorMatchMethod;
                 }
             });
