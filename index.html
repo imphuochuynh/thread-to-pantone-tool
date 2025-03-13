@@ -1035,27 +1035,31 @@
             border: 1px solid var(--border-color);
         }
 
-        .status-indicator.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         .status-indicator .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background-color: #4CAF50;
+            display: block;
+            flex: 0 0 8px;
+            min-width: 8px;
+            min-height: 8px;
         }
 
         .status-indicator .status-dot.loading {
             background-color: #FFC107;
-            animation: pulse 1.5s infinite;
+            animation: pulse-dot 1.5s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
+        @keyframes pulse-dot {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 600px) {
@@ -1968,7 +1972,7 @@
                 const rgb = hexToRgb(normalizedHex);
                 
                 // Get the selected color matching method
-                const colorMatchMethod = document.querySelector('input[name="colorMatchMethod"]:checked').value;
+                const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
                 
                 // Find closest Pantone colors using the selected method
                 const closestPantoneColors = findClosestColorsToHex(normalizedHex, pantoneData, 3, colorMatchMethod);
@@ -1984,8 +1988,8 @@
                     matchCode: closestPantoneColors[0].code,
                     matchRgb: closestPantoneColors[0].rgb,
                     distance: closestPantoneColors[0].distance,
-                    matchMethod: colorMatchMethod, // Store the method used for matching
-                    matchType: 'pantone', // Explicitly indicate the primary match is a Pantone color
+                    matchMethod: colorMatchMethod,
+                    matchType: 'pantone',
                     alternativeMatches: [
                         ...closestPantoneColors.slice(1).map(c => ({...c, type: 'pantone'})),
                         ...closestThreadColors.map(c => ({...c, type: 'thread'}))
@@ -1998,7 +2002,7 @@
                 displayColors(filteredColors, currentPage);
                 
                 // Show a status message about the matching method used
-                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : 'CIELAB (Perceptual)'} color matching`, false, 6000);
+                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'} color matching`, false, 6000);
             }
         });
 
