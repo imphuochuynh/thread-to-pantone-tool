@@ -1744,7 +1744,7 @@
                 if (color.alternativeMatches && color.alternativeMatches.length > 0) {
                     // Use matchType property if available, otherwise determine based on color type
                     const matchType = color.matchType ? 
-                        'Thread' : 
+                        (color.type === 'thread' ? 'Pantone' : 'Thread') : 
                         (color.type === 'pantone' ? 'Thread' : 'Pantone');
                     alternativesHTML = `
                         <div class="alternatives-section">
