@@ -1432,11 +1432,30 @@
             align-items: center;
             margin-top: 4px;
             font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: var(--alternative-bg);
+            width: fit-content;
+        }
+
+        .match-similarity.high-match {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #2E7D32;
+        }
+
+        .match-similarity.medium-match {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #F57F17;
+        }
+
+        .match-similarity.low-match {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #C62828;
         }
 
         .similarity-value {
             font-weight: 600;
-            color: var(--primary-color);
+            color: inherit;
             margin-left: 4px;
         }
 
@@ -2368,7 +2387,7 @@
                                 <div class="match-info">
                                     <div class="match-rgb">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}</div>
                                     <div class="match-hex">Hex: ${matchHex}</div>
-                                    <div class="match-similarity">
+                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                         <span class="similarity-label">Similarity:</span>
                                         <span class="similarity-value">${similarityPercentage}</span>
                                     </div>
@@ -2428,7 +2447,7 @@
                                             <div class="match-info">
                                                 <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
                                                 <div class="match-hex">Hex: ${altHex}</div>
-                                                <div class="match-similarity">
+                                                <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                                     <span class="similarity-label">Similarity:</span>
                                                     <span class="similarity-value">${similarityPercentage}</span>
                                                 </div>
@@ -3502,6 +3521,20 @@
 
         // Initialize the app
         loadPantoneData();
+
+        // Update the JavaScript section that creates the match HTML
+        function updateMatchSimilarity(similarity) {
+            const percentage = parseFloat(similarity);
+            let matchClass = '';
+            if (percentage >= 90) {
+                matchClass = 'high-match';
+            } else if (percentage >= 75) {
+                matchClass = 'medium-match';
+            } else {
+                matchClass = 'low-match';
+            }
+            return matchClass;
+        }
     </script>
 </body>
 </html>
