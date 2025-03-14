@@ -14,6 +14,11 @@ A web-based tool for matching Minh Shyang 100% Polyester Embroidery Thread color
 - **Multiple Matching Methods**:
   - RGB (Basic): Simple Euclidean distance in RGB color space
   - CIELAB (Perceptual): Advanced matching using perceptually uniform color space
+  - Delta E 2000 (Advanced): Industry-standard color difference algorithm for highest accuracy
+- **Thread Shimmer Analysis**:
+  - Automatic calculation of thread shimmer score based on color properties
+  - Classification of threads as Matte, Semi-Gloss, or Metallic
+  - Adjustments to color matching to account for real-world thread appearance
 - **Alternative Matches**: Shows up to 2 alternative matches when an exact match isn't available
 - **Color Visualization**: Visual swatches for all colors and matches
 - **Distance Metrics**: Shows color distance between matched colors
@@ -43,6 +48,11 @@ This tool uses the following data sources:
 - **Color Matching Algorithms**: 
   - RGB Euclidean distance for basic color matching
   - CIELAB color space conversion for perceptually accurate matching
+  - Delta E 2000 algorithm for industry-standard color difference calculation
+- **Thread Shimmer Analysis**:
+  - Formula: Shimmer Score = (L + |a| + |b|) / 3 in CIELAB color space
+  - Categorization: Matte (< 50), Semi-Gloss (50-75), Metallic (> 75)
+  - Adaptive color adjustments based on shimmer category for improved matching
 - **Data Format**: CSV and JSON files for color data and matches
 - **Accessibility**: Supports light and dark modes for better readability
 - **GitHub Pages Compatible**: Designed to work directly from GitHub Pages hosting

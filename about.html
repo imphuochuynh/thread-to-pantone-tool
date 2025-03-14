@@ -214,6 +214,47 @@
         
         <p>You can choose your preferred matching method when using the hex color input feature. The color similarity percentage is calculated based on the selected method, with a higher percentage (closer to 100%) indicating a better match between colors.</p>
 
+        <h3>Delta E 2000 (Advanced) Matching</h3>
+        <p>The Delta E 2000 matching method represents the most advanced color difference algorithm available in this tool:</p>
+        <ul>
+            <li>Provides the most perceptually accurate color difference measurement</li>
+            <li>Accounts for variations in human perception across different hues</li>
+            <li>Particularly effective for finding matches in challenging color regions</li>
+            <li>Industry standard for critical color matching applications</li>
+        </ul>
+
+        <h2>Thread Shimmer Analysis</h2>
+        <p>One unique feature of this tool is its ability to analyze and account for the shimmer characteristics of embroidery threads. Unlike flat color systems like Pantone, embroidery threads have varying levels of light reflection and shimmer that affect their appearance.</p>
+        
+        <h3>Understanding Shimmer Score</h3>
+        <p>The shimmer score is calculated using the CIELAB color values of a thread:</p>
+        <ul>
+            <li><strong>Formula:</strong> Shimmer Score = (L + |a| + |b|) / 3</li>
+            <li><strong>L value:</strong> Represents lightness (0-100)</li>
+            <li><strong>a value:</strong> Represents the red-green axis (negative = green, positive = red)</li>
+            <li><strong>b value:</strong> Represents the blue-yellow axis (negative = blue, positive = yellow)</li>
+        </ul>
+        
+        <p>This formula combines the lightness with the absolute color intensity to estimate how much a thread might shimmer or reflect light. The higher the score, the more likely the thread will have a noticeable shimmer effect.</p>
+        
+        <h3>Shimmer Categories</h3>
+        <p>Based on the calculated shimmer score, threads are categorized into three shimmer levels:</p>
+        <ul>
+            <li><strong>Matte (Score < 50):</strong> Threads with minimal shimmer that appear flat and absorb more light. These threads typically have lower lightness values and less intense colors.</li>
+            <li><strong>Semi-Gloss (Score 50-75):</strong> Threads with moderate shimmer that have a subtle sheen. These threads strike a balance between light absorption and reflection.</li>
+            <li><strong>Metallic (Score > 75):</strong> Threads with high shimmer that have a pronounced reflective quality. These threads typically have high lightness values and intense color saturation.</li>
+        </ul>
+        
+        <h3>How Shimmer Affects Color Matching</h3>
+        <p>When the "Factor in Thread Shimmer" option is enabled, the tool makes the following adjustments to improve match accuracy:</p>
+        <ul>
+            <li><strong>Matte threads:</strong> Lightness is slightly reduced (-3 units) to account for light absorption</li>
+            <li><strong>Semi-Gloss threads:</strong> Lightness is slightly increased (+3 units) to account for moderate reflection</li>
+            <li><strong>Metallic threads:</strong> Lightness is significantly increased (+6 units) and color saturation is reduced by 5% to account for high reflection and color shift</li>
+        </ul>
+        
+        <p>These adjustments help provide more accurate matches between flat color systems (like Pantone) and the dimensional appearance of embroidery threads in real-world applications.</p>
+
         <h2>Who It's For</h2>
         <p>This tool is invaluable for:</p>
         <ul>
@@ -231,6 +272,8 @@
             <li>Fast, client-side processing with no server dependencies</li>
             <li>Light and dark modes for comfortable viewing in any environment</li>
             <li>Comprehensive search capabilities across both color systems</li>
+            <li>Three color matching algorithms (RGB, CIELAB, and Delta E 2000) for different precision needs</li>
+            <li>Thread shimmer analysis for more accurate real-world color matching</li>
         </ul>
 
         <h2>Data Integrity</h2>
@@ -243,7 +286,13 @@
         <p>This comprehensive approach ensures that users can find accurate matches for virtually any color in either system.</p>
 
         <h2>Ongoing Development</h2>
-        <p>This tool is continuously improved to enhance accuracy, add new features, and expand the color database. User feedback is essential to this process, helping to refine the matching algorithms and improve the user experience.</p>
+        <p>This tool is continuously improved to enhance accuracy, add new features, and expand the color database. Recent updates include:</p>
+        <ul>
+            <li><strong>Delta E 2000 Algorithm:</strong> Added the industry-standard color difference algorithm for highest accuracy matching</li>
+            <li><strong>Thread Shimmer Analysis:</strong> Implemented advanced shimmer detection and classification to better match real-world thread appearance</li>
+            <li><strong>Enhanced Tooltips:</strong> Added detailed explanations and calculations for better understanding of the matching process</li>
+        </ul>
+        <p>User feedback is essential to this process, helping to refine the matching algorithms and improve the user experience.</p>
 
         <h2>Disclaimer</h2>
         <p>This tool was created with the assistance of artificial intelligence. While every effort has been made to ensure accuracy and functionality, please verify critical color matches with physical samples when absolute precision is required.</p>
@@ -257,6 +306,15 @@
         </ul>
         <p>This comprehensive approach ensures that users can find accurate matches for virtually any color in either system.</p>
 
+        <h2>Source Code</h2>
+        <p>This project is open source. You can view the code, contribute, or report issues on GitHub:</p>
+        <p><a href="https://github.com/imphuochuynh/thread-to-pantone-tool" target="_blank" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            github.com/imphuochuynh/thread-to-pantone-tool
+        </a></p>
+
         <a href="index.html" class="back-link">← Back to Color Matcher</a>
     </div>
 
@@ -269,10 +327,34 @@
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             
-            // Set initial theme
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeToggle.checked = true;
+            // Get user's timezone
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // Get current hour in user's timezone
+            const userTime = new Date().toLocaleString('en-US', { timeZone: userTimezone, hour: 'numeric', hour12: false });
+            const userHour = parseInt(userTime);
+            
+            // Determine if it's day or night based on hour (6 AM to 6 PM is day)
+            const isDayTime = userHour >= 6 && userHour < 18;
+            
+            // Set initial theme based on location time if no saved preference
+            if (savedTheme) {
+                // Use saved preference if available
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                }
+            } else {
+                // No saved preference, use time-based theme
+                if (!isDayTime) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.checked = false;
+                    localStorage.setItem('theme', 'light');
+                }
             }
             
             // Handle theme toggle

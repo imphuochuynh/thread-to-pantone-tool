@@ -414,6 +414,17 @@
             .method-toggle .tooltip-icon:hover + .tooltip {
                 transform: translateY(0);
             }
+            
+            /* Mobile styles for checkbox container tooltip */
+            .checkbox-container .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateY(8px);
+            }
+
+            .checkbox-container .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
         }
 
         .hex-input-container {
@@ -517,22 +528,51 @@
         }
 
         #colorPicker {
-            display: none;
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
         }
 
         @media (max-width: 600px) {
             .hex-input-container {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 15px;
+            }
+            
+            .hex-input-label {
+                margin-bottom: 15px;
+                justify-content: center;
+            }
+            
+            .hex-preview {
+                width: 80px;
+                height: 80px;
+                border-width: 3px;
+            }
+            
+            .hex-preview::after {
+                font-size: 16px;
+                padding: 4px 6px;
             }
             
             .hex-input-wrapper {
                 flex-direction: column;
+                gap: 15px;
+            }
+            
+            .hex-input {
+                width: 100%;
+                padding: 14px;
+                font-size: 16px;
+                text-align: center;
             }
             
             .hex-submit {
                 width: 100%;
                 justify-content: center;
+                padding: 16px;
+                margin-top: 5px;
             }
         }
 
@@ -1252,6 +1292,41 @@
             font-weight: 500;
         }
 
+        /* Add specific styles for the checkbox container tooltip */
+        .checkbox-container .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .checkbox-container .tooltip {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            white-space: normal;
+            max-width: 250px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .checkbox-container .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
         .shimmer-badge {
             display: inline-block;
             padding: 2px 6px;
@@ -1389,6 +1464,73 @@
         .color-match.alternative:hover::after {
             opacity: 1;
         }
+
+        /* Add general tooltip styles that work for all tooltip instances */
+        .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            white-space: normal;
+            max-width: 250px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        /* Specific styles for the checkbox container tooltip */
+        .checkbox-container {
+            position: relative;
+        }
+
+        .checkbox-container .tooltip {
+            bottom: 125%;
+        }
+
+        @media (max-width: 600px) {
+            .method-toggle .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+
+            /* Mobile styles for all tooltips */
+            .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateY(8px);
+            }
+
+            .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+
+            /* Specific mobile styles for checkbox container tooltip */
+            .checkbox-container .tooltip {
+                right: 0;
+                left: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1471,7 +1613,7 @@
                             <span class="checkmark"></span>
                             <span class="option-label">Factor in Thread Shimmer</span>
                             <span class="tooltip-icon">ℹ️</span>
-                            <span class="tooltip">Automatically estimates thread shimmer based on color properties and adjusts matches accordingly. Helps find better matches for matte, semi-gloss, and metallic threads.</span>
+                            <span class="tooltip">Calculates a shimmer score (L + |a| + |b|)/3 using CIELAB values to classify threads as Matte (<50), Semi-Gloss (50-75), or Metallic (>75). Adjusts lightness and saturation based on shimmer level to better match the real-world appearance of embroidery threads.</span>
                         </label>
                     </div>
                 </div>
@@ -1491,11 +1633,11 @@
                 <div class="hex-input-container">
                     <div class="hex-input-label">
                         <span>Preview:</span>
-                        <div class="hex-preview" id="colorPreview"></div>
+                        <div class="hex-preview" id="colorPreview" role="button" aria-label="Open color picker"></div>
+                        <input type="color" id="colorPicker" aria-label="Color picker">
                     </div>
                     <div class="hex-input-wrapper">
-                        <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE">
-                        <input type="color" id="colorPicker">
+                        <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE" aria-label="Hex color code">
                         <button id="hexSubmit" class="hex-submit" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
@@ -1553,6 +1695,12 @@
                 </svg>
                 About
             </a>
+            <a href="https://github.com/imphuochuynh/thread-to-pantone-tool" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+                GitHub
+            </a>
             <a href="#" id="resetColors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -1586,10 +1734,34 @@
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             
-            // Set initial theme
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeToggle.checked = true;
+            // Get user's timezone
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // Get current hour in user's timezone
+            const userTime = new Date().toLocaleString('en-US', { timeZone: userTimezone, hour: 'numeric', hour12: false });
+            const userHour = parseInt(userTime);
+            
+            // Determine if it's day or night based on hour (6 AM to 6 PM is day)
+            const isDayTime = userHour >= 6 && userHour < 18;
+            
+            // Set initial theme based on location time if no saved preference
+            if (savedTheme) {
+                // Use saved preference if available
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                }
+            } else {
+                // No saved preference, use time-based theme
+                if (!isDayTime) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.checked = false;
+                    localStorage.setItem('theme', 'light');
+                }
             }
             
             // Handle theme toggle
@@ -2330,8 +2502,22 @@
         const colorPicker = document.getElementById('colorPicker');
         const hexInput = document.getElementById('hexInput');
 
-        colorPreview.addEventListener('click', () => {
-            colorPicker.click();
+        // Improved color picker interaction for both desktop and mobile
+        colorPreview.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Use a small timeout to ensure the click event is fully processed
+            setTimeout(() => {
+                colorPicker.click();
+            }, 50);
+        });
+
+        // Add touch events for better mobile support
+        colorPreview.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            // Use a small timeout to ensure the touch event is fully processed
+            setTimeout(() => {
+                colorPicker.click();
+            }, 50);
         });
 
         colorPicker.addEventListener('input', (e) => {
@@ -2810,7 +2996,21 @@
             const shimmerInfo = `
                 <div class="shimmer-info">
                     <span class="shimmer-badge ${shimmerLevel}">${shimmerLevelText}</span>
-                    <span class="shimmer-score">Shimmer Score: ${shimmerScore}</span>
+                    <span class="shimmer-score">
+                        Shimmer Score: ${shimmerScore}
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip">
+                            Shimmer Score = (L + |a| + |b|)/3 = ${shimmerScore}<br>
+                            L (lightness): ${lab.L.toFixed(1)}<br>
+                            |a| (red-green): ${Math.abs(lab.a).toFixed(1)}<br>
+                            |b| (blue-yellow): ${Math.abs(lab.b).toFixed(1)}<br>
+                            <br>
+                            <strong>Categories:</strong><br>
+                            Matte: &lt;50<br>
+                            Semi-Gloss: 50-75<br>
+                            Metallic: &gt;75
+                        </span>
+                    </span>
                 </div>
             `;
             return shimmerInfo;
