@@ -593,16 +593,15 @@
 
         .color-card {
             background: var(--card-background);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
             position: relative;
-            overflow: hidden;
         }
 
         .color-card::before {
@@ -615,34 +614,32 @@
             background: var(--primary-color);
             opacity: 0;
             transition: opacity 0.3s ease;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
         }
 
         .color-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        }
-
-        .color-card:hover::before {
-            opacity: 1;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
         }
 
         .color-swatches-container {
             display: flex;
-            gap: 25px;
+            gap: 30px;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             position: relative;
         }
 
         .color-swatch {
             flex: 1;
-            height: 140px;
-            border-radius: 12px;
+            height: 160px;
+            border-radius: 16px;
             border: 2px solid var(--border-color);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
         }
 
         .color-swatch::after {
@@ -653,13 +650,8 @@
             right: 0;
             bottom: 0;
             border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            border-radius: 16px;
             pointer-events: none;
-        }
-
-        .color-swatch:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
         }
 
         .color-swatch-label {
@@ -667,19 +659,21 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.75);
             color: white;
             font-size: 0.95em;
             text-align: center;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            backdrop-filter: blur(4px);
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            backdrop-filter: blur(8px);
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
         .color-divider {
             width: 2px;
-            height: 140px;
+            height: 160px;
             background: var(--border-color);
             position: relative;
         }
@@ -691,75 +685,85 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: var(--card-background);
-            padding: 6px;
+            padding: 8px;
             border-radius: 50%;
             color: var(--secondary-text);
             font-size: 1.4em;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
         }
 
         .color-info {
             text-align: left;
-            margin-top: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--alternative-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
         }
 
         .color-name {
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             color: var(--primary-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            letter-spacing: 0.3px;
         }
 
         .color-details {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
+        }
+
+        .hex-value, .rgb-value {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.95em;
+            color: var(--secondary-text);
+            padding: 6px 10px;
+            background: var(--card-background);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: inline-block;
         }
 
         .color-match {
             color: var(--secondary-text);
             font-size: 1em;
-            margin-top: 15px;
+            margin-top: 20px;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
-            background: var(--alternative-bg);
-            border-radius: 10px;
+            gap: 16px;
+            padding: 16px;
+            background: var(--card-background);
+            border-radius: 12px;
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .color-match:hover {
             transform: translateX(4px);
             background: var(--hover-color);
-        }
-
-        .match-details {
-            flex: 1;
-        }
-
-        .match-name {
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--text-color);
+            border-color: var(--primary-color);
         }
 
         .match-swatch {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: inline-block;
             vertical-align: middle;
-            margin-right: 6px;
+            margin-right: 8px;
             border: 2px solid var(--border-color);
             flex-shrink: 0;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .color-match:hover .match-swatch {
@@ -767,13 +771,20 @@
             border-color: var(--primary-color);
         }
 
+        .match-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 1.1em;
+        }
+
         .similarity {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
-            padding: 6px 10px;
-            border-radius: 6px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
             font-size: 0.95em;
             transition: all 0.3s ease;
         }
@@ -781,47 +792,129 @@
         .similarity.high-match {
             background-color: rgba(76, 175, 80, 0.15);
             color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .similarity.medium-match {
             background-color: rgba(255, 193, 7, 0.15);
             color: #FFC107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
         }
 
         .similarity.low-match {
             background-color: rgba(244, 67, 54, 0.15);
             color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
         }
 
         .similarity-value {
             font-weight: 600;
-            color: var(--primary-color);
-            margin-left: 4px;
+            color: inherit;
+            margin-left: 6px;
+            font-size: 1.1em;
         }
 
         .match-method {
             font-size: 0.9em;
             color: var(--secondary-text);
-            margin-top: 6px;
-            padding: 4px 8px;
+            margin-top: 8px;
+            padding: 6px 10px;
             background-color: var(--alternative-bg);
-            border-radius: 6px;
+            border-radius: 8px;
             display: inline-block;
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .color-match:hover .match-method {
             background-color: var(--card-background);
         }
 
-        .high-match {
-            color: #2ecc71;
+        .alternatives-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
         }
 
-        .hex-value {
-            font-family: monospace;
+        .alternatives-title {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .color-match.alternative {
+            margin-top: 12px;
+            padding: 14px;
+            padding-right: 110px;
+            border-radius: 12px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .color-match.alternative:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-match.alternative::after {
+            content: '👆 Click to view';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
             font-size: 0.9em;
-            color: var(--light-text);
+            color: var(--secondary-text);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            background-color: var(--hover-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-match.alternative:hover::after {
+            opacity: 1;
+        }
+
+        .pin-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pin-button:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+
+        .pin-button svg {
+            width: 20px;
+            height: 20px;
+            color: var(--secondary-text);
+            transition: all 0.3s ease;
+        }
+
+        .pin-button.pinned svg {
+            color: #FFD700;
+            fill: #FFD700;
+            filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
         }
 
         .no-results {
@@ -1012,60 +1105,6 @@
             font-size: 0.8em;
             margin-left: 5px;
             background-color: var(--alternative-bg);
-        }
-
-        .rgb-value {
-            font-size: 0.8em;
-            color: var(--light-text);
-            margin-top: 4px;
-        }
-
-        .alternatives-section {
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border-color);
-        }
-
-        .alternatives-title {
-            font-size: 0.9em;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .color-match.alternative {
-            margin-top: 8px;
-            padding: 8px;
-            padding-right: 100px; /* Add right padding to make room for the click text */
-            border-radius: 6px;
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            position: relative; /* Ensure this is positioned relatively */
-        }
-
-        .color-match.alternative:hover {
-            background-color: var(--hover-color);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .color-match.alternative::after {
-            content: '👆 Click to view';
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8em;
-            color: var(--secondary-text);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none; /* Prevent the text from interfering with clicks */
-            background-color: inherit; /* Match parent background */
-            padding: 2px 6px; /* Add some padding around the text */
-            border-radius: 4px;
-        }
-
-        .color-match.alternative:hover::after {
-            opacity: 1;
         }
 
         .about-link {
@@ -1390,6 +1429,44 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            position: relative;
+        }
+
+        .return-to-best {
+            position: absolute;
+            right: 0;
+            top: -30px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+
+        .return-to-best.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .return-to-best:hover {
+            background: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .return-to-best svg {
+            width: 16px;
+            height: 16px;
         }
 
         .match-title {
@@ -2376,6 +2453,12 @@
                     matchHTML = `
                         <div class="color-match primary">
                             <div class="match-header">
+                                <div class="return-to-best">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 12h18M3 12l6-6M3 12l6 6"/>
+                                    </svg>
+                                    Return to Best Match
+                                </div>
                                 <span class="match-title">Best ${matchType} Match:</span>
                                 <span class="match-code">${color.matchCode}</span>
                             </div>
@@ -2496,6 +2579,17 @@
                     const colorCode = colorCard.dataset.colorCode;
                     const colorType = colorCard.dataset.colorType;
                     
+                    // Store the current best match data before switching to alternative
+                    const currentBestMatch = colorCard.querySelector('.color-match.primary');
+                    const bestMatchData = {
+                        code: currentBestMatch.querySelector('.match-code').textContent,
+                        rgb: currentBestMatch.querySelector('.match-rgb').textContent.match(/RGB: (\d+), (\d+), (\d+)/).slice(1).map(Number),
+                        hex: currentBestMatch.querySelector('.match-hex').textContent.replace('Hex: ', ''),
+                        similarity: currentBestMatch.querySelector('.similarity-value').textContent,
+                        type: currentBestMatch.querySelector('.match-title').textContent.includes('Pantone') ? 'pantone' : 'thread'
+                    };
+                    colorCard.dataset.bestMatchData = JSON.stringify(bestMatchData);
+                    
                     // Get the alternative match data
                     const altCode = this.dataset.altCode;
                     const altType = this.dataset.altType;
@@ -2551,6 +2645,12 @@
                         
                         matchInfoContainer.innerHTML = `
                             <div class="match-header">
+                                <div class="return-to-best visible">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 12h18M3 12l6-6M3 12l6 6"/>
+                                    </svg>
+                                    Return to Best Match
+                                </div>
                                 <span class="match-title">Selected ${altType === 'pantone' ? 'Pantone' : 'Thread'} Match:</span>
                                 <span class="match-code">${altCode}</span>
                             </div>
@@ -2559,7 +2659,7 @@
                                 <div class="match-info">
                                     <div class="match-rgb">RGB: ${altR}, ${altG}, ${altB}</div>
                                     <div class="match-hex">Hex: ${altHex}</div>
-                                    <div class="match-similarity">
+                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                         <span class="similarity-label">Similarity:</span>
                                         <span class="similarity-value">${similarityPercentage}</span>
                                     </div>
@@ -2567,6 +2667,47 @@
                                 </div>
                             </div>
                         `;
+
+                        // Add event listener for return to best match button
+                        const returnButton = matchInfoContainer.querySelector('.return-to-best');
+                        returnButton.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const bestMatchData = JSON.parse(colorCard.dataset.bestMatchData);
+                            
+                            // Update the side-by-side view
+                            swatchesContainer.innerHTML = `
+                                <div class="color-swatch" style="background-color: rgb(${originalR}, ${originalG}, ${originalB})">
+                                    <div class="color-swatch-label">${colorType === 'thread' ? 'Thread' : colorType === 'custom' ? 'Custom' : 'Pantone'}</div>
+                                </div>
+                                <div class="color-divider"></div>
+                                <div class="color-swatch" style="background-color: rgb(${bestMatchData.rgb[0]}, ${bestMatchData.rgb[1]}, ${bestMatchData.rgb[2]})">
+                                    <div class="color-swatch-label">${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'}</div>
+                                </div>
+                            `;
+                            
+                            // Update the primary match info
+                            matchInfoContainer.innerHTML = `
+                                <div class="match-header">
+                                    <span class="match-title">Best ${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'} Match:</span>
+                                    <span class="match-code">${bestMatchData.code}</span>
+                                </div>
+                                <div class="match-details">
+                                    <div class="match-color-preview" style="background-color: rgb(${bestMatchData.rgb[0]}, ${bestMatchData.rgb[1]}, ${bestMatchData.rgb[2]})"></div>
+                                    <div class="match-info">
+                                        <div class="match-rgb">RGB: ${bestMatchData.rgb.join(', ')}</div>
+                                        <div class="match-hex">Hex: ${bestMatchData.hex}</div>
+                                        <div class="match-similarity ${updateMatchSimilarity(bestMatchData.similarity)}">
+                                            <span class="similarity-label">Similarity:</span>
+                                            <span class="similarity-value">${bestMatchData.similarity}</span>
+                                        </div>
+                                        ${factorInShimmer ? getShimmerInfo({ r: bestMatchData.rgb[0], g: bestMatchData.rgb[1], b: bestMatchData.rgb[2] }) : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Show a status message
+                            showStatus(`Returned to best ${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'} match`, false, 3000);
+                        });
                     }
                     
                     // Show a status message
