@@ -49,17 +49,15 @@
 
         .header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 30px;
             position: relative;
+            gap: 15px;
         }
 
         .home-link {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -73,7 +71,7 @@
 
         .home-link:hover {
             background-color: var(--hover-color);
-            transform: translateY(-50%) scale(1.05);
+            transform: scale(1.05);
         }
 
         .home-link svg {
@@ -82,10 +80,9 @@
         }
 
         .header h1 {
-            margin: 0 auto;
+            margin: 0;
             text-align: center;
             font-size: 1.8em;
-            padding: 0 60px;
         }
 
         .theme-switch-wrapper {

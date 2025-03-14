@@ -34,31 +34,25 @@
             background-color: var(--background-color);
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
-            line-height: 1.6;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: var(--card-background);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 30px;
             position: relative;
+            gap: 15px;
         }
 
         .home-link {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -72,7 +66,7 @@
 
         .home-link:hover {
             background-color: var(--hover-color);
-            transform: translateY(-50%) scale(1.05);
+            transform: scale(1.05);
         }
 
         .home-link svg {
@@ -81,10 +75,9 @@
         }
 
         .header h1 {
-            margin: 0 auto;
+            margin: 0;
             text-align: center;
             font-size: 1.8em;
-            padding: 0 60px;
         }
 
         h2 {
@@ -111,6 +104,13 @@
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
         .theme-switch {
