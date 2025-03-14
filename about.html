@@ -48,17 +48,43 @@
 
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 30px;
-            flex-wrap: wrap;
+            position: relative;
         }
 
-        h1 {
+        .home-link {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
             color: var(--primary-color);
-            margin-top: 0;
-            font-size: 2em;
-            flex: 1;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .home-link:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .home-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header h1 {
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.8em;
+            padding: 0 60px;
         }
 
         h2 {
@@ -167,7 +193,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>About Minh Shyang to Pantone Color Matcher</h1>
+            <a href="/" class="home-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <h1>About</h1>
             <div class="theme-switch-wrapper">
                 <span class="theme-icon">☀️</span>
                 <label class="theme-switch">
