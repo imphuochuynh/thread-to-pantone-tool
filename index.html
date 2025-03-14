@@ -282,10 +282,9 @@
 
         .method-toggle-group {
             display: flex;
-            gap: 15px;
             flex-wrap: wrap;
-            margin-top: 15px;
-            width: 100%;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .method-toggle {
@@ -748,6 +747,8 @@
 
         .similarity-value {
             font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 4px;
         }
 
         .match-method {
@@ -972,27 +973,23 @@
         }
 
         .alternatives-section {
-            margin-top: 12px;
-            padding-top: 10px;
+            margin-top: 16px;
+            padding-top: 12px;
             border-top: 1px dashed var(--border-color);
         }
 
         .alternatives-title {
             font-size: 0.9em;
-            color: var(--secondary-text);
-            margin-bottom: 8px;
             font-weight: 500;
+            margin-bottom: 10px;
         }
 
         .color-match.alternative {
-            margin-top: 6px;
-            padding: 4px 6px;
-            background-color: var(--alternative-bg);
-            border-radius: 4px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
         }
 
         .color-match.alternative:hover {
@@ -1181,6 +1178,217 @@
         .disclaimer-text strong {
             color: #FFC107;
         }
+
+        .shimmer-option {
+            margin-top: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-container:hover {
+            background-color: var(--hover-color);
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: relative;
+            height: 20px;
+            width: 20px;
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: var(--hover-color);
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .option-label {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .shimmer-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .shimmer-badge.matte {
+            background-color: #E0E0E0;
+            color: #333;
+        }
+
+        .shimmer-badge.semi-gloss {
+            background-color: #B3E5FC;
+            color: #01579B;
+        }
+
+        .shimmer-badge.metallic {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+        }
+
+        .shimmer-info {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            font-size: 0.8em;
+            color: var(--light-text);
+        }
+
+        .shimmer-score {
+            font-size: 0.9em;
+        }
+
+        .color-match.primary {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .match-title {
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .match-code {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .match-details {
+            display: flex;
+            gap: 12px;
+        }
+
+        .match-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .match-info {
+            flex: 1;
+        }
+
+        .match-rgb, .match-hex, .match-method {
+            font-size: 0.8em;
+            color: var(--light-text);
+            margin-bottom: 2px;
+        }
+
+        .match-similarity {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            font-size: 0.8em;
+        }
+
+        .similarity-value {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 4px;
+        }
+
+        .alternatives-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .alternatives-title {
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .color-match.alternative {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+        }
+
+        .color-match.alternative:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .color-match.alternative::after {
+            content: '👆 Click to view';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            color: var(--secondary-text);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .color-match.alternative:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -1248,34 +1456,54 @@
                         </label>
                     </div>
                 </div>
-            </div>
-            
-            <h2 class="search-section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
-                    <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
-                    <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-                Find by Hex Color
-            </h2>
-            <div class="hex-input-container">
-                <div class="hex-input-label">
-                    <span>Preview:</span>
-                    <div class="hex-preview" id="colorPreview"></div>
-                </div>
-                <div class="hex-input-wrapper">
-                    <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE">
-                    <input type="color" id="colorPicker">
-                    <button id="hexSubmit" class="hex-submit" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                
+                <!-- Shimmer Checkbox -->
+                <div class="option-section">
+                    <div class="option-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
                         </svg>
-                        Find Matches
-                    </button>
+                        Thread Properties
+                    </div>
+                    <div class="shimmer-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="factorInShimmer">
+                            <span class="checkmark"></span>
+                            <span class="option-label">Factor in Thread Shimmer</span>
+                            <span class="tooltip-icon">ℹ️</span>
+                            <span class="tooltip">Automatically estimates thread shimmer based on color properties and adjusts matches accordingly. Helps find better matches for matte, semi-gloss, and metallic threads.</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Search Box -->
+                <h2 class="search-section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
+                        <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
+                        <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Find by Hex Color
+                </h2>
+                <div class="hex-input-container">
+                    <div class="hex-input-label">
+                        <span>Preview:</span>
+                        <div class="hex-preview" id="colorPreview"></div>
+                    </div>
+                    <div class="hex-input-wrapper">
+                        <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE">
+                        <input type="color" id="colorPicker">
+                        <button id="hexSubmit" class="hex-submit" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            Find Matches
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1341,13 +1569,15 @@
     </div>
 
     <script>
+        // Global variables
         let threadData = [];
         let pantoneData = [];
-        let pantoneToThreadData = [];
         let allColors = [];
-        let currentPage = 1;
-        const itemsPerPage = 10;
         let filteredColors = [];
+        let currentPage = 1;
+        let itemsPerPage = 20;
+        let colorMatchMethod = 'rgb';
+        let factorInShimmer = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggle');
@@ -1691,49 +1921,53 @@
                 colorDiv.dataset.colorType = color.type;
                 
                 const colorRGB = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`;
-                const hexColor = rgbToHex(color.rgb.r, color.rgb.g, color.rgb.b);
+                const hexColor = rgbToHex(color.rgb);
                 
                 // Primary match HTML
                 let matchHTML = '';
                 if (color.matchCode) {
-                    // Use matchType property if available, otherwise determine based on color type
-                    const matchType = color.matchType ? 
-                        (color.matchType === 'pantone' ? 'Pantone' : 'Thread') : 
-                        (color.type === 'pantone' ? 'Thread' : 'Pantone');
                     const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
-                    const matchHex = rgbToHex(color.matchRgb.r, color.matchRgb.g, color.matchRgb.b);
+                    const matchHex = rgbToHex(color.matchRgb);
+                    const matchType = color.matchType === 'pantone' ? 'Pantone' : 'Thread';
                     
-                    // Calculate similarity based on the matching method
-                    let similarity;
-                    if (currentMethod === 'deltaE2000') {
+                    // Calculate similarity percentage
+                    let similarityPercentage = '';
+                    if (color.matchMethod === 'deltaE2000') {
                         // Delta E 2000: lower is better, convert to percentage (max 100)
-                        similarity = Math.max(0, 100 - (color.distance * 2));
-                    } else if (currentMethod === 'lab') {
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance * 10, 100)).toFixed(1)}%`;
+                    } else if (color.matchMethod === 'lab') {
                         // CIELAB: lower is better, convert to percentage (max 100)
-                        similarity = Math.max(0, 100 - (color.distance * 0.5));
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance / 2, 100)).toFixed(1)}%`;
                     } else {
                         // RGB: lower is better, convert to percentage (max 100)
-                        similarity = Math.max(0, 100 - (color.distance * 0.2));
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance / 4.42, 100)).toFixed(1)}%`;
                     }
                     
-                    const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
+                    // Add the match method information if available
+                    const matchMethodInfo = color.matchMethod ? 
+                        `<div class="match-method">Method: ${color.matchMethod === 'rgb' ? 'RGB (Basic)' : color.matchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</div>` : '';
                     
-                    // Display the matching method if it's a custom color
-                    const matchMethodHTML = color.matchMethod ? 
-                        `<div class="match-method">Method: ${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</div>` : '';
+                    // Add shimmer information for the matched color if enabled
+                    const matchShimmerInfo = factorInShimmer ? getShimmerInfo(color.matchRgb) : '';
                     
                     matchHTML = `
-                        <div class="color-match">
-                            <span class="match-swatch" style="background-color: ${matchRGB}"></span>
+                        <div class="color-match primary">
+                            <div class="match-header">
+                                <span class="match-title">Best ${matchType} Match:</span>
+                                <span class="match-code">${color.matchCode}</span>
+                            </div>
                             <div class="match-details">
-                                <div class="match-name">${matchType}: ${color.matchCode}</div>
-                                <div class="rgb-value">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}</div>
-                                <div class="hex-value">Hex: ${matchHex}</div>
-                                <div class="similarity ${similarityClass}">
-                                    <span class="similarity-label">Similarity:</span>
-                                    <span class="similarity-value">${similarity.toFixed(1)}%</span>
+                                <div class="match-color-preview" style="background-color: ${matchRGB}"></div>
+                                <div class="match-info">
+                                    <div class="match-rgb">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}</div>
+                                    <div class="match-hex">Hex: ${matchHex}</div>
+                                    <div class="match-similarity">
+                                        <span class="similarity-label">Similarity:</span>
+                                        <span class="similarity-value">${similarityPercentage}</span>
+                                    </div>
+                                    ${matchMethodInfo}
+                                    ${matchShimmerInfo}
                                 </div>
-                                ${matchMethodHTML}
                             </div>
                         </div>
                     `;
@@ -1743,40 +1977,55 @@
                 let alternativesHTML = '';
                 if (color.alternativeMatches && color.alternativeMatches.length > 0) {
                     // Use matchType property if available, otherwise determine based on color type
-                    const matchType = color.type === 'custom' ? 'Pantone/Thread' :
-                        (color.matchType ? 
-                            (color.type === 'thread' ? 'Pantone' : 'Thread') : 
-                            (color.type === 'pantone' ? 'Thread' : 'Pantone'));
+                    const matchType = color.matchType ? 
+                        (color.matchType === 'pantone' ? 'Pantone' : 'Thread') : 
+                        (color.type === 'pantone' ? 'Thread' : 'Pantone');
+                    
                     alternativesHTML = `
                         <div class="alternatives-section">
                             <div class="alternatives-title">Alternative ${matchType} Matches:</div>
                             ${color.alternativeMatches.map(alt => {
                                 const altRGB = `rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})`;
-                                const altHex = rgbToHex(alt.rgb.r, alt.rgb.g, alt.rgb.b);
-                                // Calculate similarity against the searched color
-                                const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
-                                let similarity;
-                                if (color.matchMethod === 'deltaE2000') {
-                                    similarity = Math.max(0, 100 - (distance * 2));
-                                } else if (color.matchMethod === 'lab') {
-                                    similarity = Math.max(0, 100 - (distance * 0.5));
-                                } else {
-                                    similarity = Math.max(0, 100 - (distance * 0.2));
-                                }
-                                const similarityValue = similarity.toFixed(1);
-                                const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
+                                const altHex = rgbToHex(alt.rgb);
                                 
-                                // Add the type label (Pantone or Thread) to each alternative match
-                                const altType = alt.type === 'pantone' ? 'Pantone' : 'Thread';
+                                // Calculate similarity percentage
+                                const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
+                                let similarityPercentage = '';
+                                if (color.matchMethod === 'deltaE2000') {
+                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
+                                } else if (color.matchMethod === 'lab') {
+                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
+                                } else {
+                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
+                                }
+                                
+                                // Add shimmer information if enabled
+                                const altShimmerInfo = factorInShimmer ? getShimmerInfo(alt.rgb) : '';
                                 
                                 return `
-                                    <div class="color-match alternative" data-alt-code="${alt.code}" data-alt-type="${alt.type}" data-alt-r="${alt.rgb.r}" data-alt-g="${alt.rgb.g}" data-alt-b="${alt.rgb.b}" data-original-color-r="${color.rgb.r}" data-original-color-g="${color.rgb.g}" data-original-color-b="${color.rgb.b}" data-match-method="${color.matchMethod || 'rgb'}">
-                                        <span class="match-swatch" style="background-color: ${altRGB}"></span>
+                                    <div class="color-match alternative" 
+                                        data-alt-code="${alt.code}" 
+                                        data-alt-type="${alt.type || matchType.toLowerCase()}" 
+                                        data-alt-r="${alt.rgb.r}" 
+                                        data-alt-g="${alt.rgb.g}" 
+                                        data-alt-b="${alt.rgb.b}" 
+                                        data-original-color-r="${color.rgb.r}" 
+                                        data-original-color-g="${color.rgb.g}" 
+                                        data-original-color-b="${color.rgb.b}" 
+                                        data-match-method="${color.matchMethod || colorMatchMethod}">
+                                        <div class="match-header">
+                                            <span class="match-title">${alt.code}</span>
+                                        </div>
                                         <div class="match-details">
-                                            <div class="match-name">${altType}: ${alt.code}</div>
-                                            <div class="hex-value">Hex: ${altHex}</div>
-                                            <div class="similarity ${similarityClass}">
-                                                <span class="similarity-value">${similarityValue}%</span>
+                                            <div class="match-color-preview" style="background-color: ${altRGB}"></div>
+                                            <div class="match-info">
+                                                <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
+                                                <div class="match-hex">Hex: ${altHex}</div>
+                                                <div class="match-similarity">
+                                                    <span class="similarity-label">Similarity:</span>
+                                                    <span class="similarity-value">${similarityPercentage}</span>
+                                                </div>
+                                                ${altShimmerInfo}
                                             </div>
                                         </div>
                                     </div>
@@ -1806,6 +2055,7 @@
                         <div class="color-details">
                             <div class="rgb-value">RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}</div>
                             <div class="hex-value">Hex: ${hexColor}</div>
+                            ${factorInShimmer ? getShimmerInfo(color.rgb) : ''}
                         </div>
                         ${matchHTML}
                         ${alternativesHTML}
@@ -1846,21 +2096,19 @@
                         matchMethod
                     );
                     
-                    // Calculate similarity based on the matching method
-                    let similarity;
+                    // Calculate similarity percentage
+                    let similarityPercentage = '';
                     if (matchMethod === 'deltaE2000') {
-                        similarity = Math.max(0, 100 - (distance * 2));
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
                     } else if (matchMethod === 'lab') {
-                        similarity = Math.max(0, 100 - (distance * 0.5));
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
                     } else {
-                        similarity = Math.max(0, 100 - (distance * 0.2));
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
                     }
-                    
-                    const similarityClass = similarity >= 90 ? 'high-match' : similarity >= 75 ? 'medium-match' : 'low-match';
                     
                     // Update the side-by-side view
                     swatchesContainer.innerHTML = `
-                        <div class="color-swatch" style="background-color: rgb(${colorCard.querySelector('.color-swatch').style.backgroundColor.match(/\d+/g)[0]}, ${colorCard.querySelector('.color-swatch').style.backgroundColor.match(/\d+/g)[1]}, ${colorCard.querySelector('.color-swatch').style.backgroundColor.match(/\d+/g)[2]})">
+                        <div class="color-swatch" style="background-color: rgb(${originalR}, ${originalG}, ${originalB})">
                             <div class="color-swatch-label">${colorType === 'thread' ? 'Thread' : colorType === 'custom' ? 'Custom' : 'Pantone'}</div>
                         </div>
                         <div class="color-divider"></div>
@@ -1870,20 +2118,29 @@
                     `;
                     
                     // Update the primary match info
-                    const matchInfoContainer = colorCard.querySelector('.color-match:not(.alternative)');
+                    const matchInfoContainer = colorCard.querySelector('.color-match.primary');
                     if (matchInfoContainer) {
                         const altRGB = `rgb(${altR}, ${altG}, ${altB})`;
-                        const altHex = rgbToHex(altR, altG, altB);
+                        const altHex = rgbToHex({ r: altR, g: altG, b: altB });
+                        
+                        // Add shimmer information if enabled
+                        const altShimmerInfo = factorInShimmer ? getShimmerInfo({ r: altR, g: altG, b: altB }) : '';
                         
                         matchInfoContainer.innerHTML = `
-                            <span class="match-swatch" style="background-color: ${altRGB}"></span>
+                            <div class="match-header">
+                                <span class="match-title">Selected ${altType === 'pantone' ? 'Pantone' : 'Thread'} Match:</span>
+                                <span class="match-code">${altCode}</span>
+                            </div>
                             <div class="match-details">
-                                <div class="match-name">${altType === 'pantone' ? 'Pantone' : 'Thread'}: ${altCode}</div>
-                                <div class="rgb-value">RGB: ${altR}, ${altG}, ${altB}</div>
-                                <div class="hex-value">Hex: ${altHex}</div>
-                                <div class="similarity ${similarityClass}">
-                                    <span class="similarity-label">Similarity:</span>
-                                    <span class="similarity-value">${similarity.toFixed(1)}%</span>
+                                <div class="match-color-preview" style="background-color: ${altRGB}"></div>
+                                <div class="match-info">
+                                    <div class="match-rgb">RGB: ${altR}, ${altG}, ${altB}</div>
+                                    <div class="match-hex">Hex: ${altHex}</div>
+                                    <div class="match-similarity">
+                                        <span class="similarity-label">Similarity:</span>
+                                        <span class="similarity-value">${similarityPercentage}</span>
+                                    </div>
+                                    ${altShimmerInfo}
                                 </div>
                             </div>
                         `;
@@ -2056,157 +2313,16 @@
 
         // Add event listeners for color matching method radio buttons
         document.querySelectorAll('input[name="searchColorMatchMethod"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                // Get the selected color matching method
-                const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
-                
-                // Show status message
-                showStatus(`Updating to ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'} color matching method...`, true);
-                
-                // Update all colors with the new matching method
-                setTimeout(() => {
-                    // Update thread data with new matching method
-                    threadData.forEach(thread => {
-                        // Find all pantone matches for this thread
-                        const matches = pantoneToThreadData
-                            .filter(m => m.threadCode === thread.code)
-                            .sort((a, b) => a.distance - b.distance);
-                        
-                        // Find additional potential matches
-                        const additionalMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, matches.map(m => m.pantoneCode));
-                        
-                        // Combine all matches and sort by distance
-                        const allMatches = [
-                            ...matches.map(m => ({
-                                code: m.pantoneCode,
-                                rgb: m.pantoneRgb,
-                                distance: m.distance,
-                                type: 'pantone'
-                            })),
-                            ...additionalMatches
-                        ].sort((a, b) => a.distance - b.distance);
-                        
-                        if (allMatches.length > 0) {
-                            // Set the best match as the primary match
-                            const bestMatch = allMatches[0];
-                            thread.matchCode = bestMatch.code;
-                            thread.matchRgb = bestMatch.rgb;
-                            thread.distance = bestMatch.distance;
-                            thread.matchMethod = colorMatchMethod;
-                            thread.matchType = 'pantone';
-                            
-                            // Set remaining matches as alternatives
-                            if (allMatches.length > 1) {
-                                thread.alternativeMatches = allMatches.slice(1, 4);
-                            }
-                        } else {
-                            // If no matches found, use the closest colors
-                            thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, []);
-                            thread.matchMethod = colorMatchMethod;
-                        }
-                    });
-                    
-                    // Update pantone data with new matching method
-                    pantoneData.forEach(pantone => {
-                        // Find all thread colors to compare with
-                        const allThreads = threadData.map(thread => ({
-                            code: thread.code,
-                            rgb: thread.rgb,
-                            type: 'thread'
-                        }));
-                        
-                        // Calculate distance for all threads using the current method
-                        const allThreadsWithDistance = allThreads.map(thread => ({
-                            ...thread,
-                            distance: calculateColorDistance(pantone.rgb, thread.rgb, colorMatchMethod)
-                        }));
-                        
-                        // Sort by distance (lowest first = highest similarity)
-                        const sortedThreads = allThreadsWithDistance.sort((a, b) => a.distance - b.distance);
-                        
-                        // Take the best matches
-                        const bestMatches = sortedThreads.slice(0, 4);
-                        
-                        if (bestMatches.length > 0) {
-                            // Set the best match as the primary match
-                            const bestMatch = bestMatches[0];
-                            pantone.matchCode = bestMatch.code;
-                            pantone.matchRgb = bestMatch.rgb;
-                            pantone.distance = bestMatch.distance;
-                            pantone.matchMethod = colorMatchMethod;
-                            pantone.matchType = 'thread';
-                            
-                            // Set remaining matches as alternatives
-                            if (bestMatches.length > 1) {
-                                pantone.alternativeMatches = bestMatches.slice(1);
-                            }
-                        } else {
-                            // If no matches found, use the closest colors
-                            pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 3, colorMatchMethod, []);
-                            pantone.matchMethod = colorMatchMethod;
-                        }
-                    });
-                    
-                    // Update all colors array
-                    allColors = [...threadData, ...pantoneData];
-                    
-                    // Reapply any current filter
-                    const searchTerm = document.getElementById('colorSearch').value.toLowerCase();
-                    if (searchTerm.trim() !== '') {
-                        filteredColors = allColors.filter(color => 
-                            color.code.toLowerCase().includes(searchTerm) || 
-                            (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
-                        );
-                        
-                        // For each Pantone color in the filtered results, ensure it shows the best thread match
-                        filteredColors.forEach(color => {
-                            if (color.type === 'pantone') {
-                                // Find all possible thread matches for this pantone
-                                const exactMatches = pantoneToThreadData
-                                    .filter(m => m.pantoneCode === color.code)
-                                    .map(m => ({
-                                        code: m.threadCode,
-                                        rgb: m.threadRgb,
-                                        distance: m.distance,
-                                        type: 'thread'
-                                    }));
-                                
-                                // Find additional potential matches
-                                const additionalMatches = findClosestColorsWithMethod(color, threadData, 3, colorMatchMethod, 
-                                    exactMatches.map(m => m.code));
-                                
-                                // Combine all matches and sort by distance (lowest first = best match)
-                                const allMatches = [...exactMatches, ...additionalMatches]
-                                    .sort((a, b) => a.distance - b.distance);
-                                
-                                if (allMatches.length > 0) {
-                                    // Set the best match as the primary match
-                                    const bestMatch = allMatches[0];
-                                    color.matchCode = bestMatch.code;
-                                    color.matchRgb = bestMatch.rgb;
-                                    color.distance = bestMatch.distance;
-                                    color.matchMethod = colorMatchMethod;
-                                    color.matchType = 'thread';
-                                    
-                                    // Set remaining matches as alternatives
-                                    if (allMatches.length > 1) {
-                                        color.alternativeMatches = allMatches.slice(1, 4);
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        filteredColors = allColors;
-                    }
-                    
-                    // Redisplay colors with the new method
-                    currentPage = 1;
-                    displayColors(filteredColors, currentPage);
-                    
-                    // Show status message
-                    showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'} color matching method`, false, 5000);
-                }, 100);
+            radio.addEventListener('change', function() {
+                colorMatchMethod = this.value;
+                updateResults();
             });
+        });
+        
+        // Event listener for shimmer checkbox
+        document.getElementById('factorInShimmer').addEventListener('change', function() {
+            factorInShimmer = this.checked;
+            updateResults();
         });
 
         // Add color picker functionality
@@ -2314,10 +2430,21 @@
         }
         
         function rgbToHex(r, g, b) {
-            return '#' + [r, g, b].map(x => {
-                const hex = Math.max(0, Math.min(255, x)).toString(16);
-                return hex.length === 1 ? '0' + hex : hex;
-            }).join('').toUpperCase();
+            // Handle both RGB object and individual components
+            if (typeof r === 'object' && r !== null) {
+                // RGB object format
+                const rgb = r;
+                r = rgb.r;
+                g = rgb.g;
+                b = rgb.b;
+            }
+            
+            // Convert to hex
+            r = Math.max(0, Math.min(255, r)).toString(16).padStart(2, '0');
+            g = Math.max(0, Math.min(255, g)).toString(16).padStart(2, '0');
+            b = Math.max(0, Math.min(255, b)).toString(16).padStart(2, '0');
+            
+            return `#${r}${g}${b}`.toUpperCase();
         }
         
         // RGB to CIELAB conversion functions
@@ -2449,15 +2576,60 @@
             return delta_E;
         }
 
+        // Function to estimate thread shimmer level based on LAB values
+        function estimateShimmerLevel(lab) {
+            // Calculate shimmer score based on L and absolute values of a and b
+            const shimmerScore = (lab.L + (Math.abs(lab.a) + Math.abs(lab.b))) / 3;
+            
+            // Categorize thread based on shimmer score
+            if (shimmerScore < 50) {
+                return 'matte';
+            } else if (shimmerScore <= 75) {
+                return 'semi-gloss';
+            } else {
+                return 'metallic';
+            }
+        }
+        
+        // Function to adjust LAB values based on shimmer level
+        function adjustLabForShimmer(lab) {
+            // Create a copy of the lab object to avoid modifying the original
+            const adjustedLab = { ...lab };
+            
+            // Determine shimmer level
+            const shimmerLevel = estimateShimmerLevel(lab);
+            
+            // Apply adjustments based on shimmer level
+            if (shimmerLevel === 'matte') {
+                // Reduce lightness for matte threads
+                adjustedLab.L = Math.max(0, adjustedLab.L - 3);
+            } else if (shimmerLevel === 'semi-gloss') {
+                // Increase lightness for semi-gloss threads
+                adjustedLab.L = Math.min(100, adjustedLab.L + 3);
+            } else if (shimmerLevel === 'metallic') {
+                // Increase lightness and reduce chroma for metallic threads
+                adjustedLab.L = Math.min(100, adjustedLab.L + 6);
+                adjustedLab.a = adjustedLab.a * 0.95; // Reduce chroma by 5%
+                adjustedLab.b = adjustedLab.b * 0.95; // Reduce chroma by 5%
+            }
+            
+            return adjustedLab;
+        }
+
         function calculateColorDistance(rgb1, rgb2, method = 'rgb') {
-            if (method === 'deltaE2000') {
+            if (method === 'deltaE2000' || method === 'lab') {
                 const lab1 = rgbToLab(rgb1);
                 const lab2 = rgbToLab(rgb2);
-                return calculateDeltaE2000(lab1, lab2);
-            } else if (method === 'lab') {
-                const lab1 = rgbToLab(rgb1);
-                const lab2 = rgbToLab(rgb2);
-                return calculateLabDistance(lab1, lab2);
+                
+                // Apply shimmer adjustments if enabled
+                const adjustedLab1 = factorInShimmer ? adjustLabForShimmer(lab1) : lab1;
+                const adjustedLab2 = factorInShimmer ? adjustLabForShimmer(lab2) : lab2;
+                
+                if (method === 'deltaE2000') {
+                    return calculateDeltaE2000(adjustedLab1, adjustedLab2);
+                } else {
+                    return calculateLabDistance(adjustedLab1, adjustedLab2);
+                }
             } else {
                 // Default RGB Euclidean distance
                 return Math.sqrt(
@@ -2612,6 +2784,36 @@
             
             const commonWords = words1.filter(word => words2.includes(word));
             return commonWords.length / Math.max(words1.length, words2.length);
+        }
+
+        function updateResults() {
+            // Show status message
+            const shimmerStatus = factorInShimmer ? ' with Thread Shimmer' : '';
+            showStatus(`Updating to ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}${shimmerStatus} color matching...`, true);
+            
+            setTimeout(() => {
+                // Recalculate matches for all colors
+                processAndDisplayData();
+                
+                // Show status message
+                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}${shimmerStatus} color matching`, false, 5000);
+            }, 100);
+        }
+
+        function getShimmerInfo(rgb) {
+            const lab = rgbToLab(rgb);
+            const shimmerLevel = estimateShimmerLevel(lab);
+            const shimmerScore = ((lab.L + (Math.abs(lab.a) + Math.abs(lab.b))) / 3).toFixed(1);
+            
+            const shimmerLevelText = shimmerLevel.charAt(0).toUpperCase() + shimmerLevel.slice(1);
+            
+            const shimmerInfo = `
+                <div class="shimmer-info">
+                    <span class="shimmer-badge ${shimmerLevel}">${shimmerLevelText}</span>
+                    <span class="shimmer-score">Shimmer Score: ${shimmerScore}</span>
+                </div>
+            `;
+            return shimmerInfo;
         }
     </script>
 </body>
