@@ -807,26 +807,69 @@
         }
 
         .alternatives-section {
-            margin-top: 25px;  /* Increased from 20px */
-            padding-top: 25px;  /* Increased from 20px */
+            margin-top: 25px;
+            padding-top: 25px;
             border-top: 1px dashed var(--border-color);
         }
 
         .alternatives-title {
-            font-size: 1.1em;  /* Increased from 1em */
+            font-size: 1.1em;
             font-weight: 600;
-            margin-bottom: 20px;  /* Increased from 16px */
+            margin-bottom: 20px;
             color: var(--primary-color);
         }
 
         .color-match.alternative {
-            margin-top: 15px;  /* Increased from 12px */
-            padding: 16px;  /* Increased from 14px */
-            padding-right: 120px;  /* Increased from 110px */
+            margin-top: 0;
+            padding: 16px;
             border-radius: 12px;
             background-color: var(--card-background);
             border: 1px solid var(--border-color);
             position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .alternative-matches-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* Adjust match details layout for alternatives */
+        .color-match.alternative .match-details {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .color-match.alternative .match-color-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .color-match.alternative .match-info {
+            flex: 1;
+            min-width: 0; /* Allow text to wrap */
+        }
+
+        .color-match.alternative .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .color-match.alternative .match-code {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .color-match.alternative:hover {
@@ -839,8 +882,7 @@
             content: '👆 Click to view';
             position: absolute;
             right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 12px;
             font-size: 0.9em;
             color: var(--secondary-text);
             opacity: 0;
@@ -854,6 +896,26 @@
 
         .color-match.alternative:hover::after {
             opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .alternative-matches-container {
+                flex-direction: column;
+            }
+            
+            .color-match.alternative {
+                max-width: none;
+            }
+            
+            .color-match.alternative .match-details {
+                flex-direction: row; /* Keep horizontal layout on mobile */
+            }
+            
+            .color-match.alternative .match-color-preview {
+                width: 50px;
+                height: 50px;
+            }
         }
 
         .pin-button {
@@ -2730,53 +2792,52 @@
                     alternativesHTML = `
                         <div class="alternatives-section">
                             <div class="alternatives-title">Alternative ${matchType} Matches:</div>
-                            ${color.alternativeMatches.map(alt => {
-                                const altRGB = `rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})`;
-                                const altHex = rgbToHex(alt.rgb);
-                                
-                                // Calculate similarity percentage
-                                const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
-                                let similarityPercentage = '';
-                                if (color.matchMethod === 'deltaE2000') {
-                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
-                                } else if (color.matchMethod === 'lab') {
-                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
-                                } else {
-                                    similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
-                                }
-                                
-                                // Add shimmer information if enabled
-                                const altShimmerInfo = factorInShimmer ? getShimmerInfo(alt.rgb) : '';
-                                
-                                return `
-                                    <div class="color-match alternative" 
-                                        data-alt-code="${alt.code}" 
-                                        data-alt-type="${alt.type || matchType.toLowerCase()}" 
-                                        data-alt-r="${alt.rgb.r}" 
-                                        data-alt-g="${alt.rgb.g}" 
-                                        data-alt-b="${alt.rgb.b}" 
-                                        data-original-color-r="${color.rgb.r}" 
-                                        data-original-color-g="${color.rgb.g}" 
-                                        data-original-color-b="${color.rgb.b}" 
-                                        data-match-method="${color.matchMethod || colorMatchMethod}">
-                                        <div class="match-header">
-                                            <span class="match-title">${alt.code}</span>
-                                        </div>
-                                        <div class="match-details">
-                                            <div class="match-color-preview" style="background-color: ${altRGB}"></div>
-                                            <div class="match-info">
-                                                <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
-                                                <div class="match-hex">Hex: ${altHex}</div>
-                                                <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
-                                                    <span class="similarity-label">Similarity:</span>
-                                                    <span class="similarity-value">${similarityPercentage}</span>
+                            <div class="alternative-matches-container">
+                                ${color.alternativeMatches.map(alt => {
+                                    const altRGB = `rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})`;
+                                    const altHex = rgbToHex(alt.rgb);
+                                    
+                                    // Calculate similarity percentage
+                                    const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
+                                    let similarityPercentage = '';
+                                    if (color.matchMethod === 'deltaE2000') {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
+                                    } else if (color.matchMethod === 'lab') {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
+                                    } else {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
+                                    }
+                                    
+                                    return `
+                                        <div class="color-match alternative" 
+                                            data-alt-code="${alt.code}"
+                                            data-alt-type="${alt.type}"
+                                            data-alt-r="${alt.rgb.r}"
+                                            data-alt-g="${alt.rgb.g}"
+                                            data-alt-b="${alt.rgb.b}"
+                                            data-original-color-r="${color.rgb.r}"
+                                            data-original-color-g="${color.rgb.g}"
+                                            data-original-color-b="${color.rgb.b}"
+                                            data-match-method="${color.matchMethod || 'rgb'}">
+                                            <div class="match-header">
+                                                <span class="match-code">${alt.code}</span>
+                                            </div>
+                                            <div class="match-details">
+                                                <div class="match-color-preview" style="background-color: ${altRGB}"></div>
+                                                <div class="match-info">
+                                                    <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
+                                                    <div class="match-hex">Hex: ${altHex}</div>
+                                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
+                                                        <span class="similarity-label">Similarity:</span>
+                                                        <span class="similarity-value">${similarityPercentage}</span>
+                                                    </div>
+                                                    ${factorInShimmer ? getShimmerInfo(alt.rgb) : ''}
                                                 </div>
-                                                ${altShimmerInfo}
                                             </div>
                                         </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                                    `;
+                                }).join('')}
+                            </div>
                         </div>
                     `;
                 }
