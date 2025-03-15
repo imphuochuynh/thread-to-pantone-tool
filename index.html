@@ -1745,25 +1745,30 @@
 
         .pinned-swatches-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
         }
 
         .pinned-swatch-card {
             background: var(--alternative-bg);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             transition: all 0.3s ease;
             position: relative;
         }
 
+        .pinned-swatch-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
         .pinned-swatch-preview {
-            height: 80px;
-            border-radius: 6px;
+            height: 100px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
@@ -1772,17 +1777,17 @@
         .pinned-swatch-info {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 5px;
         }
 
         .pinned-swatch-name {
             font-weight: 600;
-            font-size: 1em;
+            font-size: 1.1em;
             color: var(--text-color);
         }
 
         .pinned-swatch-details {
-            font-size: 0.8em;
+            font-size: 0.85em;
             color: var(--secondary-text);
         }
 
@@ -1827,20 +1832,147 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 25px 15px;
+            padding: 40px 20px;
             gap: 15px;
             color: var(--secondary-text);
         }
 
         .empty-pins-icon {
-            font-size: 2.5em;
-            margin-bottom: 8px;
+            font-size: 3em;
+            color: var(--border-color);
+            margin-bottom: 10px;
         }
 
         .empty-pins-text {
-            font-size: 1em;
+            font-size: 1.1em;
+            text-align: center;
+            max-width: 400px;
         }
 
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .color-card {
+                padding: 20px;
+            }
+
+            /* Collapsible alternatives section */
+            .alternatives-section {
+                position: relative;
+                margin-top: 15px;
+            }
+
+            .alternatives-title {
+                cursor: pointer;
+                padding: 12px;
+                background: var(--alternative-bg);
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .alternatives-title::after {
+                content: '▼';
+                font-size: 0.8em;
+                transition: transform 0.3s ease;
+            }
+
+            .alternatives-section.collapsed .alternatives-title::after {
+                transform: rotate(-90deg);
+            }
+
+            .alternatives-section.collapsed .color-match.alternative {
+                display: none;
+            }
+
+            /* Larger touch targets */
+            .hex-input {
+                height: 48px;
+                font-size: 16px;
+            }
+
+            .hex-submit {
+                height: 48px;
+                min-width: 100px;
+                font-size: 16px;
+            }
+
+            .color-preview {
+                width: 48px;
+                height: 48px;
+            }
+
+            .method-toggle {
+                padding: 16px;
+            }
+
+            .checkbox-container {
+                padding: 14px;
+            }
+
+            /* Better spacing and layout */
+            .color-swatches-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .color-swatch {
+                height: 120px;
+                width: 100%;
+            }
+
+            .color-match {
+                padding: 15px;
+            }
+
+            .match-details {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .match-color-preview {
+                width: 100%;
+                height: 80px;
+            }
+
+            .match-info {
+                width: 100%;
+            }
+
+            /* Improved readability */
+            .color-name {
+                font-size: 1.2em;
+            }
+
+            .rgb-value, .hex-value {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .similarity {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            /* Status indicator positioning */
+            .status-indicator {
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                width: auto;
+            }
+        }
+
+        /* Recent Matches Section Styles */
         .recent-matches-section {
             background-color: var(--card-background);
             border-radius: 16px;
@@ -1866,52 +1998,62 @@
 
         .recent-matches-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
         }
 
         .recent-match-card {
             background: var(--alternative-bg);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
+        .recent-match-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
         .recent-match-preview {
-            height: 80px;
-            border-radius: 6px;
+            height: 100px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
             display: flex;
         }
 
+        .recent-match-color {
+            flex: 1;
+            height: 100%;
+        }
+
         .recent-match-info {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 5px;
         }
 
         .recent-match-name {
             font-weight: 600;
-            font-size: 1em;
+            font-size: 1.1em;
             color: var(--text-color);
         }
 
         .recent-match-details {
-            font-size: 0.8em;
+            font-size: 0.85em;
             color: var(--secondary-text);
         }
 
         .recent-match-timestamp {
-            font-size: 0.75em;
+            font-size: 0.8em;
             color: var(--light-text);
-            margin-top: 4px;
+            margin-top: auto;
         }
 
         .no-recent-matches {
@@ -1924,32 +2066,6 @@
         @media (max-width: 600px) {
             .recent-matches-grid {
                 grid-template-columns: 1fr;
-            }
-        }
-
-        /* Container for pinned and recent sections */
-        .sections-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .pinned-swatches-section {
-            margin-top: 0;
-            margin-bottom: 0;
-            height: 100%;
-        }
-
-        .recent-matches-section {
-            margin-bottom: 0;
-            height: 100%;
-        }
-
-        @media (max-width: 1200px) {
-            .sections-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
             }
         }
     </style>
@@ -2101,37 +2217,35 @@
             </div>
         </div>
         
-        <div class="sections-container">
-            <!-- Pinned Swatches Section -->
-            <div class="pinned-swatches-section" id="pinnedSwatchesSection">
-                <div class="pinned-swatches-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
-                    </svg>
-                    Pinned Pantone Swatches
-                </div>
-                <div class="pinned-swatches-grid" id="pinnedSwatchesGrid">
-                    <!-- Pinned swatches will be added here dynamically -->
-                </div>
-                <div class="empty-pins" id="emptyPinsMessage">
-                    <div class="empty-pins-icon">⭐</div>
-                    <div class="empty-pins-text">
-                        You haven't pinned any Pantone swatches yet. Click the star icon on any Pantone match to pin it for later reference.
-                    </div>
+        <!-- Pinned Swatches Section -->
+        <div class="pinned-swatches-section" id="pinnedSwatchesSection">
+            <div class="pinned-swatches-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
+                </svg>
+                Pinned Pantone Swatches
+            </div>
+            <div class="pinned-swatches-grid" id="pinnedSwatchesGrid">
+                <!-- Pinned swatches will be added here dynamically -->
+            </div>
+            <div class="empty-pins" id="emptyPinsMessage">
+                <div class="empty-pins-icon">⭐</div>
+                <div class="empty-pins-text">
+                    You haven't pinned any Pantone swatches yet. Click the star icon on any Pantone match to pin it for later reference.
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Matches Section -->
-            <div class="recent-matches-section">
-                <h2 class="recent-matches-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Recent Matches
-                </h2>
-                <div class="recent-matches-grid" id="recentMatchesGrid">
-                    <!-- Recent matches will be added here dynamically -->
-                </div>
+        <!-- Recent Matches Section -->
+        <div class="recent-matches-section">
+            <h2 class="recent-matches-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Recent Matches
+            </h2>
+            <div class="recent-matches-grid" id="recentMatchesGrid">
+                <!-- Recent matches will be added here dynamically -->
             </div>
         </div>
 
