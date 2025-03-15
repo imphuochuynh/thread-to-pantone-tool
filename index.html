@@ -593,12 +593,12 @@
 
         .color-card {
             background: var(--card-background);
-            padding: 30px;
+            padding: 35px;  /* Increased from 30px */
             border-radius: 20px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 30px;  /* Increased from 25px */
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
             position: relative;
@@ -625,9 +625,9 @@
 
         .color-swatches-container {
             display: flex;
-            gap: 30px;
+            gap: 35px;  /* Increased from 30px */
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;  /* Increased from 20px */
             position: relative;
         }
 
@@ -695,97 +695,73 @@
 
         .color-info {
             text-align: left;
-            margin-top: 20px;
-            padding: 20px;
+            margin-top: 25px;  /* Increased from 20px */
+            padding: 25px;  /* Increased from 20px */
             background: var(--alternative-bg);
             border-radius: 16px;
             border: 1px solid var(--border-color);
         }
 
         .color-name {
-            font-size: 1.3em;
+            font-size: 1.4em;  /* Increased from 1.3em */
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;  /* Increased from 16px */
             color: var(--primary-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;  /* Increased from 0.3px */
         }
 
         .color-details {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
+            gap: 12px;  /* Increased from 8px */
+            margin-bottom: 25px;  /* Increased from 20px */
+            padding-bottom: 25px;  /* Increased from 20px */
             border-bottom: 1px solid var(--border-color);
         }
 
         .hex-value, .rgb-value {
             font-family: 'SF Mono', 'Consolas', monospace;
-            font-size: 0.95em;
+            font-size: 1em;  /* Increased from 0.95em */
             color: var(--secondary-text);
-            padding: 6px 10px;
+            padding: 8px 12px;  /* Increased from 6px 10px */
             background: var(--card-background);
-            border-radius: 6px;
+            border-radius: 8px;  /* Increased from 6px */
             border: 1px solid var(--border-color);
             display: inline-block;
         }
 
         .color-match {
             color: var(--secondary-text);
-            font-size: 1em;
-            margin-top: 20px;
+            font-size: 1.05em;  /* Increased from 1em */
+            margin-top: 25px;  /* Increased from 20px */
             display: flex;
             align-items: flex-start;
-            gap: 16px;
-            padding: 16px;
+            gap: 18px;  /* Increased from 16px */
+            padding: 20px;  /* Increased from 16px */
             background: var(--card-background);
             border-radius: 12px;
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
         }
 
-        .color-match:hover {
-            transform: translateX(4px);
-            background: var(--hover-color);
-            border-color: var(--primary-color);
-        }
-
-        .match-swatch {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-            border: 2px solid var(--border-color);
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .color-match:hover .match-swatch {
-            transform: scale(1.1);
-            border-color: var(--primary-color);
-        }
-
         .match-name {
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;  /* Increased from 8px */
             color: var(--text-color);
-            font-size: 1.1em;
+            font-size: 1.15em;  /* Increased from 1.1em */
         }
 
         .similarity {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 12px;
-            padding: 8px 12px;
+            margin-top: 15px;  /* Increased from 12px */
+            padding: 10px 14px;  /* Increased from 8px 12px */
             border-radius: 8px;
-            font-size: 0.95em;
+            font-size: 1em;  /* Increased from 0.95em */
             transition: all 0.3s ease;
         }
 
@@ -831,22 +807,22 @@
         }
 
         .alternatives-section {
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 25px;  /* Increased from 20px */
+            padding-top: 25px;  /* Increased from 20px */
             border-top: 1px dashed var(--border-color);
         }
 
         .alternatives-title {
-            font-size: 1em;
+            font-size: 1.1em;  /* Increased from 1em */
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;  /* Increased from 16px */
             color: var(--primary-color);
         }
 
         .color-match.alternative {
-            margin-top: 12px;
-            padding: 14px;
-            padding-right: 110px;
+            margin-top: 15px;  /* Increased from 12px */
+            padding: 16px;  /* Increased from 14px */
+            padding-right: 120px;  /* Increased from 110px */
             border-radius: 12px;
             background-color: var(--card-background);
             border: 1px solid var(--border-color);
