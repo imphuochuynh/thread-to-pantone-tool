@@ -52,10 +52,10 @@ def rgb_to_xyz(rgb):
     g = g / 255.0
     b = b / 255.0
     
-    # Apply gamma correction
-    r = r ** 2.2 if r > 0.04045 else r / 12.92
-    g = g ** 2.2 if g > 0.04045 else g / 12.92
-    b = b ** 2.2 if b > 0.04045 else b / 12.92
+    # Apply gamma correction (sRGB gamma correction formula)
+    r = ((r + 0.055) / 1.055) ** 2.4 if r > 0.04045 else r / 12.92
+    g = ((g + 0.055) / 1.055) ** 2.4 if g > 0.04045 else g / 12.92
+    b = ((b + 0.055) / 1.055) ** 2.4 if b > 0.04045 else b / 12.92
     
     # Convert to XYZ
     x = r * 0.4124 + g * 0.3576 + b * 0.1805
@@ -100,25 +100,40 @@ def lab_distance(lab1, lab2):
     L2, a2, b2 = lab2
     return math.sqrt((L1 - L2)**2 + (a1 - a2)**2 + (b1 - b2)**2)
 
-def find_closest_thread(pantone_rgb, threads, method='rgb'):
-    """Find the closest thread color to a given Pantone color using specified method."""
+def find_closest_thread(pantone_rgb, threads, method='rgb', precomputed_lab=None):
+    """
+    Find the closest thread color to a given Pantone color using specified method.
+    
+    Args:
+        pantone_rgb: RGB tuple of Pantone color
+        threads: List of thread dictionaries with 'code' and 'rgb' keys
+        method: 'rgb' or 'lab' for distance calculation method
+        precomputed_lab: Optional dict mapping thread codes to pre-computed LAB values
+    
+    Returns:
+        Tuple of (closest_thread_dict, min_distance)
+    """
     closest_thread = None
     min_distance = float('inf')
     
     if method == 'lab':
-        # Convert pantone RGB to LAB
+        # Convert pantone RGB to LAB once
         pantone_lab = rgb_to_lab(pantone_rgb)
         
         for thread in threads:
-            # Convert thread RGB to LAB
-            thread_lab = rgb_to_lab(thread['rgb'])
+            # Use pre-computed LAB if available, otherwise compute on the fly
+            if precomputed_lab and thread['code'] in precomputed_lab:
+                thread_lab = precomputed_lab[thread['code']]
+            else:
+                thread_lab = rgb_to_lab(thread['rgb'])
+            
             distance = lab_distance(pantone_lab, thread_lab)
             
             if distance < min_distance:
                 min_distance = distance
                 closest_thread = thread
     else:
-        # Default to RGB distance
+        # Default to RGB distance (faster but less accurate)
         for thread in threads:
             distance = rgb_distance(pantone_rgb, thread['rgb'])
             if distance < min_distance:
@@ -132,11 +147,22 @@ def main():
     pantone_colors = load_pantone_colors('all_pantone_colors_with_rgb.json')
     thread_colors = load_thread_colors('Reformatted_Embroidery_Thread_Data.csv')
     
+    # Pre-compute LAB values for all threads to avoid repeated conversions
+    print("Pre-computing LAB values for all threads...")
+    precomputed_lab = {}
+    for thread in thread_colors:
+        precomputed_lab[thread['code']] = rgb_to_lab(thread['rgb'])
+    print(f"Pre-computed LAB values for {len(precomputed_lab)} threads")
+    
     # Match each Pantone color to the closest thread using both methods
     rgb_matches = []
     lab_matches = []
     
-    for pantone in pantone_colors:
+    print("Matching Pantone colors to threads...")
+    for i, pantone in enumerate(pantone_colors):
+        if (i + 1) % 100 == 0:
+            print(f"Processed {i + 1}/{len(pantone_colors)} Pantone colors...")
+        
         # RGB matching
         rgb_closest_thread, rgb_distance_val = find_closest_thread(pantone['rgb'], thread_colors, 'rgb')
         
@@ -149,8 +175,10 @@ def main():
             'Method': 'RGB'
         })
         
-        # LAB matching
-        lab_closest_thread, lab_distance_val = find_closest_thread(pantone['rgb'], thread_colors, 'lab')
+        # LAB matching (using pre-computed LAB values)
+        lab_closest_thread, lab_distance_val = find_closest_thread(
+            pantone['rgb'], thread_colors, 'lab', precomputed_lab=precomputed_lab
+        )
         
         lab_matches.append({
             'Pantone Color': pantone['name'],
