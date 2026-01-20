@@ -1,0 +1,4096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minh Shyang 100% Polyester Thread to Pantone Color Matcher</title>
+    <!-- Add PapaParse library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --light-text: #888888;
+            --border-color: #dddddd;
+            --hover-color: #f0f0f0;
+            --alternative-bg: #f9f9f9;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #61dafb;
+            --background-color: #1a1a1a;
+            --card-background: #2d2d2d;
+            --text-color: #f0f0f0;
+            --secondary-text: #cccccc;
+            --light-text: #aaaaaa;
+            --border-color: #444444;
+            --hover-color: #3d3d3d;
+            --alternative-bg: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            position: relative;
+            gap: 15px;
+        }
+
+        .home-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .home-link:hover {
+            background-color: var(--hover-color);
+            transform: scale(1.05);
+        }
+
+        .home-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 1.8em;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch-wrapper:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .theme-icon {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        .search-section {
+            background-color: var(--card-background);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-section:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .search-section-title {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .search-section-title svg {
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 18px 18px 18px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 1.1em;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+            pointer-events: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .suggestions-container {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .suggestions-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .suggestion-item {
+            padding: 14px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background-color: var(--hover-color);
+            transform: translateX(4px);
+        }
+
+        .suggestion-color {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-item:hover .suggestion-color {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .suggestion-text {
+            flex: 1;
+            font-size: 1.05em;
+        }
+
+        .suggestion-type {
+            font-size: 0.85em;
+            color: var(--secondary-text);
+            margin-top: 3px;
+        }
+
+        .search-options {
+            background-color: var(--alternative-bg);
+            border-radius: 14px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .search-options:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .search-options-title {
+            font-size: 1.2em;
+            color: var(--secondary-text);
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-options-title svg {
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .method-toggle-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .method-toggle {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background-color: var(--card-background);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .method-toggle:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .method-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .method-toggle .toggle-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .method-toggle input[type="radio"]:checked + .toggle-icon {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .method-toggle input[type="radio"]:checked + .toggle-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+
+        .method-toggle input[type="radio"]:checked ~ .toggle-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .method-toggle .toggle-label {
+            font-size: 1em;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        .method-toggle .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .method-toggle .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            white-space: normal;
+            max-width: 250px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .method-toggle .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        @media (max-width: 600px) {
+            .search-options {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .method-toggle-group {
+                gap: 10px;
+            }
+
+            .method-toggle {
+                padding: 12px;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .method-toggle .toggle-label {
+                flex: 1;
+                margin: 0 10px;
+            }
+
+            .search-options-title {
+                font-size: 1.1em !important;
+                margin-bottom: 15px !important;
+            }
+
+            .method-toggle .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateY(8px);
+            }
+
+            .method-toggle .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+            
+            /* Mobile styles for checkbox container tooltip */
+            .checkbox-container .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateY(8px);
+            }
+
+            .checkbox-container .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+        }
+
+        .hex-input-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            background-color: var(--alternative-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .hex-input-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1em;
+            color: var(--secondary-text);
+        }
+
+        .hex-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hex-preview:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+        }
+
+        .hex-preview::after {
+            content: '🎨';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .hex-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 18px;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .hex-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+        }
+
+        .hex-submit {
+            padding: 16px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .hex-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .hex-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #colorPicker {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .hex-input-container {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+            }
+            
+            .hex-input-label {
+                margin-bottom: 15px;
+                justify-content: center;
+            }
+            
+            .hex-preview {
+                width: 80px;
+                height: 80px;
+                border-width: 3px;
+            }
+            
+            .hex-preview::after {
+                font-size: 16px;
+                padding: 4px 6px;
+            }
+            
+            .hex-input-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .hex-input {
+                width: 100%;
+                padding: 14px;
+                font-size: 16px;
+                text-align: center;
+            }
+            
+            .hex-submit {
+                width: 100%;
+                justify-content: center;
+                padding: 16px;
+                margin-top: 5px;
+            }
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .color-card {
+            background: var(--card-background);
+            padding: 35px;  /* Increased from 30px */
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;  /* Increased from 25px */
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .color-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .color-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        .color-swatches-container {
+            display: flex;
+            gap: 35px;  /* Increased from 30px */
+            align-items: center;
+            margin-bottom: 25px;  /* Increased from 20px */
+            position: relative;
+        }
+
+        .color-swatch {
+            flex: 1;
+            height: 160px;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+
+        .color-swatch::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .color-swatch-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            font-size: 0.95em;
+            text-align: center;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            backdrop-filter: blur(8px);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .color-divider {
+            width: 2px;
+            height: 160px;
+            background: var(--border-color);
+            position: relative;
+        }
+
+        .color-divider::before {
+            content: '↔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-background);
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--secondary-text);
+            font-size: 1.4em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .color-info {
+            text-align: left;
+            margin-top: 25px;  /* Increased from 20px */
+            padding: 25px;  /* Increased from 20px */
+            background: var(--alternative-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-name {
+            font-size: 1.4em;  /* Increased from 1.3em */
+            font-weight: 600;
+            margin-bottom: 20px;  /* Increased from 16px */
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.4px;  /* Increased from 0.3px */
+        }
+
+        .color-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;  /* Increased from 8px */
+            margin-bottom: 25px;  /* Increased from 20px */
+            padding-bottom: 25px;  /* Increased from 20px */
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hex-value, .rgb-value {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 1em;  /* Increased from 0.95em */
+            color: var(--secondary-text);
+            padding: 8px 12px;  /* Increased from 6px 10px */
+            background: var(--card-background);
+            border-radius: 8px;  /* Increased from 6px */
+            border: 1px solid var(--border-color);
+            display: inline-block;
+        }
+
+        .color-match {
+            color: var(--secondary-text);
+            font-size: 1.05em;  /* Increased from 1em */
+            margin-top: 25px;  /* Increased from 20px */
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;  /* Increased from 16px */
+            padding: 20px;  /* Increased from 16px */
+            background: var(--card-background);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .match-name {
+            font-weight: 600;
+            margin-bottom: 10px;  /* Increased from 8px */
+            color: var(--text-color);
+            font-size: 1.15em;  /* Increased from 1.1em */
+        }
+
+        .similarity {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;  /* Increased from 12px */
+            padding: 10px 14px;  /* Increased from 8px 12px */
+            border-radius: 8px;
+            font-size: 1em;  /* Increased from 0.95em */
+            transition: all 0.3s ease;
+        }
+
+        .similarity.high-match {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .similarity.medium-match {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #FFC107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .similarity.low-match {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .similarity-value {
+            font-weight: 600;
+            color: inherit;
+            margin-left: 6px;
+            font-size: 1.1em;
+        }
+
+        .match-method {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            margin-top: 8px;
+            padding: 6px 10px;
+            background-color: var(--alternative-bg);
+            border-radius: 8px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-match:hover .match-method {
+            background-color: var(--card-background);
+        }
+
+        .alternatives-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .alternatives-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .color-match.alternative {
+            margin-top: 0;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .alternative-matches-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* Adjust match details layout for alternatives */
+        .color-match.alternative .match-details {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .color-match.alternative .match-color-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .color-match.alternative .match-info {
+            flex: 1;
+            min-width: 0; /* Allow text to wrap */
+        }
+
+        .color-match.alternative .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .color-match.alternative .match-code {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .color-match.alternative:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-match.alternative::after {
+            content: '👆 Click to view';
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            background-color: var(--hover-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-match.alternative:hover::after {
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .alternative-matches-container {
+                flex-direction: column;
+            }
+            
+            .color-match.alternative {
+                max-width: none;
+            }
+            
+            .color-match.alternative .match-details {
+                flex-direction: row; /* Keep horizontal layout on mobile */
+            }
+            
+            .color-match.alternative .match-color-preview {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        .pin-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pin-button:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+
+        .pin-button svg {
+            width: 20px;
+            height: 20px;
+            color: var(--secondary-text);
+            transition: all 0.3s ease;
+        }
+
+        .pin-button.pinned svg {
+            color: #FFD700;
+            fill: #FFD700;
+            filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--card-background);
+            border-radius: 12px;
+            color: var(--secondary-text);
+            font-size: 1.1em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .no-results-text {
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .no-results-suggestions {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--alternative-bg);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .no-results-suggestions-title {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .no-results-suggestions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .no-results-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--card-background);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .no-results-suggestion:hover {
+            background: var(--hover-color);
+            transform: translateX(4px);
+        }
+
+        .no-results-suggestion-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .no-results-suggestion-text {
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #pagination {
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        #pagination button {
+            padding: 12px 20px;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #pagination button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .footer {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+            transform: translateY(-2px);
+        }
+
+        .color-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+            background-color: var(--alternative-bg);
+        }
+
+        .about-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+        }
+
+        .about-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .about-link a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer {
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: var(--light-text);
+            font-style: italic;
+        }
+
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--card-background);
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-indicator .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            display: block;
+            flex: 0 0 8px;
+            min-width: 8px;
+            min-height: 8px;
+        }
+
+        .status-indicator .status-dot.loading {
+            background-color: #FFC107;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+                text-align: center;
+                flex: 100%;
+            }
+            
+            .header {
+                justify-content: center;
+            }
+            
+            .theme-switch-wrapper {
+                margin-top: 10px;
+            }
+        }
+
+        .method-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--alternative-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .method-icon {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .method-text {
+            font-size: 1em;
+            color: var(--text-color);
+        }
+        
+        .method-text strong {
+            color: var(--primary-color);
+        }
+        
+        .banner-container {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        #results-container {
+            width: 100%;
+        }
+        
+        .disclaimer-section {
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .disclaimer-box {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .disclaimer-icon {
+            color: #FFC107;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .disclaimer-text {
+            font-size: 0.95em;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .disclaimer-text strong {
+            color: #FFC107;
+        }
+
+        .shimmer-option {
+            margin-top: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-container:hover {
+            background-color: var(--hover-color);
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: relative;
+            height: 20px;
+            width: 20px;
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: var(--hover-color);
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .option-label {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        /* Add specific styles for the checkbox container tooltip */
+        .checkbox-container .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .checkbox-container .tooltip {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            white-space: normal;
+            max-width: 250px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .checkbox-container .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        .shimmer-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .shimmer-badge.matte {
+            background-color: #E0E0E0;
+            color: #333;
+        }
+
+        .shimmer-badge.semi-gloss {
+            background-color: #B3E5FC;
+            color: #01579B;
+        }
+
+        .shimmer-badge.metallic {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+        }
+
+        .shimmer-info {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            font-size: 0.8em;
+            color: var(--light-text);
+        }
+
+        .shimmer-score {
+            font-size: 0.9em;
+        }
+
+        .color-match.primary {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .return-to-best {
+            position: absolute;
+            right: 0;
+            top: -30px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+
+        .return-to-best.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .return-to-best:hover {
+            background: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .return-to-best svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .match-title {
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .match-code {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .match-details {
+            display: flex;
+            gap: 12px;
+        }
+
+        .match-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .match-info {
+            flex: 1;
+        }
+
+        .match-rgb, .match-hex, .match-method {
+            font-size: 0.8em;
+            color: var(--light-text);
+            margin-bottom: 2px;
+        }
+
+        .match-similarity {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: var(--alternative-bg);
+            width: fit-content;
+        }
+
+        .match-similarity.high-match {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #2E7D32;
+        }
+
+        .match-similarity.medium-match {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #F57F17;
+        }
+
+        .match-similarity.low-match {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #C62828;
+        }
+
+        .similarity-value {
+            font-weight: 600;
+            color: inherit;
+            margin-left: 4px;
+        }
+
+        .alternatives-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .alternatives-title {
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .color-match.alternative {
+            margin-top: 8px;
+            padding: 8px;
+            padding-right: 100px; /* Add right padding to make room for the click text */
+            border-radius: 6px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            position: relative; /* Ensure this is positioned relatively */
+        }
+
+        .color-match.alternative:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .color-match.alternative::after {
+            content: '👆 Click to view';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            color: var(--secondary-text);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none; /* Prevent the text from interfering with clicks */
+            background-color: inherit; /* Match parent background */
+            padding: 2px 6px; /* Add some padding around the text */
+            border-radius: 4px;
+        }
+
+        .color-match.alternative:hover::after {
+            opacity: 1;
+        }
+
+        /* Add general tooltip styles that work for all tooltip instances */
+        .tooltip-icon {
+            color: var(--secondary-text);
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-background);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            white-space: normal;
+            max-width: 250px;
+            line-height: 1.4;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip-icon:hover + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        /* Specific styles for the checkbox container tooltip */
+        .checkbox-container {
+            position: relative;
+        }
+
+        .checkbox-container .tooltip {
+            bottom: 125%;
+        }
+
+        @media (max-width: 600px) {
+            .method-toggle .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+
+            /* Mobile styles for all tooltips */
+            .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateY(8px);
+            }
+
+            .tooltip-icon:hover + .tooltip {
+                transform: translateY(0);
+            }
+
+            /* Specific mobile styles for checkbox container tooltip */
+            .checkbox-container .tooltip {
+                right: 0;
+                left: auto;
+            }
+        }
+
+        /* Pin/Favorite Feature Styles */
+        .pin-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .pin-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .pin-button svg {
+            width: 18px;
+            height: 18px;
+            color: var(--secondary-text);
+            transition: all 0.3s ease;
+        }
+
+        .pin-button.pinned svg {
+            color: #FFD700;
+            fill: #FFD700;
+        }
+
+        .pinned-swatches-section {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding: 25px;
+            background: var(--card-background);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            display: none; /* Hidden by default, shown when pins exist */
+        }
+
+        .pinned-swatches-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pinned-swatches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .pinned-swatch-card {
+            background: var(--alternative-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pinned-swatch-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .pinned-swatch-preview {
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pinned-swatch-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .pinned-swatch-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+
+        .pinned-swatch-details {
+            font-size: 0.85em;
+            color: var(--secondary-text);
+        }
+
+        .unpin-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .unpin-button:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: scale(1.1);
+        }
+
+        .unpin-button svg {
+            width: 16px;
+            height: 16px;
+            color: #ff5555;
+        }
+
+        .no-pins-message {
+            text-align: center;
+            padding: 30px;
+            color: var(--secondary-text);
+            font-size: 1.1em;
+        }
+
+        /* Empty state for pinned swatches */
+        .empty-pins {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 15px;
+            color: var(--secondary-text);
+        }
+
+        .empty-pins-icon {
+            font-size: 3em;
+            color: var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .empty-pins-text {
+            font-size: 1.1em;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .color-card {
+                padding: 20px;
+            }
+
+            /* Collapsible alternatives section */
+            .alternatives-section {
+                position: relative;
+                margin-top: 15px;
+            }
+
+            .alternatives-title {
+                cursor: pointer;
+                padding: 12px;
+                background: var(--alternative-bg);
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .alternatives-title::after {
+                content: '▼';
+                font-size: 0.8em;
+                transition: transform 0.3s ease;
+            }
+
+            .alternatives-section.collapsed .alternatives-title::after {
+                transform: rotate(-90deg);
+            }
+
+            .alternatives-section.collapsed .color-match.alternative {
+                display: none;
+            }
+
+            /* Larger touch targets */
+            .hex-input {
+                height: 48px;
+                font-size: 16px;
+            }
+
+            .hex-submit {
+                height: 48px;
+                min-width: 100px;
+                font-size: 16px;
+            }
+
+            .color-preview {
+                width: 48px;
+                height: 48px;
+            }
+
+            .method-toggle {
+                padding: 16px;
+            }
+
+            .checkbox-container {
+                padding: 14px;
+            }
+
+            /* Better spacing and layout */
+            .color-swatches-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .color-swatch {
+                height: 120px;
+                width: 100%;
+            }
+
+            .color-match {
+                padding: 15px;
+            }
+
+            .match-details {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .match-color-preview {
+                width: 100%;
+                height: 80px;
+            }
+
+            .match-info {
+                width: 100%;
+            }
+
+            /* Improved readability */
+            .color-name {
+                font-size: 1.2em;
+            }
+
+            .rgb-value, .hex-value {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .similarity {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            /* Status indicator positioning */
+            .status-indicator {
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                width: auto;
+            }
+        }
+
+        /* Recent Matches Section Styles */
+        .recent-matches-section {
+            background-color: var(--card-background);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .recent-matches-title {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .recent-matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .recent-match-card {
+            background: var(--alternative-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recent-match-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .recent-match-preview {
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .recent-match-color {
+            flex: 1;
+            height: 100%;
+        }
+
+        .recent-match-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .recent-match-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+
+        .recent-match-details {
+            font-size: 0.85em;
+            color: var(--secondary-text);
+        }
+
+        .recent-match-timestamp {
+            font-size: 0.8em;
+            color: var(--light-text);
+            margin-top: auto;
+        }
+
+        .no-recent-matches {
+            text-align: center;
+            padding: 30px;
+            color: var(--secondary-text);
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 600px) {
+            .recent-matches-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="home-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <h1>Minh Shyang 100% Polyester Thread to Pantone Color Matcher</h1>
+            <div class="theme-switch-wrapper">
+                <span class="theme-icon">☀️</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">🌙</span>
+            </div>
+        </div>
+        
+        <div class="search-section">
+            <h2 class="search-section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search Colors
+            </h2>
+            <div class="search-container">
+                <div class="search-box-wrapper">
+                    <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
+                    <span class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="search-options">
+                    <div class="search-options-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Color Matching Method
+                    </div>
+                    <div class="method-toggle-group">
+                        <label class="method-toggle">
+                            <input type="radio" name="searchColorMatchMethod" value="rgb" checked>
+                            <span class="method-toggle-text">
+                                <strong>RGB (Basic)</strong>
+                                <span class="method-description">Simple color distance using RGB values</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">
+                                    Calculates Euclidean distance between RGB values.<br><br>
+                                    • Simple and fast<br>
+                                    • Good for exact color matching<br>
+                                    • Less accurate for human perception<br>
+                                    • Distance = √[(R₁-R₂)² + (G₁-G₂)² + (B₁-B₂)²]
+                                </span>
+                            </span>
+                        </label>
+                        <label class="method-toggle">
+                            <input type="radio" name="searchColorMatchMethod" value="lab">
+                            <span class="method-toggle-text">
+                                <strong>CIELAB (Perceptual)</strong>
+                                <span class="method-description">Better perceptual color matching</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">
+                                    Uses CIELAB color space designed to match human perception.<br><br>
+                                    • Accounts for human color perception<br>
+                                    • Better for finding visually similar colors<br>
+                                    • Considers lightness and color separately<br>
+                                    • More accurate than RGB for visual matching
+                                </span>
+                            </span>
+                        </label>
+                        <label class="method-toggle">
+                            <input type="radio" name="searchColorMatchMethod" value="deltaE2000">
+                            <span class="method-toggle-text">
+                                <strong>Delta E 2000 (Advanced)</strong>
+                                <span class="method-description">Most accurate perceptual color difference</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">
+                                    Industry-standard color difference algorithm.<br><br>
+                                    • Most sophisticated color difference formula<br>
+                                    • Accounts for hue rotation<br>
+                                    • Handles problematic blue region better<br>
+                                    • Best matches human perception of color differences
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Shimmer Checkbox -->
+                <div class="option-section">
+                    <div class="option-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
+                        </svg>
+                        Thread Properties
+                    </div>
+                    <div class="shimmer-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="factorInShimmer">
+                            <span class="checkmark"></span>
+                            <span class="option-label">Factor in Thread Shimmer</span>
+                            <span class="tooltip-icon">ℹ️</span>
+                            <span class="tooltip">Calculates a shimmer score (L + |a| + |b|)/3 using CIELAB values to classify threads as Matte (<50), Semi-Gloss (50-75), or Metallic (>75). Adjusts lightness and saturation based on shimmer level to better match the real-world appearance of embroidery threads.</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Search Box -->
+                <h2 class="search-section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
+                        <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
+                        <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Find by Hex Color
+                </h2>
+                <div class="hex-input-container">
+                    <div class="hex-input-label">
+                        <span>Preview:</span>
+                        <div class="hex-preview" id="colorPreview" role="button" aria-label="Open color picker"></div>
+                        <input type="color" id="colorPicker" aria-label="Color picker">
+                    </div>
+                    <div class="hex-input-wrapper">
+                        <input type="text" id="hexInput" class="hex-input" placeholder="#HEXCODE" aria-label="Hex color code">
+                        <button id="hexSubmit" class="hex-submit" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            Find Matches
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pinned Swatches Section -->
+        <div class="pinned-swatches-section" id="pinnedSwatchesSection">
+            <div class="pinned-swatches-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
+                </svg>
+                Pinned Pantone Swatches
+            </div>
+            <div class="pinned-swatches-grid" id="pinnedSwatchesGrid">
+                <!-- Pinned swatches will be added here dynamically -->
+            </div>
+            <div class="empty-pins" id="emptyPinsMessage">
+                <div class="empty-pins-icon">⭐</div>
+                <div class="empty-pins-text">
+                    You haven't pinned any Pantone swatches yet. Click the star icon on any Pantone match to pin it for later reference.
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Matches Section -->
+        <div class="recent-matches-section">
+            <h2 class="recent-matches-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Recent Matches
+            </h2>
+            <div class="recent-matches-grid" id="recentMatchesGrid">
+                <!-- Recent matches will be added here dynamically -->
+            </div>
+        </div>
+
+        <div id="results-container">
+            <div id="results" class="results"></div>
+        </div>
+        
+        <div id="pagination">
+            <button id="prevPage">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Previous
+            </button>
+            <button id="nextPage">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="disclaimer-section">
+            <div class="disclaimer-box">
+                <div class="disclaimer-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <div class="disclaimer-text">
+                    <strong>Disclaimer:</strong> This tool was created as an AI experiment and is intended for general reference and exploratory use. The Pantone matches provided in this tool may not be fully accurate. Users are encouraged to exercise discretion and independently verify all matches for precision.
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <a href="about.html">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                About
+            </a>
+            <a href="https://github.com/imphuochuynh/thread-to-pantone-tool" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+                GitHub
+            </a>
+            <a href="#" id="resetColors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                </svg>
+                Reset
+            </a>
+        </div>
+    </div>
+
+    <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Loading...</span>
+    </div>
+
+    <script>
+        // Global variables
+        let threadData = [];
+        let pantoneData = [];
+        let allColors = [];
+        let filteredColors = [];
+        let currentPage = 1;
+        let itemsPerPage = 20;
+        let colorMatchMethod = 'rgb';
+        let factorInShimmer = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Add event listener for alternatives section on mobile
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.alternatives-title') && window.innerWidth <= 600) {
+                    const alternativesSection = e.target.closest('.alternatives-section');
+                    alternativesSection.classList.toggle('collapsed');
+                    
+                    // Show status message
+                    const isCollapsed = alternativesSection.classList.contains('collapsed');
+                    showStatus(`Alternative matches ${isCollapsed ? 'collapsed' : 'expanded'}`, false, 2000);
+                }
+            });
+            
+            // Initialize alternatives sections as collapsed on mobile
+            function initializeAlternativesSections() {
+                if (window.innerWidth <= 600) {
+                    document.querySelectorAll('.alternatives-section').forEach(section => {
+                        section.classList.add('collapsed');
+                    });
+                }
+            }
+            
+            // Call on load and resize
+            initializeAlternativesSections();
+            window.addEventListener('resize', initializeAlternativesSections);
+            
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Get user's timezone
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // Get current hour in user's timezone
+            const userTime = new Date().toLocaleString('en-US', { timeZone: userTimezone, hour: 'numeric', hour12: false });
+            const userHour = parseInt(userTime);
+            
+            // Determine if it's day or night based on hour (6 AM to 6 PM is day)
+            const isDayTime = userHour >= 6 && userHour < 18;
+            
+            // Set initial theme based on location time if no saved preference
+            if (savedTheme) {
+                // Use saved preference if available
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                }
+            } else {
+                // No saved preference, use time-based theme
+                if (!isDayTime) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.checked = false;
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            
+            // Handle theme toggle
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // Load color data
+            loadColorData();
+        });
+        
+        async function loadColorData() {
+            showStatus('Loading thread data...', true);
+            try {
+                // Load thread data using PapaParse
+                const threadResponse = await fetch('Reformatted_Embroidery_Thread_Data.csv');
+                const threadCsvText = await threadResponse.text();
+                
+                Papa.parse(threadCsvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        threadData = results.data.map(row => ({
+                            type: 'thread',
+                            code: row['Thread Code'],
+                            rgb: {
+                                r: parseInt(row['R']),
+                                g: parseInt(row['G']),
+                                b: parseInt(row['B'])
+                            }
+                        }));
+                        console.log(`Loaded ${threadData.length} thread colors`);
+                        showStatus(`Loaded ${threadData.length} thread colors`, false);
+                        
+                        // Continue with loading other data
+                        loadPantoneData();
+                    },
+                    error: function(error) {
+                        console.error('Error parsing thread data:', error);
+                        document.getElementById('results').innerHTML = 
+                            `<div class="no-results">Error loading thread data: ${error.message}</div>`;
+                        showStatus('Error loading thread data', false);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading color data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading color data: ${error.message}</div>`;
+                showStatus('Error loading color data', false);
+            }
+        }
+        
+        async function loadPantoneData() {
+            try {
+                // Load Pantone colors
+                const pantoneResponse = await fetch('all_pantone_colors_with_rgb.json');
+                const pantoneJson = await pantoneResponse.json();
+                
+                pantoneData = pantoneJson.pantone_colors.map(color => {
+                    return {
+                        type: 'pantone',
+                        code: color.name.trim(),
+                        rgb: {
+                            r: color.rgb.r,
+                            g: color.rgb.g,
+                            b: color.rgb.b
+                        }
+                    };
+                });
+                console.log(`Loaded ${pantoneData.length} Pantone colors`);
+                
+                // Continue with loading match data
+                loadMatchData();
+            } catch (error) {
+                console.error('Error loading Pantone data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading Pantone data: ${error.message}</div>`;
+            }
+        }
+        
+        async function loadMatchData() {
+            try {
+                // Load Pantone to thread matches using PapaParse
+                const matchesResponse = await fetch('matched_Pantone_to_embroidery_threads.csv');
+                const matchesCsvText = await matchesResponse.text();
+                
+                Papa.parse(matchesCsvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        pantoneToThreadData = results.data.map(row => {
+                            // Parse RGB values from strings like "(r, g, b)"
+                            const pantoneRgbStr = row['Pantone RGB'].replace(/[()"\s]/g, '').split(',');
+                            const threadRgbStr = row['Matched RGB'].replace(/[()"\s]/g, '').split(',');
+                            
+                            return {
+                                pantoneCode: row['Pantone Color'].trim(),
+                                pantoneRgb: {
+                                    r: parseInt(pantoneRgbStr[0]),
+                                    g: parseInt(pantoneRgbStr[1]),
+                                    b: parseInt(pantoneRgbStr[2])
+                                },
+                                threadCode: row['Matched Thread Code'].trim(),
+                                threadRgb: {
+                                    r: parseInt(threadRgbStr[0]),
+                                    g: parseInt(threadRgbStr[1]),
+                                    b: parseInt(threadRgbStr[2])
+                                },
+                                distance: parseFloat(row['Distance'])
+                            };
+                        }).filter(item => item !== null);
+                        
+                        console.log(`Loaded ${pantoneToThreadData.length} Pantone to thread matches`);
+                        
+                        // Process and display the data
+                        processAndDisplayData();
+                    },
+                    error: function(error) {
+                        console.error('Error parsing match data:', error);
+                        document.getElementById('results').innerHTML = 
+                            `<div class="no-results">Error loading match data: ${error.message}</div>`;
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading match data:', error);
+                document.getElementById('results').innerHTML = 
+                    `<div class="no-results">Error loading match data: ${error.message}</div>`;
+            }
+        }
+        
+        function processAndDisplayData() {
+            // Combine thread and pantone data
+            allColors = [...threadData, ...pantoneData];
+            console.log(`Combined ${allColors.length} total colors`);
+            
+            // Get the selected color matching method
+            const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
+            
+            // Enhance thread data with pantone matches and alternatives
+            threadData.forEach(thread => {
+                // Find all pantone matches for this thread
+                const matches = pantoneToThreadData
+                    .filter(m => m.threadCode === thread.code)
+                    .sort((a, b) => a.distance - b.distance);
+                
+                // Find additional potential matches
+                const additionalMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, matches.map(m => m.pantoneCode));
+                
+                // Combine all matches and sort by distance
+                const allMatches = [
+                    ...matches.map(m => ({
+                        code: m.pantoneCode,
+                        rgb: m.pantoneRgb,
+                        distance: m.distance,
+                        type: 'pantone'
+                    })),
+                    ...additionalMatches
+                ].sort((a, b) => a.distance - b.distance);
+                
+                if (allMatches.length > 0) {
+                    // Set the best match as the primary match
+                    const bestMatch = allMatches[0];
+                    thread.matchCode = bestMatch.code;
+                    thread.matchRgb = bestMatch.rgb;
+                    thread.distance = bestMatch.distance;
+                    thread.matchMethod = colorMatchMethod;
+                    thread.matchType = 'pantone';
+                    
+                    // Add to recent matches
+                    addToRecentMatches(thread, bestMatch);
+                    
+                    // Set remaining matches as alternatives
+                    if (allMatches.length > 1) {
+                        thread.alternativeMatches = allMatches.slice(1, 4);
+                    }
+                } else {
+                    // If no matches found, use the closest colors
+                    thread.alternativeMatches = findClosestColorsWithMethod(thread, pantoneData, 3, colorMatchMethod, []);
+                    thread.matchMethod = colorMatchMethod;
+                }
+            });
+            
+            // Enhance pantone data with thread matches and alternatives
+            pantoneData.forEach(pantone => {
+                // Find all thread colors to compare with
+                const allThreads = threadData.map(thread => ({
+                    code: thread.code,
+                    rgb: thread.rgb,
+                    type: 'thread'
+                }));
+                
+                // Calculate distance for all threads using the current method
+                const allThreadsWithDistance = allThreads.map(thread => ({
+                    ...thread,
+                    distance: calculateColorDistance(pantone.rgb, thread.rgb, colorMatchMethod)
+                }));
+                
+                // Sort by distance (lowest first = highest similarity)
+                const sortedThreads = allThreadsWithDistance.sort((a, b) => a.distance - b.distance);
+                
+                // Take the best matches
+                const bestMatches = sortedThreads.slice(0, 4);
+                
+                if (bestMatches.length > 0) {
+                    // Set the best match as the primary match
+                    const bestMatch = bestMatches[0];
+                    pantone.matchCode = bestMatch.code;
+                    pantone.matchRgb = bestMatch.rgb;
+                    pantone.distance = bestMatch.distance;
+                    pantone.matchMethod = colorMatchMethod;
+                    pantone.matchType = 'thread';
+                    
+                    // Add to recent matches
+                    addToRecentMatches(pantone, bestMatch);
+                    
+                    // Set remaining matches as alternatives
+                    if (bestMatches.length > 1) {
+                        pantone.alternativeMatches = bestMatches.slice(1);
+                    }
+                } else {
+                    // If no matches found, use the closest colors
+                    pantone.alternativeMatches = findClosestColorsWithMethod(pantone, threadData, 3, colorMatchMethod, []);
+                    pantone.matchMethod = colorMatchMethod;
+                }
+            });
+            
+            // Display all colors initially
+            filteredColors = allColors;
+            displayColors(filteredColors, currentPage);
+        }
+
+        function findClosestColorsWithMethod(sourceColor, targetColors, count = 2, method = 'rgb', excludeCodes = []) {
+            return targetColors
+                .filter(color => !excludeCodes.includes(color.code))
+                .map(color => ({
+                    code: color.code,
+                    rgb: color.rgb,
+                    type: color.type,
+                    distance: calculateColorDistance(sourceColor.rgb, color.rgb, method)
+                }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, count);
+        }
+
+        function displayColors(colors, page = 1) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContainer = document.getElementById('results-container');
+            resultsDiv.innerHTML = '';
+            
+            // Remove any existing banner
+            const existingBanner = document.querySelector('.banner-container');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+            
+            if (colors.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-results">No colors found</div>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            // Calculate pagination
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, colors.length);
+            const pageColors = colors.slice(startIndex, endIndex);
+            
+            // Update pagination controls
+            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('prevPage').disabled = page === 1;
+            document.getElementById('nextPage').disabled = endIndex >= colors.length;
+            
+            // Show status with count
+            showStatus(`Showing ${startIndex + 1}-${endIndex} of ${colors.length} colors`, false);
+            
+            // Get the current matching method
+            const currentMethod = pageColors[0].matchMethod || 'rgb';
+            
+            // If we're displaying a custom color, show the matching method at the top
+            if (pageColors.length === 1 && pageColors[0].type === 'custom' && pageColors[0].matchMethod) {
+                const methodBanner = document.createElement('div');
+                methodBanner.className = 'method-banner';
+                methodBanner.innerHTML = `
+                    <div class="method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="method-text">
+                        Using <strong>${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</strong> color matching method
+                    </div>
+                `;
+                
+                // Create a container for the banner that's outside the grid
+                const bannerContainer = document.createElement('div');
+                bannerContainer.className = 'banner-container';
+                bannerContainer.appendChild(methodBanner);
+                resultsContainer.insertBefore(bannerContainer, resultsDiv);
+            }
+            // Show the matching method banner for regular searches too
+            else if (pageColors.length > 0 && pageColors[0].matchMethod) {
+                const methodBanner = document.createElement('div');
+                methodBanner.className = 'method-banner';
+                methodBanner.innerHTML = `
+                    <div class="method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="method-text">
+                        Using <strong>${currentMethod === 'rgb' ? 'RGB (Basic)' : currentMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</strong> color matching method for all results
+                    </div>
+                `;
+                
+                // Create a container for the banner that's outside the grid
+                const bannerContainer = document.createElement('div');
+                bannerContainer.className = 'banner-container';
+                bannerContainer.appendChild(methodBanner);
+                resultsContainer.insertBefore(bannerContainer, resultsDiv);
+            }
+
+            pageColors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'color-card';
+                colorDiv.dataset.colorCode = color.code;
+                colorDiv.dataset.colorType = color.type;
+                
+                const colorRGB = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`;
+                const hexColor = rgbToHex(color.rgb);
+                
+                // Primary match HTML
+                let matchHTML = '';
+                if (color.matchCode) {
+                    const matchRGB = `rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})`;
+                    const matchHex = rgbToHex(color.matchRgb);
+                    const matchType = color.matchType === 'pantone' ? 'Pantone' : 'Thread';
+                    
+                    // Calculate similarity percentage
+                    let similarityPercentage = '';
+                    if (color.matchMethod === 'deltaE2000') {
+                        // Delta E 2000: lower is better, convert to percentage (max 100)
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance * 10, 100)).toFixed(1)}%`;
+                    } else if (color.matchMethod === 'lab') {
+                        // CIELAB: lower is better, convert to percentage (max 100)
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance / 2, 100)).toFixed(1)}%`;
+                    } else {
+                        // RGB: lower is better, convert to percentage (max 100)
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(color.distance / 4.42, 100)).toFixed(1)}%`;
+                    }
+                    
+                    // Add the match method information if available
+                    const matchMethodInfo = color.matchMethod ? 
+                        `<div class="match-method">Method: ${color.matchMethod === 'rgb' ? 'RGB (Basic)' : color.matchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}</div>` : '';
+                    
+                    // Add shimmer information for the matched color if enabled
+                    const matchShimmerInfo = factorInShimmer ? getShimmerInfo(color.matchRgb) : '';
+                    
+                    matchHTML = `
+                        <div class="color-match primary">
+                            <div class="match-header">
+                                <div class="return-to-best">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 12h18M3 12l6-6M3 12l6 6"/>
+                                    </svg>
+                                    Return to Best Match
+                                </div>
+                                <span class="match-title">Best ${matchType} Match:</span>
+                                <span class="match-code">${color.matchCode}</span>
+                            </div>
+                            <div class="match-details">
+                                <div class="match-color-preview" style="background-color: ${matchRGB}"></div>
+                                <div class="match-info">
+                                    <div class="match-rgb">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}</div>
+                                    <div class="match-hex">Hex: ${matchHex}</div>
+                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
+                                        <span class="similarity-label">Similarity:</span>
+                                        <span class="similarity-value">${similarityPercentage}</span>
+                                    </div>
+                                    ${matchMethodInfo}
+                                    ${matchShimmerInfo}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Alternative matches HTML
+                let alternativesHTML = '';
+                if (color.alternativeMatches && color.alternativeMatches.length > 0) {
+                    // Use matchType property if available, otherwise determine based on color type
+                    const matchType = color.matchType ? 
+                        (color.matchType === 'pantone' ? 'Pantone' : 'Thread') : 
+                        (color.type === 'pantone' ? 'Thread' : 'Pantone');
+                    
+                    alternativesHTML = `
+                        <div class="alternatives-section">
+                            <div class="alternatives-title">Alternative ${matchType} Matches:</div>
+                            <div class="alternative-matches-container">
+                                ${color.alternativeMatches.map(alt => {
+                                    const altRGB = `rgb(${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b})`;
+                                    const altHex = rgbToHex(alt.rgb);
+                                    
+                                    // Calculate similarity percentage
+                                    const distance = calculateColorDistance(color.rgb, alt.rgb, color.matchMethod || 'rgb');
+                                    let similarityPercentage = '';
+                                    if (color.matchMethod === 'deltaE2000') {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
+                                    } else if (color.matchMethod === 'lab') {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
+                                    } else {
+                                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
+                                    }
+                                    
+                                    return `
+                                        <div class="color-match alternative" 
+                                            data-alt-code="${alt.code}"
+                                            data-alt-type="${alt.type}"
+                                            data-alt-r="${alt.rgb.r}"
+                                            data-alt-g="${alt.rgb.g}"
+                                            data-alt-b="${alt.rgb.b}"
+                                            data-original-color-r="${color.rgb.r}"
+                                            data-original-color-g="${color.rgb.g}"
+                                            data-original-color-b="${color.rgb.b}"
+                                            data-match-method="${color.matchMethod || 'rgb'}">
+                                            <div class="match-header">
+                                                <span class="match-code">${alt.code}</span>
+                                            </div>
+                                            <div class="match-details">
+                                                <div class="match-color-preview" style="background-color: ${altRGB}"></div>
+                                                <div class="match-info">
+                                                    <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
+                                                    <div class="match-hex">Hex: ${altHex}</div>
+                                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
+                                                        <span class="similarity-label">Similarity:</span>
+                                                        <span class="similarity-value">${similarityPercentage}</span>
+                                                    </div>
+                                                    ${factorInShimmer ? getShimmerInfo(alt.rgb) : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                colorDiv.innerHTML = `
+                    <div class="color-swatches-container">
+                        <div class="color-swatch" style="background-color: ${colorRGB}">
+                            <div class="color-swatch-label">${color.type === 'thread' ? 'Thread' : color.type === 'custom' ? 'Custom' : 'Pantone'}</div>
+                        </div>
+                        ${color.matchCode ? `
+                            <div class="color-divider"></div>
+                            <div class="color-swatch" style="background-color: rgb(${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b})">
+                                <div class="color-swatch-label">${color.matchType === 'pantone' ? 'Pantone' : 'Thread'}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="color-info">
+                        <div class="color-name">
+                            ${color.code}
+                            <span class="color-type">${color.type === 'thread' ? 'Thread' : color.type === 'custom' ? 'Custom' : 'Pantone'}</span>
+                        </div>
+                        <div class="color-details">
+                            <div class="rgb-value">RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}</div>
+                            <div class="hex-value">Hex: ${hexColor}</div>
+                            ${factorInShimmer ? getShimmerInfo(color.rgb) : ''}
+                        </div>
+                        ${matchHTML}
+                        ${alternativesHTML}
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(colorDiv);
+            });
+            
+            // Add event listeners for alternative match clicks
+            document.querySelectorAll('.color-match.alternative').forEach(altMatch => {
+                altMatch.addEventListener('click', function() {
+                    // Get the parent color card
+                    const colorCard = this.closest('.color-card');
+                    const colorCode = colorCard.dataset.colorCode;
+                    const colorType = colorCard.dataset.colorType;
+                    
+                    // Store the current best match data before switching to alternative
+                    const currentBestMatch = colorCard.querySelector('.color-match.primary');
+                    const bestMatchData = {
+                        code: currentBestMatch.querySelector('.match-code').textContent,
+                        rgb: currentBestMatch.querySelector('.match-rgb').textContent.match(/RGB: (\d+), (\d+), (\d+)/).slice(1).map(Number),
+                        hex: currentBestMatch.querySelector('.match-hex').textContent.replace('Hex: ', ''),
+                        similarity: currentBestMatch.querySelector('.similarity-value').textContent,
+                        type: currentBestMatch.querySelector('.match-title').textContent.includes('Pantone') ? 'pantone' : 'thread'
+                    };
+                    colorCard.dataset.bestMatchData = JSON.stringify(bestMatchData);
+                    
+                    // Get the alternative match data
+                    const altCode = this.dataset.altCode;
+                    const altType = this.dataset.altType;
+                    const altR = parseInt(this.dataset.altR);
+                    const altG = parseInt(this.dataset.altG);
+                    const altB = parseInt(this.dataset.altB);
+                    
+                    // Get the original color data
+                    const originalR = parseInt(this.dataset.originalColorR);
+                    const originalG = parseInt(this.dataset.originalColorG);
+                    const originalB = parseInt(this.dataset.originalColorB);
+                    const matchMethod = this.dataset.matchMethod;
+                    
+                    // Get the color swatch container
+                    const swatchesContainer = colorCard.querySelector('.color-swatches-container');
+                    
+                    // Calculate distance between original color and alternative
+                    const distance = calculateColorDistance(
+                        { r: originalR, g: originalG, b: originalB },
+                        { r: altR, g: altG, b: altB },
+                        matchMethod
+                    );
+                    
+                    // Calculate similarity percentage
+                    let similarityPercentage = '';
+                    if (matchMethod === 'deltaE2000') {
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance * 10, 100)).toFixed(1)}%`;
+                    } else if (matchMethod === 'lab') {
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 2, 100)).toFixed(1)}%`;
+                    } else {
+                        similarityPercentage = `${Math.max(0, 100 - Math.min(distance / 4.42, 100)).toFixed(1)}%`;
+                    }
+                    
+                    // Update the side-by-side view
+                    swatchesContainer.innerHTML = `
+                        <div class="color-swatch" style="background-color: rgb(${originalR}, ${originalG}, ${originalB})">
+                            <div class="color-swatch-label">${colorType === 'thread' ? 'Thread' : colorType === 'custom' ? 'Custom' : 'Pantone'}</div>
+                        </div>
+                        <div class="color-divider"></div>
+                        <div class="color-swatch" style="background-color: rgb(${altR}, ${altG}, ${altB})">
+                            <div class="color-swatch-label">${altType === 'pantone' ? 'Pantone' : 'Thread'}</div>
+                        </div>
+                    `;
+                    
+                    // Update the primary match info
+                    const matchInfoContainer = colorCard.querySelector('.color-match.primary');
+                    if (matchInfoContainer) {
+                        const altRGB = `rgb(${altR}, ${altG}, ${altB})`;
+                        const altHex = rgbToHex({ r: altR, g: altG, b: altB });
+                        
+                        // Add shimmer information if enabled
+                        const altShimmerInfo = factorInShimmer ? getShimmerInfo({ r: altR, g: altG, b: altB }) : '';
+                        
+                        matchInfoContainer.innerHTML = `
+                            <div class="match-header">
+                                <div class="return-to-best visible">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 12h18M3 12l6-6M3 12l6 6"/>
+                                    </svg>
+                                    Return to Best Match
+                                </div>
+                                <span class="match-title">Selected ${altType === 'pantone' ? 'Pantone' : 'Thread'} Match:</span>
+                                <span class="match-code">${altCode}</span>
+                            </div>
+                            <div class="match-details">
+                                <div class="match-color-preview" style="background-color: ${altRGB}"></div>
+                                <div class="match-info">
+                                    <div class="match-rgb">RGB: ${altR}, ${altG}, ${altB}</div>
+                                    <div class="match-hex">Hex: ${altHex}</div>
+                                    <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
+                                        <span class="similarity-label">Similarity:</span>
+                                        <span class="similarity-value">${similarityPercentage}</span>
+                                    </div>
+                                    ${altShimmerInfo}
+                                </div>
+                            </div>
+                        `;
+
+                        // Add event listener for return to best match button
+                        const returnButton = matchInfoContainer.querySelector('.return-to-best');
+                        returnButton.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const bestMatchData = JSON.parse(colorCard.dataset.bestMatchData);
+                            
+                            // Update the side-by-side view
+                            swatchesContainer.innerHTML = `
+                                <div class="color-swatch" style="background-color: rgb(${originalR}, ${originalG}, ${originalB})">
+                                    <div class="color-swatch-label">${colorType === 'thread' ? 'Thread' : colorType === 'custom' ? 'Custom' : 'Pantone'}</div>
+                                </div>
+                                <div class="color-divider"></div>
+                                <div class="color-swatch" style="background-color: rgb(${bestMatchData.rgb[0]}, ${bestMatchData.rgb[1]}, ${bestMatchData.rgb[2]})">
+                                    <div class="color-swatch-label">${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'}</div>
+                                </div>
+                            `;
+                            
+                            // Update the primary match info
+                            matchInfoContainer.innerHTML = `
+                                <div class="match-header">
+                                    <span class="match-title">Best ${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'} Match:</span>
+                                    <span class="match-code">${bestMatchData.code}</span>
+                                </div>
+                                <div class="match-details">
+                                    <div class="match-color-preview" style="background-color: rgb(${bestMatchData.rgb[0]}, ${bestMatchData.rgb[1]}, ${bestMatchData.rgb[2]})"></div>
+                                    <div class="match-info">
+                                        <div class="match-rgb">RGB: ${bestMatchData.rgb.join(', ')}</div>
+                                        <div class="match-hex">Hex: ${bestMatchData.hex}</div>
+                                        <div class="match-similarity ${updateMatchSimilarity(bestMatchData.similarity)}">
+                                            <span class="similarity-label">Similarity:</span>
+                                            <span class="similarity-value">${bestMatchData.similarity}</span>
+                                        </div>
+                                        ${factorInShimmer ? getShimmerInfo({ r: bestMatchData.rgb[0], g: bestMatchData.rgb[1], b: bestMatchData.rgb[2] }) : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Show a status message
+                            showStatus(`Returned to best ${bestMatchData.type === 'pantone' ? 'Pantone' : 'Thread'} match`, false, 3000);
+                        });
+                    }
+                    
+                    // Show a status message
+                    showStatus(`Showing ${altType === 'pantone' ? 'Pantone' : 'Thread'} ${altCode} in side-by-side view`, false, 3000);
+                });
+            });
+        }
+
+        // Add auto-suggestions functionality
+        let suggestionsTimeout;
+        const searchBox = document.getElementById('colorSearch');
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.className = 'suggestions-container';
+        searchBox.parentNode.appendChild(suggestionsContainer);
+
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            clearTimeout(suggestionsTimeout);
+            
+            if (searchTerm.length < 2) {
+                suggestionsContainer.classList.remove('visible');
+                return;
+            }
+            
+            suggestionsTimeout = setTimeout(() => {
+                const suggestions = allColors
+                    .filter(color => 
+                        color.code.toLowerCase().includes(searchTerm) ||
+                        (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
+                    )
+                    .slice(0, 10);
+                
+                if (suggestions.length > 0) {
+                    suggestionsContainer.innerHTML = suggestions.map(color => `
+                        <div class="suggestion-item" data-code="${color.code}">
+                            <div class="suggestion-color" style="background-color: rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})"></div>
+                            <div class="suggestion-text">
+                                <div>${color.code}</div>
+                                <div class="suggestion-type">${color.type === 'thread' ? 'Thread' : 'Pantone'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                    suggestionsContainer.classList.add('visible');
+                } else {
+                    suggestionsContainer.classList.remove('visible');
+                }
+            }, 200);
+        });
+
+        suggestionsContainer.addEventListener('click', (e) => {
+            const suggestionItem = e.target.closest('.suggestion-item');
+            if (suggestionItem) {
+                const code = suggestionItem.dataset.code;
+                searchBox.value = code;
+                suggestionsContainer.classList.remove('visible');
+                // Trigger search
+                const event = new Event('input');
+                searchBox.dispatchEvent(event);
+            }
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchBox.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.classList.remove('visible');
+            }
+        });
+
+        document.getElementById('colorSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                filteredColors = allColors;
+                displayColors(filteredColors, currentPage);
+                return;
+            }
+            
+            // Show loading state
+            showLoading(0);
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress <= 90) {
+                    document.querySelector('.loading-progress-bar').style.width = `${progress}%`;
+                }
+            }, 100);
+            
+            // Filter colors
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                
+                // Get the selected color matching method
+                const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
+                
+                // First, filter colors based on search term
+                filteredColors = allColors.filter(color => 
+                    color.code.toLowerCase().includes(searchTerm) || 
+                    (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
+                );
+                
+                // For each Pantone color in the filtered results, ensure it shows the best thread match
+                filteredColors.forEach(color => {
+                    if (color.type === 'pantone') {
+                        // Find all thread colors to compare with
+                        const allThreads = threadData.map(thread => ({
+                            code: thread.code,
+                            rgb: thread.rgb,
+                            type: 'thread'
+                        }));
+                        
+                        // Calculate distance for all threads using the current method
+                        const allThreadsWithDistance = allThreads.map(thread => ({
+                            ...thread,
+                            distance: calculateColorDistance(color.rgb, thread.rgb, colorMatchMethod)
+                        }));
+                        
+                        // Sort by distance (lowest first = highest similarity)
+                        const sortedThreads = allThreadsWithDistance.sort((a, b) => a.distance - b.distance);
+                        
+                        // Take the best matches
+                        const bestMatches = sortedThreads.slice(0, 4);
+                        
+                        if (bestMatches.length > 0) {
+                            // Set the best match as the primary match
+                            const bestMatch = bestMatches[0];
+                            color.matchCode = bestMatch.code;
+                            color.matchRgb = bestMatch.rgb;
+                            color.distance = bestMatch.distance;
+                            color.matchMethod = colorMatchMethod;
+                            color.matchType = 'thread';
+                            
+                            // Set remaining matches as alternatives
+                            if (bestMatches.length > 1) {
+                                color.alternativeMatches = bestMatches.slice(1);
+                            }
+                        }
+                    }
+                });
+                
+                if (filteredColors.length === 0) {
+                    showNoResults(searchTerm);
+                } else {
+                    document.querySelector('.loading-progress-bar').style.width = '100%';
+                    setTimeout(() => {
+                        currentPage = 1;
+                        displayColors(filteredColors, currentPage);
+                    }, 200);
+                }
+            }, 500);
+        });
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayColors(filteredColors, currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage * itemsPerPage < filteredColors.length) {
+                currentPage++;
+                displayColors(filteredColors, currentPage);
+            }
+        });
+
+        // Add event listeners for color matching method radio buttons
+        document.querySelectorAll('input[name="searchColorMatchMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                colorMatchMethod = this.value;
+                updateResults();
+            });
+        });
+        
+        // Event listener for shimmer checkbox
+        document.getElementById('factorInShimmer').addEventListener('change', function() {
+            factorInShimmer = this.checked;
+            updateResults();
+        });
+
+        // Add color picker functionality
+        const colorPreview = document.getElementById('colorPreview');
+        const colorPicker = document.getElementById('colorPicker');
+        const hexInput = document.getElementById('hexInput');
+
+        // Improved color picker interaction for both desktop and mobile
+        colorPreview.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Use a small timeout to ensure the click event is fully processed
+            setTimeout(() => {
+                colorPicker.click();
+            }, 50);
+        });
+
+        // Add touch events for better mobile support
+        colorPreview.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            // Use a small timeout to ensure the touch event is fully processed
+            setTimeout(() => {
+                colorPicker.click();
+            }, 50);
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            hexInput.value = color.toUpperCase();
+            colorPreview.style.backgroundColor = color;
+            document.getElementById('hexSubmit').disabled = false;
+        });
+
+        colorPicker.addEventListener('change', (e) => {
+            const color = e.target.value;
+            hexInput.value = color.toUpperCase();
+            colorPreview.style.backgroundColor = color;
+            document.getElementById('hexSubmit').disabled = false;
+        });
+
+        // Update hex input handler
+        hexInput.addEventListener('input', (e) => {
+            const hexInput = e.target;
+            const hexSubmit = document.getElementById('hexSubmit');
+            let hexCode = hexInput.value.trim();
+            
+            if (isValidHexColor(hexCode)) {
+                hexCode = normalizeHexColor(hexCode);
+                hexInput.value = hexCode;
+                colorPreview.style.backgroundColor = hexCode;
+                hexSubmit.disabled = false;
+            } else {
+                colorPreview.style.backgroundColor = 'transparent';
+                hexSubmit.disabled = true;
+            }
+        });
+        
+        document.getElementById('hexSubmit').addEventListener('click', () => {
+            const hexInput = document.getElementById('hexInput');
+            const hexCode = hexInput.value.trim();
+            
+            if (isValidHexColor(hexCode)) {
+                const normalizedHex = normalizeHexColor(hexCode);
+                const rgb = hexToRgb(normalizedHex);
+                
+                // Get the selected color matching method
+                const colorMatchMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked').value;
+                
+                // Find closest Pantone colors using the selected method
+                const closestPantoneColors = findClosestColorsToHex(normalizedHex, pantoneData, 3, colorMatchMethod);
+                
+                // Find closest thread colors using the selected method
+                const closestThreadColors = findClosestColorsToHex(normalizedHex, threadData, 3, colorMatchMethod);
+                
+                // Create a custom color object with matches
+                const customColor = {
+                    type: 'custom',
+                    code: normalizedHex,
+                    rgb: rgb,
+                    matchCode: closestPantoneColors[0].code,
+                    matchRgb: closestPantoneColors[0].rgb,
+                    distance: closestPantoneColors[0].distance,
+                    matchMethod: colorMatchMethod,
+                    matchType: 'pantone',
+                    alternativeMatches: [
+                        ...closestPantoneColors.slice(1).map(c => ({...c, type: 'pantone'})),
+                        ...closestThreadColors.map(c => ({...c, type: 'thread'}))
+                    ]
+                };
+                
+                // Display the custom color and its matches
+                filteredColors = [customColor];
+                currentPage = 1;
+                displayColors(filteredColors, currentPage);
+                
+                // Show a status message about the matching method used
+                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'} color matching`, false, 6000);
+            }
+        });
+
+        function isValidHexColor(hex) {
+            return /^#?[0-9A-Fa-f]{6}$/.test(hex);
+        }
+        
+        function normalizeHexColor(hex) {
+            hex = hex.trim();
+            if (!hex.startsWith('#')) {
+                hex = '#' + hex;
+            }
+            return hex.toUpperCase();
+        }
+        
+        function hexToRgb(hex) {
+            hex = hex.replace(/^#/, '');
+            return {
+                r: parseInt(hex.slice(0, 2), 16),
+                g: parseInt(hex.slice(2, 4), 16),
+                b: parseInt(hex.slice(4, 6), 16)
+            };
+        }
+        
+        function rgbToHex(r, g, b) {
+            // Handle both RGB object and individual components
+            if (typeof r === 'object' && r !== null) {
+                // RGB object format
+                const rgb = r;
+                r = rgb.r;
+                g = rgb.g;
+                b = rgb.b;
+            }
+            
+            // Convert to hex
+            r = Math.max(0, Math.min(255, r)).toString(16).padStart(2, '0');
+            g = Math.max(0, Math.min(255, g)).toString(16).padStart(2, '0');
+            b = Math.max(0, Math.min(255, b)).toString(16).padStart(2, '0');
+            
+            return `#${r}${g}${b}`.toUpperCase();
+        }
+        
+        // RGB to CIELAB conversion functions
+        function rgbToXyz(rgb) {
+            // Convert RGB to normalized values
+            let r = rgb.r / 255;
+            let g = rgb.g / 255;
+            let b = rgb.b / 255;
+            
+            // Apply gamma correction
+            r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+            g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+            b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+            
+            // Convert to XYZ color space
+            const x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+            const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+            const z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+            
+            return { x: x * 100, y: y * 100, z: z * 100 };
+        }
+        
+        function xyzToLab(xyz) {
+            // Reference values for D65 standard illuminant
+            const xRef = 95.047;
+            const yRef = 100.0;
+            const zRef = 108.883;
+            
+            // Normalize XYZ values
+            let x = xyz.x / xRef;
+            let y = xyz.y / yRef;
+            let z = xyz.z / zRef;
+            
+            // Apply transformation
+            x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+            y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+            z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+            
+            const L = (116 * y) - 16;
+            const a = 500 * (x - y);
+            const b = 200 * (y - z);
+            
+            return { L, a, b };
+        }
+        
+        function rgbToLab(rgb) {
+            const xyz = rgbToXyz(rgb);
+            return xyzToLab(xyz);
+        }
+        
+        function calculateLabDistance(lab1, lab2) {
+            // Calculate Euclidean distance in CIELAB color space
+            return Math.sqrt(
+                Math.pow(lab1.L - lab2.L, 2) +
+                Math.pow(lab1.a - lab2.a, 2) +
+                Math.pow(lab1.b - lab2.b, 2)
+            );
+        }
+        
+        // Delta E 2000 calculation functions
+        function rad2deg(rad) {
+            return 360 * rad / (2 * Math.PI);
+        }
+
+        function deg2rad(deg) {
+            return (2 * Math.PI * deg) / 360;
+        }
+
+        function calculateDeltaE2000(lab1, lab2) {
+            // Calculating c1, c2, h1, h2
+            const c1 = Math.sqrt(lab1.a * lab1.a + lab1.b * lab1.b);
+            const c2 = Math.sqrt(lab2.a * lab2.a + lab2.b * lab2.b);
+            const c_bar = (c1 + c2) / 2;
+            
+            const G = 0.5 * (1 - Math.sqrt(Math.pow(c_bar, 7) / (Math.pow(c_bar, 7) + Math.pow(25, 7))));
+            
+            const a1_prime = (1 + G) * lab1.a;
+            const a2_prime = (1 + G) * lab2.a;
+            
+            const C1_prime = Math.sqrt(a1_prime * a1_prime + lab1.b * lab1.b);
+            const C2_prime = Math.sqrt(a2_prime * a2_prime + lab2.b * lab2.b);
+            
+            let h1_prime = rad2deg(Math.atan2(lab1.b, a1_prime));
+            if (h1_prime < 0) h1_prime += 360;
+            
+            let h2_prime = rad2deg(Math.atan2(lab2.b, a2_prime));
+            if (h2_prime < 0) h2_prime += 360;
+            
+            const H_bar_prime = Math.abs(h1_prime - h2_prime) > 180 ? (h1_prime + h2_prime + 360) / 2 : (h1_prime + h2_prime) / 2;
+            
+            const T = 1 - 0.17 * Math.cos(deg2rad(H_bar_prime - 30)) + 
+                      0.24 * Math.cos(deg2rad(2 * H_bar_prime)) + 
+                      0.32 * Math.cos(deg2rad(3 * H_bar_prime + 6)) - 
+                      0.20 * Math.cos(deg2rad(4 * H_bar_prime - 63));
+            
+            let delta_h_prime;
+            if (Math.abs(h2_prime - h1_prime) <= 180) {
+                delta_h_prime = h2_prime - h1_prime;
+            } else {
+                delta_h_prime = h2_prime <= h1_prime ? h2_prime - h1_prime + 360 : h2_prime - h1_prime - 360;
+            }
+            
+            const delta_L_prime = lab2.L - lab1.L;
+            const delta_C_prime = C2_prime - C1_prime;
+            const delta_H_prime = 2 * Math.sqrt(C1_prime * C2_prime) * Math.sin(deg2rad(delta_h_prime) / 2);
+            
+            const L_bar_prime = (lab1.L + lab2.L) / 2;
+            const C_bar_prime = (C1_prime + C2_prime) / 2;
+            
+            const S_L = 1 + ((0.015 * Math.pow(L_bar_prime - 50, 2)) / Math.sqrt(20 + Math.pow(L_bar_prime - 50, 2)));
+            const S_C = 1 + 0.045 * C_bar_prime;
+            const S_H = 1 + 0.015 * C_bar_prime * T;
+            
+            const delta_theta = 30 * Math.exp(-Math.pow((H_bar_prime - 275) / 25, 2));
+            const R_C = 2 * Math.sqrt(Math.pow(C_bar_prime, 7) / (Math.pow(C_bar_prime, 7) + Math.pow(25, 7)));
+            const R_T = -R_C * Math.sin(2 * deg2rad(delta_theta));
+            
+            const k_L = 1;
+            const k_C = 1;
+            const k_H = 1;
+            
+            const delta_E = Math.sqrt(
+                Math.pow(delta_L_prime / (k_L * S_L), 2) +
+                Math.pow(delta_C_prime / (k_C * S_C), 2) +
+                Math.pow(delta_H_prime / (k_H * S_H), 2) +
+                R_T * (delta_C_prime / (k_C * S_C)) * (delta_H_prime / (k_H * S_H))
+            );
+            
+            return delta_E;
+        }
+
+        // Function to estimate thread shimmer level based on LAB values
+        function estimateShimmerLevel(lab) {
+            // Calculate shimmer score based on L and absolute values of a and b
+            const shimmerScore = (lab.L + (Math.abs(lab.a) + Math.abs(lab.b))) / 3;
+            
+            // Categorize thread based on shimmer score
+            if (shimmerScore < 50) {
+                return 'matte';
+            } else if (shimmerScore <= 75) {
+                return 'semi-gloss';
+            } else {
+                return 'metallic';
+            }
+        }
+        
+        // Function to adjust LAB values based on shimmer level
+        function adjustLabForShimmer(lab) {
+            // Create a copy of the lab object to avoid modifying the original
+            const adjustedLab = { ...lab };
+            
+            // Determine shimmer level
+            const shimmerLevel = estimateShimmerLevel(lab);
+            
+            // Apply adjustments based on shimmer level
+            if (shimmerLevel === 'matte') {
+                // Reduce lightness for matte threads
+                adjustedLab.L = Math.max(0, adjustedLab.L - 3);
+            } else if (shimmerLevel === 'semi-gloss') {
+                // Increase lightness for semi-gloss threads
+                adjustedLab.L = Math.min(100, adjustedLab.L + 3);
+            } else if (shimmerLevel === 'metallic') {
+                // Increase lightness and reduce chroma for metallic threads
+                adjustedLab.L = Math.min(100, adjustedLab.L + 6);
+                adjustedLab.a = adjustedLab.a * 0.95; // Reduce chroma by 5%
+                adjustedLab.b = adjustedLab.b * 0.95; // Reduce chroma by 5%
+            }
+            
+            return adjustedLab;
+        }
+
+        function calculateColorDistance(rgb1, rgb2, method = 'rgb') {
+            if (method === 'deltaE2000' || method === 'lab') {
+                const lab1 = rgbToLab(rgb1);
+                const lab2 = rgbToLab(rgb2);
+                
+                // Apply shimmer adjustments if enabled
+                const adjustedLab1 = factorInShimmer ? adjustLabForShimmer(lab1) : lab1;
+                const adjustedLab2 = factorInShimmer ? adjustLabForShimmer(lab2) : lab2;
+                
+                if (method === 'deltaE2000') {
+                    return calculateDeltaE2000(adjustedLab1, adjustedLab2);
+                } else {
+                    return calculateLabDistance(adjustedLab1, adjustedLab2);
+                }
+            } else {
+                // Default RGB Euclidean distance
+                return Math.sqrt(
+                    Math.pow(rgb1.r - rgb2.r, 2) +
+                    Math.pow(rgb1.g - rgb2.g, 2) +
+                    Math.pow(rgb1.b - rgb2.b, 2)
+                );
+            }
+        }
+        
+        function findClosestColorsToHex(hexCode, colorData, limit = 3, method = 'rgb') {
+            const targetRgb = hexToRgb(hexCode);
+            
+            return colorData
+                .map(color => ({
+                    ...color,
+                    distance: calculateColorDistance(targetRgb, color.rgb, method)
+                }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, limit);
+        }
+
+        // Function to show status indicator
+        function showStatus(message, isLoading = false, duration = 3000) {
+            const statusIndicator = document.querySelector('.status-indicator');
+            const statusDot = statusIndicator.querySelector('.status-dot');
+            const statusText = statusIndicator.querySelector('.status-text');
+            
+            statusText.textContent = message;
+            
+            if (isLoading) {
+                statusDot.classList.add('loading');
+            } else {
+                statusDot.classList.remove('loading');
+            }
+            
+            statusIndicator.classList.add('visible');
+            
+            // Hide status after specified duration if not loading
+            if (!isLoading) {
+                setTimeout(() => {
+                    statusIndicator.classList.remove('visible');
+                }, duration);
+            }
+        }
+
+        document.getElementById('resetColors').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('colorSearch').value = '';
+            document.getElementById('hexInput').value = '';
+            document.querySelector('.hex-preview').style.backgroundColor = 'transparent';
+            document.getElementById('hexSubmit').disabled = true;
+            
+            filteredColors = allColors;
+            currentPage = 1;
+            displayColors(filteredColors, currentPage);
+            
+            showStatus('Colors reset to default view', false);
+        });
+
+        // Initial display
+        window.addEventListener('load', () => {
+            // Show loading state
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Loading color data...</div>
+                    <div class="loading-progress">
+                        <div class="loading-progress-bar"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Load color data
+            loadColorData();
+        });
+
+        function showLoading(progress = 0) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Searching for matches...</div>
+                    <div class="loading-progress">
+                        <div class="loading-progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showNoResults(searchTerm) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Find similar colors for suggestions
+            const similarColors = allColors
+                .map(color => ({
+                    ...color,
+                    similarity: calculateStringSimilarity(searchTerm, color.code)
+                }))
+                .filter(color => color.similarity > 0.3)
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 5);
+            
+            let suggestionsHTML = '';
+            if (similarColors.length > 0) {
+                suggestionsHTML = `
+                    <div class="no-results-suggestions">
+                        <div class="no-results-suggestions-title">Similar colors you might be interested in:</div>
+                        <div class="no-results-suggestions-list">
+                            ${similarColors.map(color => `
+                                <div class="no-results-suggestion" data-code="${color.code}">
+                                    <div class="no-results-suggestion-color" style="background-color: rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})"></div>
+                                    <div class="no-results-suggestion-text">${color.code}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsDiv.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">🎨</div>
+                    <div class="no-results-text">
+                        No matches found for "${searchTerm}". Try adjusting your search or using a different color matching method.
+                    </div>
+                    ${suggestionsHTML}
+                </div>
+            `;
+            
+            // Add click handlers for suggestions
+            resultsDiv.querySelectorAll('.no-results-suggestion').forEach(suggestion => {
+                suggestion.addEventListener('click', () => {
+                    const code = suggestion.dataset.code;
+                    document.getElementById('colorSearch').value = code;
+                    const event = new Event('input');
+                    document.getElementById('colorSearch').dispatchEvent(event);
+                });
+            });
+        }
+
+        function calculateStringSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+            
+            if (str1 === str2) return 1;
+            if (str1.includes(str2) || str2.includes(str1)) return 0.8;
+            
+            const words1 = str1.split(/\s+/);
+            const words2 = str2.split(/\s+/);
+            
+            const commonWords = words1.filter(word => words2.includes(word));
+            return commonWords.length / Math.max(words1.length, words2.length);
+        }
+
+        function updateResults() {
+            // Show status message
+            const shimmerStatus = factorInShimmer ? ' with Thread Shimmer' : '';
+            showStatus(`Updating to ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}${shimmerStatus} color matching...`, true);
+            
+            setTimeout(() => {
+                // Recalculate matches for all colors
+                processAndDisplayData();
+                
+                // Show status message
+                showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'}${shimmerStatus} color matching`, false, 5000);
+            }, 100);
+        }
+
+        function getShimmerInfo(rgb) {
+            const lab = rgbToLab(rgb);
+            const shimmerLevel = estimateShimmerLevel(lab);
+            const shimmerScore = ((lab.L + (Math.abs(lab.a) + Math.abs(lab.b))) / 3).toFixed(1);
+            
+            const shimmerLevelText = shimmerLevel.charAt(0).toUpperCase() + shimmerLevel.slice(1);
+            
+            const shimmerInfo = `
+                <div class="shimmer-info">
+                    <span class="shimmer-badge ${shimmerLevel}">${shimmerLevelText}</span>
+                    <span class="shimmer-score">
+                        Shimmer Score: ${shimmerScore}
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip">
+                            Shimmer Score = (L + |a| + |b|)/3 = ${shimmerScore}<br>
+                            L (lightness): ${lab.L.toFixed(1)}<br>
+                            |a| (red-green): ${Math.abs(lab.a).toFixed(1)}<br>
+                            |b| (blue-yellow): ${Math.abs(lab.b).toFixed(1)}<br>
+                            <br>
+                            <strong>Categories:</strong><br>
+                            Matte: &lt;50<br>
+                            Semi-Gloss: 50-75<br>
+                            Metallic: &gt;75
+                        </span>
+                    </span>
+                </div>
+            `;
+            return shimmerInfo;
+        }
+
+        // Pin/Favorite Feature Implementation
+        let pinnedSwatches = [];
+
+        // Load pinned swatches from localStorage on page load
+        function loadPinnedSwatches() {
+            const savedPins = localStorage.getItem('pinnedPantoneSwatches');
+            if (savedPins) {
+                pinnedSwatches = JSON.parse(savedPins);
+            } else {
+                pinnedSwatches = [];
+            }
+            updatePinnedSwatchesDisplay();
+        }
+
+        // Save pinned swatches to localStorage
+        function savePinnedSwatches() {
+            localStorage.setItem('pinnedPantoneSwatches', JSON.stringify(pinnedSwatches));
+            updatePinnedSwatchesDisplay();
+        }
+
+        // Add a pin button to each Pantone color card
+        function addPinButtonToColorCards() {
+            document.querySelectorAll('.color-card').forEach(card => {
+                // Only add pin buttons to Pantone colors or to thread colors that have Pantone matches
+                const colorType = card.dataset.colorType;
+                const hasPantoneMatch = colorType === 'thread' && 
+                                       card.querySelector('.color-match') && 
+                                       card.querySelector('.match-title') && 
+                                       card.querySelector('.match-title').textContent.includes('Pantone');
+                
+                if (colorType === 'pantone' || hasPantoneMatch) {
+                    // Check if pin button already exists
+                    if (!card.querySelector('.pin-button')) {
+                        const pinButton = document.createElement('div');
+                        pinButton.className = 'pin-button';
+                        pinButton.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
+                            </svg>
+                        `;
+                        
+                        // Get the Pantone code (either from the card itself or from its match)
+                        let pantoneCode, pantoneRgb;
+                        
+                        if (colorType === 'pantone') {
+                            pantoneCode = card.dataset.colorCode;
+                            const rgbText = card.querySelector('.rgb-value').textContent;
+                            const rgbMatch = rgbText.match(/RGB: (\d+), (\d+), (\d+)/);
+                            if (rgbMatch) {
+                                pantoneRgb = {
+                                    r: parseInt(rgbMatch[1]),
+                                    g: parseInt(rgbMatch[2]),
+                                    b: parseInt(rgbMatch[3])
+                                };
+                            }
+                        } else if (hasPantoneMatch) {
+                            const matchElement = card.querySelector('.color-match');
+                            if (matchElement.querySelector('.match-code')) {
+                                pantoneCode = matchElement.querySelector('.match-code').textContent;
+                            }
+                            if (matchElement.querySelector('.match-rgb')) {
+                                const rgbText = matchElement.querySelector('.match-rgb').textContent;
+                                const rgbMatch = rgbText.match(/RGB: (\d+), (\d+), (\d+)/);
+                                if (rgbMatch) {
+                                    pantoneRgb = {
+                                        r: parseInt(rgbMatch[1]),
+                                        g: parseInt(rgbMatch[2]),
+                                        b: parseInt(rgbMatch[3])
+                                    };
+                                }
+                            }
+                        }
+                        
+                        // Store the Pantone code and RGB values as data attributes
+                        if (pantoneCode) {
+                            pinButton.dataset.pantoneCode = pantoneCode;
+                            if (pantoneRgb) {
+                                pinButton.dataset.pantoneR = pantoneRgb.r;
+                                pinButton.dataset.pantoneG = pantoneRgb.g;
+                                pinButton.dataset.pantoneB = pantoneRgb.b;
+                            }
+                            
+                            // Check if this Pantone is already pinned
+                            const isPinned = pinnedSwatches.some(swatch => swatch.code === pantoneCode);
+                            if (isPinned) {
+                                pinButton.classList.add('pinned');
+                            }
+                            
+                            // Add click event listener
+                            pinButton.addEventListener('click', togglePinSwatch);
+                            
+                            // Add the pin button to the card
+                            card.appendChild(pinButton);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Toggle pin/unpin a swatch
+        function togglePinSwatch(event) {
+            event.stopPropagation();
+            const pinButton = event.currentTarget;
+            const pantoneCode = pinButton.dataset.pantoneCode;
+            const pantoneRgb = {
+                r: parseInt(pinButton.dataset.pantoneR),
+                g: parseInt(pinButton.dataset.pantoneG),
+                b: parseInt(pinButton.dataset.pantoneB)
+            };
+            
+            // Check if this Pantone is already pinned
+            const existingPinIndex = pinnedSwatches.findIndex(swatch => swatch.code === pantoneCode);
+            
+            if (existingPinIndex !== -1) {
+                // Remove from pinned swatches
+                pinnedSwatches.splice(existingPinIndex, 1);
+                pinButton.classList.remove('pinned');
+                showStatus(`Removed ${pantoneCode} from pinned swatches`, false, 3000);
+            } else {
+                // Add to pinned swatches
+                pinnedSwatches.push({
+                    code: pantoneCode,
+                    rgb: pantoneRgb,
+                    pinnedAt: new Date().toISOString()
+                });
+                pinButton.classList.add('pinned');
+                showStatus(`Added ${pantoneCode} to pinned swatches`, false, 3000);
+            }
+            
+            // Save to localStorage
+            savePinnedSwatches();
+        }
+
+        // Update the pinned swatches display
+        function updatePinnedSwatchesDisplay() {
+            const pinnedSection = document.getElementById('pinnedSwatchesSection');
+            const pinnedGrid = document.getElementById('pinnedSwatchesGrid');
+            const emptyMessage = document.getElementById('emptyPinsMessage');
+            
+            // Clear the current display
+            pinnedGrid.innerHTML = '';
+            
+            if (pinnedSwatches.length > 0) {
+                // Show the pinned section and hide the empty message
+                pinnedSection.style.display = 'block';
+                pinnedGrid.style.display = 'grid';
+                emptyMessage.style.display = 'none';
+                
+                // Sort pinned swatches by most recently pinned
+                const sortedPins = [...pinnedSwatches].sort((a, b) => 
+                    new Date(b.pinnedAt) - new Date(a.pinnedAt)
+                );
+                
+                // Create a card for each pinned swatch
+                sortedPins.forEach(swatch => {
+                    const swatchCard = document.createElement('div');
+                    swatchCard.className = 'pinned-swatch-card';
+                    swatchCard.dataset.pantoneCode = swatch.code;
+                    
+                    const rgbColor = `rgb(${swatch.rgb.r}, ${swatch.rgb.g}, ${swatch.rgb.b})`;
+                    const hexColor = rgbToHex(swatch.rgb);
+                    
+                    swatchCard.innerHTML = `
+                        <div class="pinned-swatch-preview" style="background-color: ${rgbColor}">
+                            <button class="unpin-button" data-pantone-code="${swatch.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="pinned-swatch-info">
+                            <div class="pinned-swatch-name">${swatch.code}</div>
+                            <div class="pinned-swatch-details">
+                                RGB: ${swatch.rgb.r}, ${swatch.rgb.g}, ${swatch.rgb.b}<br>
+                                Hex: ${hexColor}
+                            </div>
+                        </div>
+                    `;
+                    
+                    pinnedGrid.appendChild(swatchCard);
+                });
+                
+                // Add event listeners to unpin buttons
+                document.querySelectorAll('.unpin-button').forEach(button => {
+                    button.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        const pantoneCode = this.dataset.pantoneCode;
+                        
+                        // Remove from pinned swatches
+                        const existingPinIndex = pinnedSwatches.findIndex(swatch => swatch.code === pantoneCode);
+                        if (existingPinIndex !== -1) {
+                            pinnedSwatches.splice(existingPinIndex, 1);
+                            
+                            // Update any pin buttons in the main results
+                            document.querySelectorAll('.pin-button').forEach(pinBtn => {
+                                if (pinBtn.dataset.pantoneCode === pantoneCode) {
+                                    pinBtn.classList.remove('pinned');
+                                }
+                            });
+                            
+                            showStatus(`Removed ${pantoneCode} from pinned swatches`, false, 3000);
+                            savePinnedSwatches();
+                        }
+                    });
+                });
+                
+                // Add click event to pinned swatch cards to scroll to that color in results
+                document.querySelectorAll('.pinned-swatch-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const pantoneCode = this.dataset.pantoneCode;
+                        
+                        // Find the color card in the main results
+                        const colorCard = document.querySelector(`.color-card[data-color-code="${pantoneCode}"]`);
+                        if (colorCard) {
+                            // Scroll to the color card
+                            colorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            
+                            // Highlight the card temporarily
+                            colorCard.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                            setTimeout(() => {
+                                colorCard.style.boxShadow = '';
+                            }, 2000);
+                        } else {
+                            // If the color is not in the current results, search for it
+                            document.getElementById('colorSearch').value = pantoneCode;
+                            const event = new Event('input');
+                            document.getElementById('colorSearch').dispatchEvent(event);
+                        }
+                    });
+                });
+            } else {
+                // No pinned swatches, show empty message
+                pinnedSection.style.display = 'block';
+                emptyMessage.style.display = 'flex';
+                pinnedGrid.style.display = 'none';
+            }
+        }
+
+        // Modify the displayColors function to add pin buttons after displaying colors
+        const originalDisplayColors = displayColors;
+        displayColors = function(colors, page) {
+            originalDisplayColors(colors, page);
+            addPinButtonToColorCards();
+        };
+
+        // Load pinned swatches on page load
+        loadPinnedSwatches();
+
+        // Initialize the app
+        loadPantoneData();
+
+        // Update the JavaScript section that creates the match HTML
+        function updateMatchSimilarity(similarity) {
+            const percentage = parseFloat(similarity);
+            let matchClass = '';
+            if (percentage >= 90) {
+                matchClass = 'high-match';
+            } else if (percentage >= 75) {
+                matchClass = 'medium-match';
+            } else {
+                matchClass = 'low-match';
+            }
+            return matchClass;
+        }
+
+        // Recent Matches functionality
+        const MAX_RECENT_MATCHES = 8;
+        let recentMatches = [];
+
+        // Load recent matches from localStorage
+        function loadRecentMatches() {
+            const savedMatches = localStorage.getItem('recentMatches');
+            if (savedMatches) {
+                recentMatches = JSON.parse(savedMatches);
+                displayRecentMatches();
+            }
+        }
+
+        // Save recent matches to localStorage
+        function saveRecentMatches() {
+            localStorage.setItem('recentMatches', JSON.stringify(recentMatches));
+        }
+
+        // Add a new match to recent matches
+        function addToRecentMatches(sourceColor, matchedColor) {
+            const newMatch = {
+                timestamp: new Date().toISOString(),
+                sourceColor: {
+                    code: sourceColor.code,
+                    type: sourceColor.type,
+                    rgb: sourceColor.rgb
+                },
+                matchedColor: {
+                    code: matchedColor.code,
+                    type: matchedColor.type,
+                    rgb: matchedColor.rgb
+                }
+            };
+
+            // Add to beginning of array and limit to MAX_RECENT_MATCHES
+            recentMatches.unshift(newMatch);
+            if (recentMatches.length > MAX_RECENT_MATCHES) {
+                recentMatches.pop();
+            }
+
+            saveRecentMatches();
+            displayRecentMatches();
+        }
+
+        // Display recent matches
+        function displayRecentMatches() {
+            const grid = document.getElementById('recentMatchesGrid');
+            if (!grid) return;
+
+            if (recentMatches.length === 0) {
+                grid.innerHTML = '<div class="no-recent-matches">No recent matches yet</div>';
+                return;
+            }
+
+            grid.innerHTML = recentMatches.map(match => {
+                const sourceRGB = `rgb(${match.sourceColor.rgb.r}, ${match.sourceColor.rgb.g}, ${match.sourceColor.rgb.b})`;
+                const matchRGB = `rgb(${match.matchedColor.rgb.r}, ${match.matchedColor.rgb.g}, ${match.matchedColor.rgb.b})`;
+                const timestamp = new Date(match.timestamp).toLocaleString();
+
+                return `
+                    <div class="recent-match-card" data-source-color='${JSON.stringify(match.sourceColor)}' data-matched-color='${JSON.stringify(match.matchedColor)}'>
+                        <div class="recent-match-preview">
+                            <div class="recent-match-color" style="background-color: ${sourceRGB}"></div>
+                            <div class="recent-match-color" style="background-color: ${matchRGB}"></div>
+                        </div>
+                        <div class="recent-match-info">
+                            <div class="recent-match-name">${match.sourceColor.code} → ${match.matchedColor.code}</div>
+                            <div class="recent-match-details">
+                                ${match.sourceColor.type} to ${match.matchedColor.type}
+                            </div>
+                            <div class="recent-match-timestamp">${timestamp}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click event listeners to recent match cards
+            document.querySelectorAll('.recent-match-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const sourceColor = JSON.parse(this.dataset.sourceColor);
+                    const matchedColor = JSON.parse(this.dataset.matchedColor);
+                    
+                    // Add to recent matches when an alternative is selected
+                    addToRecentMatches(sourceColor, matchedColor);
+                    
+                    // Re-run the color match with the source color
+                    if (sourceColor.type === 'custom') {
+                        // For custom colors, set the hex input and trigger the search
+                        const hexInput = document.getElementById('hexInput');
+                        const hexSubmit = document.getElementById('hexSubmit');
+                        if (hexInput && hexSubmit) {
+                            hexInput.value = rgbToHex(sourceColor.rgb);
+                            hexSubmit.click();
+                        }
+                    } else {
+                        // For thread or pantone colors, use the search box
+                        const searchBox = document.getElementById('colorSearch');
+                        if (searchBox) {
+                            searchBox.value = sourceColor.code;
+                            // Trigger the search (you'll need to implement this based on your search logic)
+                            searchBox.dispatchEvent(new Event('input'));
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize recent matches
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecentMatches();
+            
+            // Add to recent matches when a match is made
+            // You'll need to call addToRecentMatches() when a color match is made
+            // For example, in your color matching function:
+            // addToRecentMatches(sourceColor, matchedColor);
+        });
+    </script>
+</body>
+</html>
