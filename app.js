@@ -1,5 +1,5 @@
 // Main Application Module
-import { hexToRgb, calculateColorDistance, findClosestColors } from './colorMath.js';
+import { hexToRgb, calculateColorDistance, findClosestColors, rgbToLab } from './colorMath.js';
 import { getTheme, setTheme, addRecentMatch, getPinnedSwatches } from './storage.js';
 import {
     displayColors,
@@ -16,7 +16,8 @@ import {
     findSimilarColors,
     initSuggestions,
     createSearchHandler,
-    batchProcessColors
+    batchProcessColors,
+    buildColorMaps
 } from './search.js';
 
 // Global state
@@ -112,16 +113,20 @@ async function loadColorData() {
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
-                threadData = results.data.map(row => ({
-                    type: 'thread',
-                    code: row['Thread Code'],
-                    rgb: {
+                threadData = results.data.map(row => {
+                    const rgb = {
                         r: parseInt(row['R']),
                         g: parseInt(row['G']),
                         b: parseInt(row['B'])
-                    }
-                }));
-                console.log(`Loaded ${threadData.length} thread colors`);
+                    };
+                    return {
+                        type: 'thread',
+                        code: row['Thread Code'],
+                        rgb: rgb,
+                        lab: rgbToLab(rgb) // Pre-compute LAB values
+                    };
+                });
+                console.log(`Loaded ${threadData.length} thread colors (with pre-computed LAB)`);
                 showStatus(`Loaded ${threadData.length} thread colors`, false);
                 loadPantoneData();
             },
@@ -145,16 +150,20 @@ async function loadPantoneData() {
         const pantoneResponse = await fetch('all_pantone_colors_with_rgb.json');
         const pantoneJson = await pantoneResponse.json();
 
-        pantoneData = pantoneJson.pantone_colors.map(color => ({
-            type: 'pantone',
-            code: color.name.trim(),
-            rgb: {
+        pantoneData = pantoneJson.pantone_colors.map(color => {
+            const rgb = {
                 r: color.rgb.r,
                 g: color.rgb.g,
                 b: color.rgb.b
-            }
-        }));
-        console.log(`Loaded ${pantoneData.length} Pantone colors`);
+            };
+            return {
+                type: 'pantone',
+                code: color.name.trim(),
+                rgb: rgb,
+                lab: rgbToLab(rgb) // Pre-compute LAB values
+            };
+        });
+        console.log(`Loaded ${pantoneData.length} Pantone colors (with pre-computed LAB)`);
         loadMatchData();
     } catch (error) {
         console.error('Error loading Pantone data:', error);
@@ -212,6 +221,9 @@ async function loadMatchData() {
 function processAndDisplayData() {
     allColors = [...threadData, ...pantoneData];
     console.log(`Combined ${allColors.length} total colors`);
+
+    // Build hash maps for O(1) lookups
+    buildColorMaps(allColors);
 
     const selectedMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked')?.value || 'rgb';
 

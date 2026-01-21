@@ -160,11 +160,12 @@ function adjustLabForShimmer(lab) {
     return adjustedLab;
 }
 
-// Main color distance calculation
-function calculateColorDistance(rgb1, rgb2, method = 'rgb', factorInShimmer = false) {
+// Main color distance calculation (optimized with pre-computed LAB values)
+function calculateColorDistance(color1, color2, method = 'rgb', factorInShimmer = false) {
     if (method === 'deltaE2000' || method === 'lab') {
-        const lab1 = rgbToLab(rgb1);
-        const lab2 = rgbToLab(rgb2);
+        // Use pre-computed LAB values if available, otherwise compute on-the-fly
+        const lab1 = color1.lab || rgbToLab(color1.rgb || color1);
+        const lab2 = color2.lab || rgbToLab(color2.rgb || color2);
 
         const adjustedLab1 = factorInShimmer ? adjustLabForShimmer(lab1) : lab1;
         const adjustedLab2 = factorInShimmer ? adjustLabForShimmer(lab2) : lab2;
@@ -176,6 +177,8 @@ function calculateColorDistance(rgb1, rgb2, method = 'rgb', factorInShimmer = fa
         }
     } else {
         // Default RGB Euclidean distance
+        const rgb1 = color1.rgb || color1;
+        const rgb2 = color2.rgb || color2;
         return Math.sqrt(
             Math.pow(rgb1.r - rgb2.r, 2) +
             Math.pow(rgb1.g - rgb2.g, 2) +
@@ -184,24 +187,30 @@ function calculateColorDistance(rgb1, rgb2, method = 'rgb', factorInShimmer = fa
     }
 }
 
-// Find closest colors
-function findClosestColors(targetRgb, colorData, limit, method, factorInShimmer) {
+// Find closest colors (optimized for pre-computed LAB)
+function findClosestColors(target, colorData, limit, method, factorInShimmer) {
+    // Create target color object with LAB pre-computed if using LAB-based methods
+    const targetColor = target.rgb ? target : { rgb: target };
+    if ((method === 'deltaE2000' || method === 'lab') && !targetColor.lab) {
+        targetColor.lab = rgbToLab(targetColor.rgb);
+    }
+
     return colorData
         .map(color => ({
             ...color,
-            distance: calculateColorDistance(targetRgb, color.rgb, method, factorInShimmer)
+            distance: calculateColorDistance(targetColor, color, method, factorInShimmer)
         }))
         .sort((a, b) => a.distance - b.distance)
         .slice(0, limit);
 }
 
-// Batch process colors
+// Batch process colors (optimized with pre-computed LAB)
 function batchProcessMatches(sourceColors, targetColors, method, factorInShimmer) {
     return sourceColors.map(source => {
         const matches = targetColors
             .map(target => ({
                 ...target,
-                distance: calculateColorDistance(source.rgb, target.rgb, method, factorInShimmer)
+                distance: calculateColorDistance(source, target, method, factorInShimmer)
             }))
             .sort((a, b) => a.distance - b.distance)
             .slice(0, 4);
@@ -220,9 +229,12 @@ self.addEventListener('message', (e) => {
     try {
         switch (type) {
             case 'calculateDistance':
+                // Support both old format (rgb1, rgb2) and new format (color objects)
+                const color1 = data.color1 || { rgb: data.rgb1 };
+                const color2 = data.color2 || { rgb: data.rgb2 };
                 const distance = calculateColorDistance(
-                    data.rgb1,
-                    data.rgb2,
+                    color1,
+                    color2,
                     data.method,
                     data.factorInShimmer
                 );
@@ -230,8 +242,10 @@ self.addEventListener('message', (e) => {
                 break;
 
             case 'findClosest':
+                // Support both old format (targetRgb) and new format (target color object)
+                const target = data.target || { rgb: data.targetRgb };
                 const closest = findClosestColors(
-                    data.targetRgb,
+                    target,
                     data.colorData,
                     data.limit,
                     data.method,

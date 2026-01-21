@@ -1,5 +1,62 @@
 // Color Math Module - All color distance calculations and conversions
 
+// LRU Cache for color distance calculations
+class ColorDistanceCache {
+    constructor(maxSize = 5000) {
+        this.cache = new Map();
+        this.maxSize = maxSize;
+    }
+
+    createKey(color1, color2, method, factorInShimmer) {
+        // Create a unique cache key based on RGB values and parameters
+        const rgb1 = color1.rgb || color1;
+        const rgb2 = color2.rgb || color2;
+        // Order colors consistently to ensure cache hits regardless of order
+        const [c1, c2] = rgb1.r < rgb2.r || (rgb1.r === rgb2.r && rgb1.g < rgb2.g) || (rgb1.r === rgb2.r && rgb1.g === rgb2.g && rgb1.b <= rgb2.b)
+            ? [rgb1, rgb2]
+            : [rgb2, rgb1];
+        return `${c1.r},${c1.g},${c1.b}|${c2.r},${c2.g},${c2.b}|${method}|${factorInShimmer}`;
+    }
+
+    get(color1, color2, method, factorInShimmer) {
+        const key = this.createKey(color1, color2, method, factorInShimmer);
+        if (this.cache.has(key)) {
+            // Move to end (most recently used)
+            const value = this.cache.get(key);
+            this.cache.delete(key);
+            this.cache.set(key, value);
+            return value;
+        }
+        return null;
+    }
+
+    set(color1, color2, method, factorInShimmer, distance) {
+        const key = this.createKey(color1, color2, method, factorInShimmer);
+
+        // Remove oldest entry if cache is full
+        if (this.cache.size >= this.maxSize) {
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+
+        this.cache.set(key, distance);
+    }
+
+    clear() {
+        this.cache.clear();
+    }
+
+    getStats() {
+        return {
+            size: this.cache.size,
+            maxSize: this.maxSize
+        };
+    }
+}
+
+// Global cache instance
+const distanceCache = new ColorDistanceCache();
+
 // RGB to Hex conversion
 export function rgbToHex(r, g, b) {
     // Handle both RGB object and individual components
@@ -190,37 +247,66 @@ export function adjustLabForShimmer(lab) {
     return adjustedLab;
 }
 
-// Main color distance calculation function
-export function calculateColorDistance(rgb1, rgb2, method = 'rgb', factorInShimmer = false) {
+// Main color distance calculation function (optimized with pre-computed LAB values and caching)
+export function calculateColorDistance(color1, color2, method = 'rgb', factorInShimmer = false) {
+    // Check cache first
+    const cached = distanceCache.get(color1, color2, method, factorInShimmer);
+    if (cached !== null) {
+        return cached;
+    }
+
+    let distance;
     if (method === 'deltaE2000' || method === 'lab') {
-        const lab1 = rgbToLab(rgb1);
-        const lab2 = rgbToLab(rgb2);
+        // Use pre-computed LAB values if available, otherwise compute on-the-fly
+        const lab1 = color1.lab || rgbToLab(color1.rgb || color1);
+        const lab2 = color2.lab || rgbToLab(color2.rgb || color2);
 
         // Apply shimmer adjustments if enabled
         const adjustedLab1 = factorInShimmer ? adjustLabForShimmer(lab1) : lab1;
         const adjustedLab2 = factorInShimmer ? adjustLabForShimmer(lab2) : lab2;
 
         if (method === 'deltaE2000') {
-            return calculateDeltaE2000(adjustedLab1, adjustedLab2);
+            distance = calculateDeltaE2000(adjustedLab1, adjustedLab2);
         } else {
-            return calculateLabDistance(adjustedLab1, adjustedLab2);
+            distance = calculateLabDistance(adjustedLab1, adjustedLab2);
         }
     } else {
         // Default RGB Euclidean distance
-        return Math.sqrt(
+        const rgb1 = color1.rgb || color1;
+        const rgb2 = color2.rgb || color2;
+        distance = Math.sqrt(
             Math.pow(rgb1.r - rgb2.r, 2) +
             Math.pow(rgb1.g - rgb2.g, 2) +
             Math.pow(rgb1.b - rgb2.b, 2)
         );
     }
+
+    // Store in cache
+    distanceCache.set(color1, color2, method, factorInShimmer, distance);
+    return distance;
 }
 
-// Find closest colors using specified method
-export function findClosestColors(targetRgb, colorData, limit = 3, method = 'rgb', factorInShimmer = false) {
+// Export cache for debugging/stats
+export function getCacheStats() {
+    return distanceCache.getStats();
+}
+
+export function clearCache() {
+    distanceCache.clear();
+}
+
+// Find closest colors using specified method (optimized for pre-computed LAB)
+export function findClosestColors(target, colorData, limit = 3, method = 'rgb', factorInShimmer = false) {
+    // Create target color object with LAB pre-computed if using LAB-based methods
+    const targetColor = target.rgb ? target : { rgb: target };
+    if ((method === 'deltaE2000' || method === 'lab') && !targetColor.lab) {
+        targetColor.lab = rgbToLab(targetColor.rgb);
+    }
+
     return colorData
         .map(color => ({
             ...color,
-            distance: calculateColorDistance(targetRgb, color.rgb, method, factorInShimmer)
+            distance: calculateColorDistance(targetColor, color, method, factorInShimmer)
         }))
         .sort((a, b) => a.distance - b.distance)
         .slice(0, limit);
