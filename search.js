@@ -2,6 +2,114 @@
 
 import { calculateColorDistance } from './colorMath.js';
 
+// Hash maps for O(1) color code lookups
+let colorCodeMap = new Map();
+let matchCodeMap = new Map();
+
+// Prefix tree (Trie) for fast autocomplete
+class TrieNode {
+    constructor() {
+        this.children = new Map();
+        this.colors = [];
+        this.isEndOfWord = false;
+    }
+}
+
+class PrefixTrie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+
+    insert(word, color) {
+        let node = this.root;
+        const lowerWord = word.toLowerCase();
+
+        for (const char of lowerWord) {
+            if (!node.children.has(char)) {
+                node.children.set(char, new TrieNode());
+            }
+            node = node.children.get(char);
+            // Store color at each node for prefix matching
+            if (node.colors.length < 10) {
+                node.colors.push(color);
+            }
+        }
+        node.isEndOfWord = true;
+        node.colors.push(color);
+    }
+
+    search(prefix, limit = 10) {
+        let node = this.root;
+        const lowerPrefix = prefix.toLowerCase();
+
+        // Traverse to the end of prefix
+        for (const char of lowerPrefix) {
+            if (!node.children.has(char)) {
+                return [];
+            }
+            node = node.children.get(char);
+        }
+
+        // Collect all colors with this prefix
+        const results = new Set();
+        this._collectColors(node, results, limit);
+        return Array.from(results).slice(0, limit);
+    }
+
+    _collectColors(node, results, limit) {
+        if (results.size >= limit) return;
+
+        // Add colors from current node
+        for (const color of node.colors) {
+            if (results.size >= limit) return;
+            results.add(color);
+        }
+
+        // Recursively collect from children
+        for (const child of node.children.values()) {
+            if (results.size >= limit) return;
+            this._collectColors(child, results, limit);
+        }
+    }
+
+    clear() {
+        this.root = new TrieNode();
+    }
+}
+
+let colorTrie = new PrefixTrie();
+
+// Build hash maps and trie from color data
+export function buildColorMaps(allColors) {
+    colorCodeMap.clear();
+    matchCodeMap.clear();
+    colorTrie.clear();
+
+    allColors.forEach(color => {
+        const lowerCode = color.code.toLowerCase();
+        colorCodeMap.set(lowerCode, color);
+        colorTrie.insert(lowerCode, color);
+
+        if (color.matchCode) {
+            const lowerMatchCode = color.matchCode.toLowerCase();
+            if (!matchCodeMap.has(lowerMatchCode)) {
+                matchCodeMap.set(lowerMatchCode, []);
+            }
+            matchCodeMap.get(lowerMatchCode).push(color);
+            colorTrie.insert(lowerMatchCode, color);
+        }
+    });
+
+    console.log(`Built search indexes: ${colorCodeMap.size} codes, ${matchCodeMap.size} match codes, trie ready`);
+}
+
+// Clear hash maps and trie (for memory cleanup if needed)
+export function clearColorMaps() {
+    colorCodeMap.clear();
+    matchCodeMap.clear();
+    colorTrie.clear();
+}
+
 // Aggressive debounce function (500ms delay)
 export function debounce(func, delay = 500) {
     let timeoutId;
@@ -11,8 +119,8 @@ export function debounce(func, delay = 500) {
     };
 }
 
-// String similarity calculation (Levenshtein distance)
-export function calculateStringSimilarity(str1, str2) {
+// String similarity calculation (Levenshtein distance) - optimized with early termination
+export function calculateStringSimilarity(str1, str2, threshold = 0.3) {
     const s1 = str1.toLowerCase();
     const s2 = str2.toLowerCase();
 
@@ -23,39 +131,59 @@ export function calculateStringSimilarity(str1, str2) {
     const len1 = s1.length;
     const len2 = s2.length;
 
-    if (len1 === 0) return len2;
-    if (len2 === 0) return len1;
+    if (len1 === 0) return len2 === 0 ? 1 : 0;
+    if (len2 === 0) return 0;
 
-    const matrix = [];
-
-    for (let i = 0; i <= len2; i++) {
-        matrix[i] = [i];
+    // Early termination: if length difference is too large, similarity will be below threshold
+    const maxLen = Math.max(len1, len2);
+    const minLen = Math.min(len1, len2);
+    if ((maxLen - minLen) / maxLen > (1 - threshold)) {
+        return 0;
     }
 
+    // Use single array instead of 2D matrix for better memory efficiency
+    let prevRow = new Array(len1 + 1);
+    let currRow = new Array(len1 + 1);
+
+    // Initialize first row
     for (let j = 0; j <= len1; j++) {
-        matrix[0][j] = j;
+        prevRow[j] = j;
     }
+
+    // Calculate distance with early termination
+    const maxDistance = Math.floor(maxLen * (1 - threshold));
 
     for (let i = 1; i <= len2; i++) {
+        currRow[0] = i;
+        let minInRow = i;
+
         for (let j = 1; j <= len1; j++) {
             if (s2.charAt(i - 1) === s1.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
+                currRow[j] = prevRow[j - 1];
             } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1,
-                    matrix[i][j - 1] + 1,
-                    matrix[i - 1][j] + 1
+                currRow[j] = Math.min(
+                    prevRow[j - 1] + 1,  // substitution
+                    currRow[j - 1] + 1,  // insertion
+                    prevRow[j] + 1       // deletion
                 );
             }
+            minInRow = Math.min(minInRow, currRow[j]);
         }
+
+        // Early termination: if minimum in this row exceeds threshold, bail out
+        if (minInRow > maxDistance) {
+            return 0;
+        }
+
+        // Swap rows
+        [prevRow, currRow] = [currRow, prevRow];
     }
 
-    const distance = matrix[len2][len1];
-    const maxLen = Math.max(len1, len2);
+    const distance = prevRow[len1];
     return 1 - (distance / maxLen);
 }
 
-// Filter colors by search term
+// Filter colors by search term (optimized with hash map)
 export function filterColors(allColors, searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') {
         return allColors;
@@ -63,6 +191,19 @@ export function filterColors(allColors, searchTerm) {
 
     const term = searchTerm.toLowerCase().trim();
 
+    // Fast path: exact match using hash map
+    const exactMatch = colorCodeMap.get(term);
+    if (exactMatch) {
+        return [exactMatch];
+    }
+
+    // Check match code map
+    const matchCodeMatches = matchCodeMap.get(term);
+    if (matchCodeMatches && matchCodeMatches.length > 0) {
+        return matchCodeMatches;
+    }
+
+    // Fall back to substring search for partial matches
     return allColors.filter(color => {
         const codeMatch = color.code.toLowerCase().includes(term);
         const matchCodeMatch = color.matchCode && color.matchCode.toLowerCase().includes(term);
@@ -82,7 +223,7 @@ export function findSimilarColors(allColors, searchTerm, limit = 5) {
         .slice(0, limit);
 }
 
-// Search suggestions with debouncing
+// Search suggestions with debouncing (optimized with Trie)
 export function createSuggestionsHandler(allColors, suggestionsContainer, searchBox) {
     const SUGGESTIONS_DELAY = 300; // Faster for autocomplete
     const MIN_SEARCH_LENGTH = 2;
@@ -94,12 +235,22 @@ export function createSuggestionsHandler(allColors, suggestionsContainer, search
             return;
         }
 
-        const suggestions = allColors
-            .filter(color =>
-                color.code.toLowerCase().includes(searchTerm) ||
-                (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm))
-            )
-            .slice(0, MAX_SUGGESTIONS);
+        // Use trie for prefix search (much faster than filtering entire array)
+        let suggestions = colorTrie.search(searchTerm, MAX_SUGGESTIONS);
+
+        // If trie doesn't yield enough results, fall back to substring search
+        if (suggestions.length < MAX_SUGGESTIONS) {
+            const additionalSuggestions = allColors
+                .filter(color => {
+                    const inResults = suggestions.some(s => s.code === color.code);
+                    if (inResults) return false;
+                    return color.code.toLowerCase().includes(searchTerm) ||
+                           (color.matchCode && color.matchCode.toLowerCase().includes(searchTerm));
+                })
+                .slice(0, MAX_SUGGESTIONS - suggestions.length);
+
+            suggestions = [...suggestions, ...additionalSuggestions];
+        }
 
         if (suggestions.length > 0) {
             suggestionsContainer.innerHTML = suggestions.map(color => `
