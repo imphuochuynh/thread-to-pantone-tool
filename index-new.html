@@ -198,7 +198,59 @@
         <span class="status-text">Loading...</span>
     </div>
 
+    <!-- What's New popup -->
+    <div id="updateModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-tag">What's New</span>
+                <button class="modal-close" id="modalClose" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <h2 class="modal-title" id="modalTitle">The tool just got faster and more accurate</h2>
+            <ul class="modal-list">
+                <li>
+                    <span class="modal-icon">⚡</span>
+                    <span><strong>Faster results</strong> — color matching now runs in the background so the page stays responsive while loading.</span>
+                </li>
+                <li>
+                    <span class="modal-icon">🎯</span>
+                    <span><strong>More accurate similarity scores</strong> — the percentage shown next to each match is now properly calibrated for all three matching methods (RGB, CIELAB, and Delta E 2000).</span>
+                </li>
+                <li>
+                    <span class="modal-icon">✨</span>
+                    <span><strong>Improved shimmer matching</strong> — the "Factor in Thread Shimmer" option uses a corrected formula and pre-calculated values, giving better results for metallic and glossy threads.</span>
+                </li>
+            </ul>
+            <button class="modal-btn" id="modalDismiss">Got it</button>
+        </div>
+    </div>
+
     <!-- Load main application module -->
     <script type="module" src="app.js"></script>
+
+    <script>
+        // Show popup once per update version; bump SEEN_KEY when releasing future updates
+        const SEEN_KEY = 'update_seen_v3';
+        const modal = document.getElementById('updateModal');
+
+        if (!localStorage.getItem(SEEN_KEY)) {
+            modal.hidden = false;
+            document.getElementById('modalDismiss').focus();
+        }
+
+        function dismiss() {
+            modal.hidden = true;
+            localStorage.setItem(SEEN_KEY, '1');
+        }
+
+        document.getElementById('modalDismiss').addEventListener('click', dismiss);
+        document.getElementById('modalClose').addEventListener('click', dismiss);
+        modal.addEventListener('click', (e) => { if (e.target === modal) dismiss(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) dismiss(); });
+    </script>
 </body>
 </html>
