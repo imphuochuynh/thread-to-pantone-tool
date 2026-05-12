@@ -2068,6 +2068,201 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ── Improvement 1: Copy-to-clipboard buttons ── */
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--secondary-text);
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .hex-value:hover .copy-btn,
+        .rgb-value:hover .copy-btn,
+        .match-hex:hover .copy-btn,
+        .match-rgb:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover {
+            background: var(--hover-color);
+            color: var(--primary-color);
+        }
+        .copy-btn.copied {
+            color: #4CAF50;
+            opacity: 1;
+        }
+
+        /* ── Improvement 2: Clear search button ── */
+        .search-clear-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            color: var(--secondary-text);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 2;
+        }
+        .search-clear-btn:hover {
+            background: var(--hover-color);
+            color: var(--text-color);
+        }
+        .search-clear-btn.visible {
+            display: flex;
+        }
+
+        /* ── Improvement 3: Results info bar ── */
+        .results-info {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            transition: all 0.3s ease;
+        }
+        .results-info.visible {
+            display: flex;
+        }
+        .results-info-count {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .results-info-page {
+            color: var(--light-text);
+        }
+
+        /* ── Improvement 4: Method toggles 3-column grid on desktop ── */
+        @media (min-width: 601px) {
+            .method-toggle-group {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* ── Improvement 5: Recent searches dropdown ── */
+        .recent-searches-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            z-index: 1001;
+            display: none;
+            overflow: hidden;
+        }
+        .recent-searches-dropdown.visible {
+            display: block;
+        }
+        .recent-searches-header {
+            padding: 10px 16px 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--light-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .recent-search-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .recent-search-item:last-child {
+            border-bottom: none;
+        }
+        .recent-search-item:hover {
+            background: var(--hover-color);
+        }
+        .recent-search-icon {
+            color: var(--light-text);
+            flex-shrink: 0;
+        }
+        .recent-search-text {
+            flex: 1;
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        /* ── Improvement 6: Keyboard shortcut hint ── */
+        .search-shortcut-hint {
+            position: absolute;
+            right: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75em;
+            color: var(--light-text);
+            background: var(--alternative-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 6px;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            font-family: 'SF Mono', 'Consolas', monospace;
+        }
+        .search-shortcut-hint.hidden {
+            opacity: 0;
+        }
+
+        /* ── Improvement 7: Back-to-top button ── */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 2000;
+        }
+        #backToTop.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #backToTop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+        @media (max-width: 600px) {
+            #backToTop {
+                bottom: 80px;
+                right: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2101,13 +2296,24 @@
             </h2>
             <div class="search-container">
                 <div class="search-box-wrapper">
-                    <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color">
+                    <input type="text" id="colorSearch" class="search-box" placeholder="Search by thread code or Pantone color" autocomplete="off">
                     <span class="search-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </span>
+                    <span class="search-shortcut-hint" id="searchShortcutHint">/</span>
+                    <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear search" title="Clear search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="recent-searches-dropdown" id="recentSearchesDropdown">
+                        <div class="recent-searches-header">Recent searches</div>
+                        <div id="recentSearchesList"></div>
+                    </div>
                 </div>
                 <div class="search-options">
                     <div class="search-options-title">
@@ -2249,6 +2455,11 @@
             </div>
         </div>
 
+        <div class="results-info" id="resultsInfo">
+            <span class="results-info-count" id="resultsInfoCount"></span>
+            <span class="results-info-page" id="resultsInfoPage"></span>
+        </div>
+
         <div id="results-container">
             <div id="results" class="results"></div>
         </div>
@@ -2314,6 +2525,12 @@
         <span class="status-dot"></span>
         <span class="status-text">Loading...</span>
     </div>
+
+    <button id="backToTop" aria-label="Back to top" title="Back to top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
 
     <script>
         // Global variables
@@ -2650,6 +2867,8 @@
             if (colors.length === 0) {
                 resultsDiv.innerHTML = '<div class="no-results">No colors found</div>';
                 document.getElementById('pagination').style.display = 'none';
+                const ri = document.getElementById('resultsInfo');
+                if (ri) ri.classList.remove('visible');
                 return;
             }
 
@@ -2662,7 +2881,18 @@
             document.getElementById('pagination').style.display = 'flex';
             document.getElementById('prevPage').disabled = page === 1;
             document.getElementById('nextPage').disabled = endIndex >= colors.length;
-            
+
+            // Update results info bar
+            const totalPages = Math.ceil(colors.length / itemsPerPage);
+            const resultsInfo = document.getElementById('resultsInfo');
+            const resultsInfoCount = document.getElementById('resultsInfoCount');
+            const resultsInfoPage = document.getElementById('resultsInfoPage');
+            if (resultsInfo && resultsInfoCount && resultsInfoPage) {
+                resultsInfoCount.textContent = `Showing ${startIndex + 1}–${endIndex} of ${colors.length} colors`;
+                resultsInfoPage.textContent = `Page ${page} of ${totalPages}`;
+                resultsInfo.classList.add('visible');
+            }
+
             // Show status with count
             showStatus(`Showing ${startIndex + 1}-${endIndex} of ${colors.length} colors`, false);
             
@@ -2767,8 +2997,8 @@
                             <div class="match-details">
                                 <div class="match-color-preview" style="background-color: ${matchRGB}"></div>
                                 <div class="match-info">
-                                    <div class="match-rgb">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}</div>
-                                    <div class="match-hex">Hex: ${matchHex}</div>
+                                    <div class="match-rgb">RGB: ${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}<button class="copy-btn" data-copy="${color.matchRgb.r}, ${color.matchRgb.g}, ${color.matchRgb.b}" title="Copy RGB" aria-label="Copy RGB value">&#x2398;</button></div>
+                                    <div class="match-hex">Hex: ${matchHex}<button class="copy-btn" data-copy="${matchHex}" title="Copy hex" aria-label="Copy hex value">&#x2398;</button></div>
                                     <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                         <span class="similarity-label">Similarity:</span>
                                         <span class="similarity-value">${similarityPercentage}</span>
@@ -2825,8 +3055,8 @@
                                             <div class="match-details">
                                                 <div class="match-color-preview" style="background-color: ${altRGB}"></div>
                                                 <div class="match-info">
-                                                    <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}</div>
-                                                    <div class="match-hex">Hex: ${altHex}</div>
+                                                    <div class="match-rgb">RGB: ${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}<button class="copy-btn" data-copy="${alt.rgb.r}, ${alt.rgb.g}, ${alt.rgb.b}" title="Copy RGB" aria-label="Copy RGB value">&#x2398;</button></div>
+                                                    <div class="match-hex">Hex: ${altHex}<button class="copy-btn" data-copy="${altHex}" title="Copy hex" aria-label="Copy hex value">&#x2398;</button></div>
                                                     <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                                         <span class="similarity-label">Similarity:</span>
                                                         <span class="similarity-value">${similarityPercentage}</span>
@@ -2860,8 +3090,8 @@
                             <span class="color-type">${color.type === 'thread' ? 'Thread' : color.type === 'custom' ? 'Custom' : 'Pantone'}</span>
                         </div>
                         <div class="color-details">
-                            <div class="rgb-value">RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}</div>
-                            <div class="hex-value">Hex: ${hexColor}</div>
+                            <div class="rgb-value">RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}<button class="copy-btn" data-copy="${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}" title="Copy RGB" aria-label="Copy RGB value">&#x2398;</button></div>
+                            <div class="hex-value">Hex: ${hexColor}<button class="copy-btn" data-copy="${hexColor}" title="Copy hex" aria-label="Copy hex value">&#x2398;</button></div>
                             ${factorInShimmer ? getShimmerInfo(color.rgb) : ''}
                         </div>
                         ${matchHTML}
@@ -2872,6 +3102,40 @@
                 resultsDiv.appendChild(colorDiv);
             });
             
+            // Copy-to-clipboard: delegated handler on results div
+            resultsDiv.addEventListener('click', function(e) {
+                const btn = e.target.closest('.copy-btn');
+                if (!btn) return;
+                e.stopPropagation();
+                const text = btn.dataset.copy;
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.classList.add('copied');
+                    const prev = btn.innerHTML;
+                    btn.innerHTML = '&#x2713;';
+                    setTimeout(() => {
+                        btn.innerHTML = prev;
+                        btn.classList.remove('copied');
+                    }, 1500);
+                }).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    btn.classList.add('copied');
+                    const prev = btn.innerHTML;
+                    btn.innerHTML = '&#x2713;';
+                    setTimeout(() => {
+                        btn.innerHTML = prev;
+                        btn.classList.remove('copied');
+                    }, 1500);
+                });
+            }, { capture: false });
+
             // Add event listeners for alternative match clicks
             document.querySelectorAll('.color-match.alternative').forEach(altMatch => {
                 altMatch.addEventListener('click', function() {
@@ -2958,8 +3222,8 @@
                             <div class="match-details">
                                 <div class="match-color-preview" style="background-color: ${altRGB}"></div>
                                 <div class="match-info">
-                                    <div class="match-rgb">RGB: ${altR}, ${altG}, ${altB}</div>
-                                    <div class="match-hex">Hex: ${altHex}</div>
+                                    <div class="match-rgb">RGB: ${altR}, ${altG}, ${altB}<button class="copy-btn" data-copy="${altR}, ${altG}, ${altB}" title="Copy RGB" aria-label="Copy RGB value">&#x2398;</button></div>
+                                    <div class="match-hex">Hex: ${altHex}<button class="copy-btn" data-copy="${altHex}" title="Copy hex" aria-label="Copy hex value">&#x2398;</button></div>
                                     <div class="match-similarity ${updateMatchSimilarity(similarityPercentage)}">
                                         <span class="similarity-label">Similarity:</span>
                                         <span class="similarity-value">${similarityPercentage}</span>
@@ -4085,11 +4349,134 @@
         // Initialize recent matches
         document.addEventListener('DOMContentLoaded', function() {
             loadRecentMatches();
-            
-            // Add to recent matches when a match is made
-            // You'll need to call addToRecentMatches() when a color match is made
-            // For example, in your color matching function:
-            // addToRecentMatches(sourceColor, matchedColor);
+        });
+
+        // ── Improvement 2: Clear search button ──
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('colorSearch');
+            const clearBtn = document.getElementById('searchClearBtn');
+            const shortcutHint = document.getElementById('searchShortcutHint');
+
+            if (searchBox && clearBtn) {
+                searchBox.addEventListener('input', function() {
+                    const hasValue = this.value.length > 0;
+                    clearBtn.classList.toggle('visible', hasValue);
+                    if (shortcutHint) shortcutHint.classList.toggle('hidden', hasValue);
+                    if (!hasValue) renderRecentSearchesDropdown();
+                });
+
+                clearBtn.addEventListener('click', function() {
+                    searchBox.value = '';
+                    clearBtn.classList.remove('visible');
+                    if (shortcutHint) shortcutHint.classList.remove('hidden');
+                    searchBox.dispatchEvent(new Event('input'));
+                    searchBox.focus();
+                });
+            }
+        });
+
+        // ── Improvement 5: Recent searches in dropdown ──
+        const RECENT_SEARCHES_KEY = 'recentSearchQueries';
+        const MAX_RECENT_SEARCHES = 8;
+
+        function getRecentSearchQueries() {
+            try {
+                return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY)) || [];
+            } catch { return []; }
+        }
+
+        function saveRecentSearchQuery(query) {
+            if (!query || query.trim().length < 2) return;
+            const q = query.trim();
+            let searches = getRecentSearchQueries().filter(s => s !== q);
+            searches.unshift(q);
+            searches = searches.slice(0, MAX_RECENT_SEARCHES);
+            localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+        }
+
+        function renderRecentSearchesDropdown() {
+            const dropdown = document.getElementById('recentSearchesDropdown');
+            const list = document.getElementById('recentSearchesList');
+            if (!dropdown || !list) return;
+            const searches = getRecentSearchQueries();
+            if (searches.length === 0) { dropdown.classList.remove('visible'); return; }
+            list.innerHTML = searches.map(s => `
+                <div class="recent-search-item" data-query="${s.replace(/"/g, '&quot;')}">
+                    <span class="recent-search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="12 8 12 12 14 14"></polyline>
+                            <path d="M3.05 11a9 9 0 1 0 .5-4.5"></path>
+                        </svg>
+                    </span>
+                    <span class="recent-search-text">${s}</span>
+                </div>
+            `).join('');
+            list.querySelectorAll('.recent-search-item').forEach(item => {
+                item.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    const query = this.dataset.query;
+                    const searchBox = document.getElementById('colorSearch');
+                    if (searchBox) {
+                        searchBox.value = query;
+                        searchBox.dispatchEvent(new Event('input'));
+                        dropdown.classList.remove('visible');
+                    }
+                });
+            });
+            dropdown.classList.add('visible');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('colorSearch');
+            const dropdown = document.getElementById('recentSearchesDropdown');
+
+            if (searchBox && dropdown) {
+                searchBox.addEventListener('focus', function() {
+                    if (this.value.trim() === '') renderRecentSearchesDropdown();
+                });
+
+                searchBox.addEventListener('blur', function() {
+                    setTimeout(() => dropdown.classList.remove('visible'), 150);
+                });
+
+                // Save query when a non-empty search is made
+                searchBox.addEventListener('input', function() {
+                    const val = this.value.trim();
+                    if (val.length >= 2) saveRecentSearchQuery(val);
+                });
+            }
+        });
+
+        // ── Improvement 6: Keyboard shortcut / to focus search ──
+        document.addEventListener('keydown', function(e) {
+            const searchBox = document.getElementById('colorSearch');
+            if (!searchBox) return;
+            const active = document.activeElement;
+            const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+
+            if (e.key === '/' && !isTyping) {
+                e.preventDefault();
+                searchBox.focus();
+                searchBox.select();
+            } else if (e.key === 'Escape' && active === searchBox) {
+                searchBox.blur();
+                const dropdown = document.getElementById('recentSearchesDropdown');
+                if (dropdown) dropdown.classList.remove('visible');
+            }
+        });
+
+        // ── Improvement 7: Back-to-top button ──
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (!backToTop) return;
+
+            window.addEventListener('scroll', function() {
+                backToTop.classList.toggle('visible', window.scrollY > 300);
+            }, { passive: true });
+
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
     </script>
 </body>
