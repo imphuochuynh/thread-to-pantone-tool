@@ -83,8 +83,9 @@ function generateMatchHTML(color) {
     const matchHex = rgbToHex(color.matchRgb);
     const matchType = color.matchType === 'pantone' ? 'Pantone' : 'Thread';
 
-    const similarityPercentage = calculateSimilarity(color.distance, color.matchMethod || 'rgb');
-    const similarityClass = getSimilarityClass(similarityPercentage);
+    const matchMethod = color.matchMethod || 'rgb';
+    const similarityPercentage = calculateSimilarity(color.distance, matchMethod);
+    const similarityClass = getSimilarityClass(similarityPercentage, matchMethod);
 
     const matchMethodInfo = color.matchMethod ?
         `<div class="match-method">Method: ${getMethodLabel(color.matchMethod)}</div>` : '';

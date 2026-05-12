@@ -50,20 +50,22 @@ function rgbToLab(rgb) {
 
 // Calculate LAB distance
 function calculateLabDistance(lab1, lab2) {
-    return Math.sqrt(
-        Math.pow(lab1.L - lab2.L, 2) +
-        Math.pow(lab1.a - lab2.a, 2) +
-        Math.pow(lab1.b - lab2.b, 2)
-    );
+    const dL = lab1.L - lab2.L;
+    const da = lab1.a - lab2.a;
+    const db = lab1.b - lab2.b;
+    return Math.sqrt(dL * dL + da * da + db * db);
 }
 
-// Delta E 2000 helper functions
+// Pre-computed conversion constants
+const RAD_TO_DEG = 180 / Math.PI;
+const DEG_TO_RAD = Math.PI / 180;
+
 function rad2deg(rad) {
-    return 360 * rad / (2 * Math.PI);
+    return rad * RAD_TO_DEG;
 }
 
 function deg2rad(deg) {
-    return (2 * Math.PI * deg) / 360;
+    return deg * DEG_TO_RAD;
 }
 
 // Calculate Delta E 2000
@@ -72,7 +74,8 @@ function calculateDeltaE2000(lab1, lab2) {
     const c2 = Math.sqrt(lab2.a * lab2.a + lab2.b * lab2.b);
     const c_bar = (c1 + c2) / 2;
 
-    const G = 0.5 * (1 - Math.sqrt(Math.pow(c_bar, 7) / (Math.pow(c_bar, 7) + Math.pow(25, 7))));
+    const c_bar7 = c_bar * c_bar * c_bar * c_bar * c_bar * c_bar * c_bar;
+    const G = 0.5 * (1 - Math.sqrt(c_bar7 / (c_bar7 + 6103515625))); // 25^7 = 6103515625
 
     const a1_prime = (1 + G) * lab1.a;
     const a2_prime = (1 + G) * lab2.a;
@@ -107,31 +110,27 @@ function calculateDeltaE2000(lab1, lab2) {
     const L_bar_prime = (lab1.L + lab2.L) / 2;
     const C_bar_prime = (C1_prime + C2_prime) / 2;
 
-    const S_L = 1 + ((0.015 * Math.pow(L_bar_prime - 50, 2)) / Math.sqrt(20 + Math.pow(L_bar_prime - 50, 2)));
+    const L50 = L_bar_prime - 50;
+    const S_L = 1 + (0.015 * L50 * L50) / Math.sqrt(20 + L50 * L50);
     const S_C = 1 + 0.045 * C_bar_prime;
     const S_H = 1 + 0.015 * C_bar_prime * T;
 
-    const delta_theta = 30 * Math.exp(-Math.pow((H_bar_prime - 275) / 25, 2));
-    const R_C = 2 * Math.sqrt(Math.pow(C_bar_prime, 7) / (Math.pow(C_bar_prime, 7) + Math.pow(25, 7)));
+    const H275_25 = (H_bar_prime - 275) / 25;
+    const delta_theta = 30 * Math.exp(-(H275_25 * H275_25));
+    const C_bar_prime7 = C_bar_prime * C_bar_prime * C_bar_prime * C_bar_prime * C_bar_prime * C_bar_prime * C_bar_prime;
+    const R_C = 2 * Math.sqrt(C_bar_prime7 / (C_bar_prime7 + 6103515625));
     const R_T = -R_C * Math.sin(2 * deg2rad(delta_theta));
 
-    const k_L = 1;
-    const k_C = 1;
-    const k_H = 1;
+    const f_L = delta_L_prime / S_L;
+    const f_C = delta_C_prime / S_C;
+    const f_H = delta_H_prime / S_H;
 
-    const delta_E = Math.sqrt(
-        Math.pow(delta_L_prime / (k_L * S_L), 2) +
-        Math.pow(delta_C_prime / (k_C * S_C), 2) +
-        Math.pow(delta_H_prime / (k_H * S_H), 2) +
-        R_T * (delta_C_prime / (k_C * S_C)) * (delta_H_prime / (k_H * S_H))
-    );
-
-    return delta_E;
+    return Math.sqrt(f_L * f_L + f_C * f_C + f_H * f_H + R_T * f_C * f_H);
 }
 
 // Estimate shimmer level
 function estimateShimmerLevel(lab) {
-    const shimmerScore = (lab.L + (Math.abs(lab.a) + Math.abs(lab.b))) / 3;
+    const shimmerScore = (lab.L + Math.abs(lab.a) + Math.abs(lab.b)) / 3;
 
     if (shimmerScore < 50) {
         return 'matte';
@@ -163,58 +162,87 @@ function adjustLabForShimmer(lab) {
 // Main color distance calculation (optimized with pre-computed LAB values)
 function calculateColorDistance(color1, color2, method = 'rgb', factorInShimmer = false) {
     if (method === 'deltaE2000' || method === 'lab') {
-        // Use pre-computed LAB values if available, otherwise compute on-the-fly
-        const lab1 = color1.lab || rgbToLab(color1.rgb || color1);
-        const lab2 = color2.lab || rgbToLab(color2.rgb || color2);
-
-        const adjustedLab1 = factorInShimmer ? adjustLabForShimmer(lab1) : lab1;
-        const adjustedLab2 = factorInShimmer ? adjustLabForShimmer(lab2) : lab2;
+        let lab1, lab2;
+        if (factorInShimmer) {
+            lab1 = color1.shimmerLab || adjustLabForShimmer(color1.lab || rgbToLab(color1.rgb || color1));
+            lab2 = color2.shimmerLab || adjustLabForShimmer(color2.lab || rgbToLab(color2.rgb || color2));
+        } else {
+            lab1 = color1.lab || rgbToLab(color1.rgb || color1);
+            lab2 = color2.lab || rgbToLab(color2.rgb || color2);
+        }
 
         if (method === 'deltaE2000') {
-            return calculateDeltaE2000(adjustedLab1, adjustedLab2);
+            return calculateDeltaE2000(lab1, lab2);
         } else {
-            return calculateLabDistance(adjustedLab1, adjustedLab2);
+            return calculateLabDistance(lab1, lab2);
         }
     } else {
         // Default RGB Euclidean distance
         const rgb1 = color1.rgb || color1;
         const rgb2 = color2.rgb || color2;
-        return Math.sqrt(
-            Math.pow(rgb1.r - rgb2.r, 2) +
-            Math.pow(rgb1.g - rgb2.g, 2) +
-            Math.pow(rgb1.b - rgb2.b, 2)
-        );
+        const dr = rgb1.r - rgb2.r;
+        const dg = rgb1.g - rgb2.g;
+        const db = rgb1.b - rgb2.b;
+        return Math.sqrt(dr * dr + dg * dg + db * db);
     }
+}
+
+// Partial k-selection using a max-heap — O(N log k) vs O(N log N)
+function kSmallest(colorData, targetColor, limit, method, factorInShimmer) {
+    const heap = [];
+
+    function heapifyDown(i) {
+        const n = heap.length;
+        while (true) {
+            let largest = i;
+            const l = 2 * i + 1, r = 2 * i + 2;
+            if (l < n && heap[l].distance > heap[largest].distance) largest = l;
+            if (r < n && heap[r].distance > heap[largest].distance) largest = r;
+            if (largest === i) break;
+            [heap[i], heap[largest]] = [heap[largest], heap[i]];
+            i = largest;
+        }
+    }
+
+    function heapifyUp(i) {
+        while (i > 0) {
+            const parent = (i - 1) >> 1;
+            if (heap[parent].distance >= heap[i].distance) break;
+            [heap[i], heap[parent]] = [heap[parent], heap[i]];
+            i = parent;
+        }
+    }
+
+    for (const color of colorData) {
+        const distance = calculateColorDistance(targetColor, color, method, factorInShimmer);
+        if (heap.length < limit) {
+            heap.push({ color, distance });
+            heapifyUp(heap.length - 1);
+        } else if (distance < heap[0].distance) {
+            heap[0] = { color, distance };
+            heapifyDown(0);
+        }
+    }
+
+    return heap
+        .sort((a, b) => a.distance - b.distance)
+        .map(item => ({ ...item.color, distance: item.distance }));
 }
 
 // Find closest colors (optimized for pre-computed LAB)
 function findClosestColors(target, colorData, limit, method, factorInShimmer) {
-    // Create target color object with LAB pre-computed if using LAB-based methods
     const targetColor = target.rgb ? target : { rgb: target };
     if ((method === 'deltaE2000' || method === 'lab') && !targetColor.lab) {
         targetColor.lab = rgbToLab(targetColor.rgb);
     }
 
-    return colorData
-        .map(color => ({
-            ...color,
-            distance: calculateColorDistance(targetColor, color, method, factorInShimmer)
-        }))
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, limit);
+    return kSmallest(colorData, targetColor, limit, method, factorInShimmer);
 }
 
 // Batch process colors (optimized with pre-computed LAB)
 function batchProcessMatches(sourceColors, targetColors, method, factorInShimmer) {
     return sourceColors.map(source => {
-        const matches = targetColors
-            .map(target => ({
-                ...target,
-                distance: calculateColorDistance(source, target, method, factorInShimmer)
-            }))
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, 4);
-
+        const matches = kSmallest(targetColors, source, 4, method, factorInShimmer);
         return {
             sourceCode: source.code,
             matches: matches
