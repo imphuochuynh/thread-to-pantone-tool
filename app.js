@@ -1,5 +1,5 @@
 // Main Application Module
-import { hexToRgb, calculateColorDistance, findClosestColors, rgbToLab } from './colorMath.js';
+import { hexToRgb, calculateColorDistance, findClosestColors, rgbToLab, precomputeShimmerLab } from './colorMath.js';
 import { getTheme, setTheme, addRecentMatch, getPinnedSwatches } from './storage.js';
 import {
     displayColors,
@@ -17,7 +17,8 @@ import {
     initSuggestions,
     createSearchHandler,
     batchProcessColors,
-    buildColorMaps
+    buildColorMaps,
+    clearPantoneMatchCache
 } from './search.js';
 
 // Global state
@@ -119,11 +120,13 @@ async function loadColorData() {
                         g: parseInt(row['G']),
                         b: parseInt(row['B'])
                     };
+                    const lab = rgbToLab(rgb);
                     return {
                         type: 'thread',
                         code: row['Thread Code'],
                         rgb: rgb,
-                        lab: rgbToLab(rgb) // Pre-compute LAB values
+                        lab: lab,
+                        shimmerLab: precomputeShimmerLab(rgb) // Pre-compute shimmer-adjusted LAB
                     };
                 });
                 console.log(`Loaded ${threadData.length} thread colors (with pre-computed LAB)`);
@@ -156,11 +159,13 @@ async function loadPantoneData() {
                 g: color.rgb.g,
                 b: color.rgb.b
             };
+            const lab = rgbToLab(rgb);
             return {
                 type: 'pantone',
                 code: color.name.trim(),
                 rgb: rgb,
-                lab: rgbToLab(rgb) // Pre-compute LAB values
+                lab: lab,
+                shimmerLab: precomputeShimmerLab(rgb) // Pre-compute shimmer-adjusted LAB
             };
         });
         console.log(`Loaded ${pantoneData.length} Pantone colors (with pre-computed LAB)`);
@@ -238,58 +243,90 @@ function processAndDisplayData() {
 function processWithWorker(method) {
     showStatus('Processing color matches (using Web Worker)...', true);
 
-    // Process in batches
     const batchSize = 50;
-    let processed = 0;
+    // Single persistent handler replaces the add/remove-per-batch pattern
+    let pendingCallback = null;
 
-    function processBatch(start) {
+    colorWorker.onmessage = function(e) {
+        if (e.data.type === 'result' && pendingCallback) {
+            const cb = pendingCallback;
+            pendingCallback = null;
+            cb(e.data.result);
+        } else if (e.data.type === 'error') {
+            console.error('Worker error during batch:', e.data.error);
+            processWithMainThread(method);
+        }
+    };
+
+    function processThreadBatches(start) {
+        if (start >= threadData.length) {
+            processPantoneWithWorker(0);
+            return;
+        }
+
         const end = Math.min(start + batchSize, threadData.length);
         const batch = threadData.slice(start, end);
 
+        pendingCallback = function(results) {
+            results.forEach((result, index) => {
+                const thread = batch[index];
+                if (result.matches.length > 0) {
+                    const bestMatch = result.matches[0];
+                    thread.matchCode = bestMatch.code;
+                    thread.matchRgb = bestMatch.rgb;
+                    thread.distance = bestMatch.distance;
+                    thread.matchMethod = method;
+                    thread.matchType = 'pantone';
+                    if (result.matches.length > 1) {
+                        thread.alternativeMatches = result.matches.slice(1, 4);
+                    }
+                }
+            });
+            processThreadBatches(end);
+        };
+
         colorWorker.postMessage({
             type: 'batchProcess',
-            data: {
-                sourceColors: batch,
-                targetColors: pantoneData,
-                method: method,
-                factorInShimmer: factorInShimmer
-            }
-        });
-
-        colorWorker.addEventListener('message', function handler(e) {
-            if (e.data.type === 'result') {
-                // Apply results to thread data
-                e.data.result.forEach((result, index) => {
-                    const thread = batch[index];
-                    if (result.matches.length > 0) {
-                        const bestMatch = result.matches[0];
-                        thread.matchCode = bestMatch.code;
-                        thread.matchRgb = bestMatch.rgb;
-                        thread.distance = bestMatch.distance;
-                        thread.matchMethod = method;
-                        thread.matchType = 'pantone';
-
-                        if (result.matches.length > 1) {
-                            thread.alternativeMatches = result.matches.slice(1, 4);
-                        }
-                    }
-                });
-
-                processed += batch.length;
-
-                if (end < threadData.length) {
-                    processBatch(end);
-                } else {
-                    // Process pantone data similarly
-                    processPantoneWithMainThread(method);
-                }
-
-                colorWorker.removeEventListener('message', handler);
-            }
+            data: { sourceColors: batch, targetColors: pantoneData, method, factorInShimmer }
         });
     }
 
-    processBatch(0);
+    function processPantoneWithWorker(start) {
+        if (start >= pantoneData.length) {
+            filteredColors = allColors;
+            displayColors(filteredColors, 1);
+            showStatus('Ready', false, 2000);
+            return;
+        }
+
+        const end = Math.min(start + batchSize, pantoneData.length);
+        const batch = pantoneData.slice(start, end);
+
+        pendingCallback = function(results) {
+            results.forEach((result, index) => {
+                const pantone = batch[index];
+                if (result.matches.length > 0) {
+                    const bestMatch = result.matches[0];
+                    pantone.matchCode = bestMatch.code;
+                    pantone.matchRgb = bestMatch.rgb;
+                    pantone.distance = bestMatch.distance;
+                    pantone.matchMethod = method;
+                    pantone.matchType = 'thread';
+                    if (result.matches.length > 1) {
+                        pantone.alternativeMatches = result.matches.slice(1, 4);
+                    }
+                }
+            });
+            processPantoneWithWorker(end);
+        };
+
+        colorWorker.postMessage({
+            type: 'batchProcess',
+            data: { sourceColors: batch, targetColors: threadData, method, factorInShimmer }
+        });
+    }
+
+    processThreadBatches(0);
 }
 
 function processWithMainThread(method) {
@@ -331,21 +368,9 @@ function processWithMainThread(method) {
 }
 
 function processPantoneWithMainThread(method) {
-    // Enhance pantone data with thread matches
+    // Build thread list once outside the loop (was rebuilt per-pantone before)
     pantoneData.forEach(pantone => {
-        const allThreads = threadData.map(thread => ({
-            code: thread.code,
-            rgb: thread.rgb,
-            type: 'thread'
-        }));
-
-        const allThreadsWithDistance = allThreads.map(thread => ({
-            ...thread,
-            distance: calculateColorDistance(pantone.rgb, thread.rgb, method, factorInShimmer)
-        }));
-
-        const sortedThreads = allThreadsWithDistance.sort((a, b) => a.distance - b.distance);
-        const bestMatches = sortedThreads.slice(0, 4);
+        const bestMatches = findClosestColors(pantone, threadData, 4, method, factorInShimmer);
 
         if (bestMatches.length > 0) {
             const bestMatch = bestMatches[0];
@@ -410,6 +435,7 @@ function initEventListeners() {
     document.querySelectorAll('input[name="searchColorMatchMethod"]').forEach(radio => {
         radio.addEventListener('change', function() {
             colorMatchMethod = this.value;
+            clearPantoneMatchCache();
             updateResults();
         });
     });
@@ -418,6 +444,7 @@ function initEventListeners() {
     document.getElementById('factorInShimmer').addEventListener('change', function() {
         factorInShimmer = this.checked;
         setFactorInShimmer(this.checked);
+        clearPantoneMatchCache();
         updateResults();
     });
 

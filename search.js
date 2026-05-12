@@ -341,21 +341,34 @@ export function createSearchHandler(allColors, threadData, pantoneData, displayF
     return performSearch;
 }
 
-// Update pantone matches
+// Cache for pantone→thread match results keyed by "code|method|shimmer"
+const pantoneMatchCache = new Map();
+
+// Update pantone matches (cached per color+method+shimmer to avoid redundant scans)
 function updatePantoneMatches(pantoneColor, threadData, matchMethod, factorInShimmer) {
-    const allThreads = threadData.map(thread => ({
+    const cacheKey = `${pantoneColor.code}|${matchMethod}|${factorInShimmer}`;
+    if (pantoneMatchCache.has(cacheKey)) {
+        const cached = pantoneMatchCache.get(cacheKey);
+        pantoneColor.matchCode = cached.matchCode;
+        pantoneColor.matchRgb = cached.matchRgb;
+        pantoneColor.distance = cached.distance;
+        pantoneColor.matchMethod = cached.matchMethod;
+        pantoneColor.matchType = cached.matchType;
+        pantoneColor.alternativeMatches = cached.alternativeMatches;
+        return;
+    }
+
+    const threadsWithDistance = threadData.map(thread => ({
         code: thread.code,
         rgb: thread.rgb,
-        type: 'thread'
+        lab: thread.lab,
+        shimmerLab: thread.shimmerLab,
+        type: 'thread',
+        distance: calculateColorDistance(pantoneColor, thread, matchMethod, factorInShimmer)
     }));
 
-    const threadsWithDistance = allThreads.map(thread => ({
-        ...thread,
-        distance: calculateColorDistance(pantoneColor.rgb, thread.rgb, matchMethod, factorInShimmer)
-    }));
-
-    const sortedThreads = threadsWithDistance.sort((a, b) => a.distance - b.distance);
-    const bestMatches = sortedThreads.slice(0, 4);
+    threadsWithDistance.sort((a, b) => a.distance - b.distance);
+    const bestMatches = threadsWithDistance.slice(0, 4);
 
     if (bestMatches.length > 0) {
         const bestMatch = bestMatches[0];
@@ -368,7 +381,21 @@ function updatePantoneMatches(pantoneColor, threadData, matchMethod, factorInShi
         if (bestMatches.length > 1) {
             pantoneColor.alternativeMatches = bestMatches.slice(1);
         }
+
+        pantoneMatchCache.set(cacheKey, {
+            matchCode: pantoneColor.matchCode,
+            matchRgb: pantoneColor.matchRgb,
+            distance: pantoneColor.distance,
+            matchMethod: pantoneColor.matchMethod,
+            matchType: pantoneColor.matchType,
+            alternativeMatches: pantoneColor.alternativeMatches
+        });
     }
+}
+
+// Clear the pantone match cache (call when method or shimmer setting changes)
+export function clearPantoneMatchCache() {
+    pantoneMatchCache.clear();
 }
 
 // Batch search optimization - process colors in batches
