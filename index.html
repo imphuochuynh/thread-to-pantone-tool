@@ -2656,20 +2656,26 @@
                     <div>
                         <div class="options-group-title">Color Matching Method</div>
                         <div class="method-pill-group" role="radiogroup" aria-label="Color matching method">
-                            <label class="method-pill" title="Calculates Euclidean distance between RGB values. Simple and fast, good for exact color matching.">
+                            <label class="method-pill">
                                 <input type="radio" name="searchColorMatchMethod" value="rgb" checked>
                                 <span class="method-pill-label">RGB</span>
                                 <span class="method-pill-desc">Basic</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">Calculates Euclidean distance between RGB values. Simple and fast, good for exact color matching.</span>
                             </label>
-                            <label class="method-pill" title="Uses CIELAB color space designed to match human perception. Better for finding visually similar colors.">
+                            <label class="method-pill">
                                 <input type="radio" name="searchColorMatchMethod" value="lab">
                                 <span class="method-pill-label">CIELAB</span>
                                 <span class="method-pill-desc">Perceptual</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">Uses CIELAB color space designed to match human perception. Better for finding visually similar colors.</span>
                             </label>
-                            <label class="method-pill" title="Industry-standard Delta E 2000 algorithm. Most accurate perceptual color difference, especially in challenging hue regions.">
+                            <label class="method-pill">
                                 <input type="radio" name="searchColorMatchMethod" value="deltaE2000">
                                 <span class="method-pill-label">Delta E 2000</span>
                                 <span class="method-pill-desc">Advanced</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip">Industry-standard Delta E 2000 algorithm. Most accurate perceptual color difference, especially in challenging hue regions.</span>
                             </label>
                         </div>
                     </div>
