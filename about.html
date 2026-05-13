@@ -172,21 +172,69 @@
             text-decoration: underline;
         }
 
+        * { -webkit-tap-highlight-color: transparent; }
+
+        button:active, a:active { opacity: 0.7; }
+
+        @media (hover: none) {
+            .home-link:hover { transform: none; background: none; }
+        }
+
         @media (max-width: 600px) {
-            h1 {
-                font-size: 1.5em;
-                margin-bottom: 15px;
-                text-align: center;
-                flex: 100%;
-            }
-            
+            body { padding: 12px; line-height: 1.6; }
+
+            .container { padding: 12px; }
+
+            /* Header: single row with home / title / theme toggle */
             .header {
-                justify-content: center;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 20px;
             }
-            
+
+            h1 {
+                font-size: 1.3em;
+                margin: 0;
+                flex: 1;
+                text-align: center;
+            }
+
+            .home-link {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 8px;
+                flex-shrink: 0;
+            }
+
             .theme-switch-wrapper {
-                margin-top: 10px;
+                padding: 6px 10px;
+                flex-shrink: 0;
             }
+
+            h2 { font-size: 1.25em; margin-top: 24px; }
+            h3 { font-size: 1.1em; }
+
+            p, li { font-size: 0.95em; line-height: 1.65; }
+
+            ul, ol { padding-left: 18px; }
+
+            .back-link {
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+                font-size: 1em;
+                padding: 8px 0;
+            }
+        }
+
+        @media (max-width: 400px) {
+            body { padding: 8px; }
+            .container { padding: 8px; }
+            h1 { font-size: 1.1em; }
+            h2 { font-size: 1.1em; }
         }
     </style>
 </head>
