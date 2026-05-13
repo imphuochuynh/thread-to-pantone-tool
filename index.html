@@ -3222,10 +3222,7 @@
                     thread.distance = bestMatch.distance;
                     thread.matchMethod = colorMatchMethod;
                     thread.matchType = 'pantone';
-                    
-                    // Add to recent matches
-                    addToRecentMatches(thread, bestMatch);
-                    
+
                     // Set remaining matches as alternatives
                     if (allMatches.length > 1) {
                         thread.alternativeMatches = allMatches.slice(1, 4);
@@ -3266,10 +3263,7 @@
                     pantone.distance = bestMatch.distance;
                     pantone.matchMethod = colorMatchMethod;
                     pantone.matchType = 'thread';
-                    
-                    // Add to recent matches
-                    addToRecentMatches(pantone, bestMatch);
-                    
+
                     // Set remaining matches as alternatives
                     if (bestMatches.length > 1) {
                         pantone.alternativeMatches = bestMatches.slice(1);
@@ -3869,6 +3863,15 @@
                     setTimeout(() => {
                         currentPage = 1;
                         displayColors(filteredColors, currentPage);
+
+                        // Record a recent match when the user searches an exact color code
+                        const exactMatch = filteredColors.find(c => c.code.toLowerCase() === searchTerm);
+                        if (exactMatch && exactMatch.matchCode && exactMatch.matchRgb) {
+                            addToRecentMatches(
+                                { code: exactMatch.code, type: exactMatch.type, rgb: exactMatch.rgb },
+                                { code: exactMatch.matchCode, type: exactMatch.matchType || (exactMatch.type === 'thread' ? 'pantone' : 'thread'), rgb: exactMatch.matchRgb }
+                            );
+                        }
                     }, 200);
                 }
             }, 500);
@@ -3993,7 +3996,13 @@
                 filteredColors = [customColor];
                 currentPage = 1;
                 displayColors(filteredColors, currentPage);
-                
+
+                // Record this hex search as a recent match
+                addToRecentMatches(
+                    { code: normalizedHex, type: 'custom', rgb: rgb },
+                    { code: closestPantoneColors[0].code, type: 'pantone', rgb: closestPantoneColors[0].rgb }
+                );
+
                 // Show a status message about the matching method used
                 showStatus(`Using ${colorMatchMethod === 'rgb' ? 'RGB (Basic)' : colorMatchMethod === 'lab' ? 'CIELAB (Perceptual)' : 'Delta E 2000 (Advanced)'} color matching`, false, 6000);
             }
@@ -4446,9 +4455,9 @@
             document.querySelectorAll('.color-card').forEach(card => {
                 // Only add pin buttons to Pantone colors or to thread colors that have Pantone matches
                 const colorType = card.dataset.colorType;
-                const hasPantoneMatch = colorType === 'thread' && 
-                                       card.querySelector('.color-match') && 
-                                       card.querySelector('.match-title') && 
+                const hasPantoneMatch = (colorType === 'thread' || colorType === 'custom') &&
+                                       card.querySelector('.color-match') &&
+                                       card.querySelector('.match-title') &&
                                        card.querySelector('.match-title').textContent.includes('Pantone');
                 
                 if (colorType === 'pantone' || hasPantoneMatch) {
@@ -4768,10 +4777,7 @@
                 card.addEventListener('click', function() {
                     const sourceColor = JSON.parse(this.dataset.sourceColor);
                     const matchedColor = JSON.parse(this.dataset.matchedColor);
-                    
-                    // Add to recent matches when an alternative is selected
-                    addToRecentMatches(sourceColor, matchedColor);
-                    
+
                     // Re-run the color match with the source color
                     if (sourceColor.type === 'custom') {
                         // For custom colors, set the hex input and trigger the search
