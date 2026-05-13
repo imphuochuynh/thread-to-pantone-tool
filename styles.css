@@ -10,6 +10,13 @@
     --alternative-bg: #f9f9f9;
 }
 
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
 [data-theme="dark"] {
     --primary-color: #61dafb;
     --background-color: #1a1a1a;
