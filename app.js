@@ -30,6 +30,10 @@ let filteredColors = [];
 let colorMatchMethod = 'rgb';
 let factorInShimmer = false;
 let colorWorker = null;
+let colorMapsBuilt = false;
+let currentRunId = 0;
+let threadMatchMap = null; // Lazy-built Map<threadCode, sortedMatches[]> for O(1) fallback lookup
+const processedMethodKeys = new Set(); // Tracks which method|shimmer combos have been computed
 
 // Initialize Web Worker
 function initWorker() {
@@ -92,6 +96,7 @@ function initTheme() {
     }
 
     themeToggle.addEventListener('change', function() {
+        document.documentElement.classList.add('no-transitions');
         if (this.checked) {
             document.documentElement.setAttribute('data-theme', 'dark');
             setTheme('dark');
@@ -99,6 +104,10 @@ function initTheme() {
             document.documentElement.removeAttribute('data-theme');
             setTheme('light');
         }
+        // Remove after two frames so future hover/UI transitions still animate
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            document.documentElement.classList.remove('no-transitions');
+        }));
     });
 }
 
@@ -224,15 +233,15 @@ async function loadMatchData() {
 }
 
 function processAndDisplayData() {
-    allColors = [...threadData, ...pantoneData];
-    console.log(`Combined ${allColors.length} total colors`);
-
-    // Build hash maps for O(1) lookups
-    buildColorMaps(allColors);
+    if (!colorMapsBuilt) {
+        allColors = [...threadData, ...pantoneData];
+        console.log(`Combined ${allColors.length} total colors`);
+        buildColorMaps(allColors);
+        colorMapsBuilt = true;
+    }
 
     const selectedMethod = document.querySelector('input[name="searchColorMatchMethod"]:checked')?.value || 'rgb';
 
-    // Use batch processing with Web Worker if available
     if (colorWorker) {
         processWithWorker(selectedMethod);
     } else {
@@ -240,14 +249,32 @@ function processAndDisplayData() {
     }
 }
 
+// Store match results on each color object keyed by method|shimmer so switching back is instant
+function cacheMatchResults(method, shimmer) {
+    const methodKey = `${method}|${shimmer}`;
+    allColors.forEach(color => {
+        if (!color._matchCache) color._matchCache = {};
+        color._matchCache[methodKey] = {
+            matchCode: color.matchCode,
+            matchRgb: color.matchRgb,
+            distance: color.distance,
+            matchMethod: color.matchMethod,
+            matchType: color.matchType,
+            alternativeMatches: color.alternativeMatches
+        };
+    });
+    processedMethodKeys.add(methodKey);
+}
+
 function processWithWorker(method) {
     showStatus('Processing color matches (using Web Worker)...', true);
 
+    const runId = ++currentRunId;
     const batchSize = 50;
-    // Single persistent handler replaces the add/remove-per-batch pattern
     let pendingCallback = null;
 
     colorWorker.onmessage = function(e) {
+        if (runId !== currentRunId) return; // Discard results from a superseded run
         if (e.data.type === 'result' && pendingCallback) {
             const cb = pendingCallback;
             pendingCallback = null;
@@ -259,6 +286,7 @@ function processWithWorker(method) {
     };
 
     function processThreadBatches(start) {
+        if (runId !== currentRunId) return;
         if (start >= threadData.length) {
             processPantoneWithWorker(0);
             return;
@@ -292,7 +320,9 @@ function processWithWorker(method) {
     }
 
     function processPantoneWithWorker(start) {
+        if (runId !== currentRunId) return;
         if (start >= pantoneData.length) {
+            cacheMatchResults(method, factorInShimmer);
             filteredColors = allColors;
             displayColors(filteredColors, 1);
             showStatus('Ready', false, 2000);
@@ -332,11 +362,19 @@ function processWithWorker(method) {
 function processWithMainThread(method) {
     showStatus('Processing color matches...', true);
 
+    // Build O(1) lookup map once per session; pantoneToThreadData never changes after load
+    if (!threadMatchMap) {
+        threadMatchMap = new Map();
+        pantoneToThreadData.forEach(m => {
+            if (!threadMatchMap.has(m.threadCode)) threadMatchMap.set(m.threadCode, []);
+            threadMatchMap.get(m.threadCode).push(m);
+        });
+        threadMatchMap.forEach(matches => matches.sort((a, b) => a.distance - b.distance));
+    }
+
     // Enhance thread data with pantone matches
     batchProcessColors(threadData, 100, (thread) => {
-        const matches = pantoneToThreadData
-            .filter(m => m.threadCode === thread.code)
-            .sort((a, b) => a.distance - b.distance);
+        const matches = threadMatchMap.get(thread.code) || [];
 
         const additionalMatches = findClosestColors(thread.rgb, pantoneData, 3, method, factorInShimmer, matches.map(m => m.pantoneCode));
 
@@ -386,6 +424,7 @@ function processPantoneWithMainThread(method) {
         }
     });
 
+    cacheMatchResults(method, factorInShimmer);
     filteredColors = allColors;
     displayColors(filteredColors, 1);
     showStatus('Ready', false, 2000);
@@ -550,8 +589,28 @@ function initColorPicker() {
     });
 }
 
-// Update results when method changes
+// Update results when method or shimmer changes — restores from cache if already computed
 function updateResults() {
+    const methodKey = `${colorMatchMethod}|${factorInShimmer}`;
+
+    if (processedMethodKeys.has(methodKey)) {
+        allColors.forEach(color => {
+            const cached = color._matchCache?.[methodKey];
+            if (cached) {
+                color.matchCode = cached.matchCode;
+                color.matchRgb = cached.matchRgb;
+                color.distance = cached.distance;
+                color.matchMethod = cached.matchMethod;
+                color.matchType = cached.matchType;
+                color.alternativeMatches = cached.alternativeMatches;
+            }
+        });
+        filteredColors = allColors;
+        displayColors(filteredColors, 1);
+        showStatus('Ready', false, 2000);
+        return;
+    }
+
     processAndDisplayData();
 }
 

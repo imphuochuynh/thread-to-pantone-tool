@@ -7,6 +7,7 @@ let currentPage = 1;
 let itemsPerPage = 20;
 let factorInShimmer = false;
 let isLazyLoading = false;
+let currentPageColors = []; // Holds the current page's color objects; avoids JSON per-card
 
 // Lazy loading observer
 let lazyLoadObserver = null;
@@ -32,7 +33,7 @@ export function initLazyLoading() {
 
 // Render individual color card (called when it enters viewport)
 function renderColorCard(cardElement) {
-    const colorData = JSON.parse(cardElement.dataset.colorData);
+    const colorData = currentPageColors[parseInt(cardElement.dataset.colorIndex, 10)];
     cardElement.innerHTML = generateColorCardHTML(colorData);
     cardElement.dataset.lazyLoad = 'false';
 
@@ -211,15 +212,18 @@ export function displayColors(colors, page = 1) {
         showMethodBanner(pageColors[0].matchMethod, pageColors.length === 1 && pageColors[0].type === 'custom');
     }
 
+    // Snapshot current page colors so renderColorCard can look up by index (no JSON per card)
+    currentPageColors = pageColors;
+
     // Create color cards with lazy loading
     const fragment = document.createDocumentFragment();
-    pageColors.forEach(color => {
+    pageColors.forEach((color, i) => {
         const colorDiv = document.createElement('div');
         colorDiv.className = 'color-card';
         colorDiv.dataset.colorCode = color.code;
         colorDiv.dataset.colorType = color.type;
         colorDiv.dataset.lazyLoad = 'true';
-        colorDiv.dataset.colorData = JSON.stringify(color);
+        colorDiv.dataset.colorIndex = i;
 
         // Add placeholder content
         colorDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
